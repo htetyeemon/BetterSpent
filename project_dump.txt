@@ -1,0 +1,701 @@
+Project dump (lib only)
+Root: D:/Mobile App Development/better_spent
+
+=== File list (lib/) ===
+lib/core/router/app_router.dart
+lib/core/router/route_names.dart
+lib/core/theme/app_colors.dart
+lib/core/theme/app_text_styles.dart
+lib/core/widgets/app_toggle_tile.dart
+lib/core/widgets/primary_card.dart
+lib/core/widgets/section_header.dart
+lib/core/widgets/spending_insight_card.dart
+lib/features/expenses/presentation/screens/add_expense_screen.dart
+lib/features/expenses/presentation/screens/edit_expense_screen.dart
+lib/features/expenses/presentation/screens/expense_detail_modal.dart
+lib/features/expenses/presentation/screens/expense_list_screen.dart
+lib/features/expenses/presentation/widgets/category_icon_badge.dart
+lib/features/expenses/presentation/widgets/expense_item_card.dart
+lib/features/home/presentation/screens/home_screen.dart
+lib/features/home/presentation/widgets/home_stat_grid.dart
+lib/features/settings/presentation/screens/settings_screen.dart
+lib/features/settings/presentation/widgets/danger_tile.dart
+lib/features/summary/presentation/screens/summary_screen.dart
+lib/features/summary/presentation/widgets/metric_card.dart
+lib/main.dart
+lib/models/expense.dart
+lib/services/storage/mock_expense_data.dart
+
+=== File contents ===
+
+--- File: lib/core/router/app_router.dart ---
+import 'package:go_router/go_router.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/expenses/presentation/screens/expense_list_screen.dart';
+import 'route_names.dart';
+
+class AppRouter {
+  static final GoRouter router = GoRouter(
+    initialLocation: RouteNames.home.path,
+    routes: [
+      GoRoute(
+        path: RouteNames.home.path,
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.expenseList.path,
+        builder: (context, state) => const ExpenseListScreen(),
+      ),
+    ],
+  );
+}
+
+--- File: lib/core/router/route_names.dart ---
+enum RouteNames { home, expenseList }
+
+extension RouteNamesExtension on RouteNames {
+  String get path {
+    switch (this) {
+      case RouteNames.home:
+        return '/';
+      case RouteNames.expenseList:
+        return '/expenses';
+    }
+  }
+}
+
+--- File: lib/core/theme/app_colors.dart ---
+import 'package:flutter/material.dart';
+
+class AppColors {
+  static const background = Color(0xFF0E0E0E);
+  static const card = Color(0xFF1A1A1A);
+  static const border = Color(0xFF2A2A2A);
+
+  static const primary = Color(0xFF22C55E); // green
+  static const danger = Color(0xFFEF4444);
+
+  static const food = Color(0xFFF97316);
+  static const transport = Color(0xFF3B82F6);
+  static const shopping = Color(0xFFFACC15);
+
+  static const textPrimary = Colors.white;
+  static const textSecondary = Colors.grey;
+}
+
+--- File: lib/core/theme/app_text_styles.dart ---
+import 'package:flutter/material.dart';
+import 'app_colors.dart';
+
+class AppTextStyles {
+  static const heading = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textPrimary,
+  );
+
+  static const sectionTitle = TextStyle(
+    fontSize: 14,
+    letterSpacing: 1,
+    color: AppColors.textSecondary,
+  );
+
+  static const body = TextStyle(fontSize: 16, color: AppColors.textPrimary);
+
+  static const small = TextStyle(fontSize: 13, color: AppColors.textSecondary);
+}
+
+--- File: lib/core/widgets/app_toggle_tile.dart ---
+import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
+
+class AppToggleTile extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const AppToggleTile({
+    super.key,
+    required this.title,
+    this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      title: Text(title, style: AppTextStyles.body),
+      subtitle: subtitle != null
+          ? Text(subtitle!, style: AppTextStyles.small)
+          : null,
+      value: value,
+      activeColor: AppColors.primary,
+      onChanged: onChanged,
+    );
+  }
+}
+
+--- File: lib/core/widgets/primary_card.dart ---
+import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+
+class PrimaryCard extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+
+  const PrimaryCard({super.key, required this.child, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: child,
+      ),
+    );
+  }
+}
+
+--- File: lib/core/widgets/section_header.dart ---
+import 'package:flutter/material.dart';
+import '../theme/app_text_styles.dart';
+
+class SectionHeader extends StatelessWidget {
+  final String title;
+
+  const SectionHeader({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Text(title.toUpperCase(), style: AppTextStyles.sectionTitle),
+    );
+  }
+}
+
+--- File: lib/core/widgets/spending_insight_card.dart ---
+import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
+import 'primary_card.dart';
+
+class SpendingInsightCard extends StatelessWidget {
+  final String message;
+
+  const SpendingInsightCard({super.key, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return PrimaryCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.insights, color: AppColors.primary),
+          const SizedBox(width: 12),
+          Expanded(child: Text(message, style: AppTextStyles.body)),
+        ],
+      ),
+    );
+  }
+}
+
+--- File: lib/features/expenses/presentation/screens/add_expense_screen.dart ---
+import 'package:flutter/material.dart';
+
+class AddExpenseScreen extends StatelessWidget {
+  const AddExpenseScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: Text('Add Expense')));
+  }
+}
+
+--- File: lib/features/expenses/presentation/screens/edit_expense_screen.dart ---
+import 'package:flutter/material.dart';
+
+class EditExpenseScreen extends StatelessWidget {
+  const EditExpenseScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: Text('Edit Expense')));
+  }
+}
+
+--- File: lib/features/expenses/presentation/screens/expense_detail_modal.dart ---
+import 'package:flutter/material.dart';
+
+class ExpenseDetailModal extends StatelessWidget {
+  const ExpenseDetailModal({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
+  }
+}
+
+--- File: lib/features/expenses/presentation/screens/expense_list_screen.dart ---
+import 'package:flutter/material.dart';
+
+class ExpenseListScreen extends StatelessWidget {
+  const ExpenseListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Expense List')),
+      body: const Center(child: Text('Expense List Screen')),
+    );
+  }
+}
+
+--- File: lib/features/expenses/presentation/widgets/category_icon_badge.dart ---
+import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
+
+class CategoryIconBadge extends StatelessWidget {
+  final String category;
+
+  const CategoryIconBadge({super.key, required this.category});
+
+  @override
+  Widget build(BuildContext context) {
+    IconData icon;
+    Color color;
+
+    switch (category) {
+      case 'Food':
+        icon = Icons.restaurant;
+        color = AppColors.food;
+        break;
+      case 'Transport':
+        icon = Icons.directions_car;
+        color = AppColors.transport;
+        break;
+      default:
+        icon = Icons.shopping_bag;
+        color = AppColors.shopping;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(icon, color: color),
+    );
+  }
+}
+
+--- File: lib/features/expenses/presentation/widgets/expense_item_card.dart ---
+import 'package:flutter/material.dart';
+import '../../../../core/widgets/primary_card.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../models/expense.dart';
+import 'category_icon_badge.dart';
+
+class ExpenseItemCard extends StatelessWidget {
+  final Expense expense;
+
+  const ExpenseItemCard({super.key, required this.expense});
+
+  @override
+  Widget build(BuildContext context) {
+    return PrimaryCard(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              CategoryIconBadge(category: expense.category),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(expense.note, style: AppTextStyles.body),
+                  Text(expense.category, style: AppTextStyles.small),
+                ],
+              ),
+            ],
+          ),
+          Text(
+            '\$${expense.amount.toStringAsFixed(2)}',
+            style: AppTextStyles.body,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+--- File: lib/features/home/presentation/screens/home_screen.dart ---
+import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/primary_card.dart';
+import '../../../../core/widgets/spending_insight_card.dart';
+import '../widgets/home_stat_grid.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool isOnline = true;
+  final TextEditingController _controller = TextEditingController();
+
+  String _calculateInsight() {
+    // mock calculation
+    double thisWeek = 850;
+    double lastWeek = 720;
+
+    double difference = thisWeek - lastWeek;
+    double percent = (difference / lastWeek) * 100;
+
+    if (difference > 0) {
+      return "You're spending ${percent.toStringAsFixed(0)}% more than last week.";
+    } else {
+      return "Great job! You spent ${percent.abs().toStringAsFixed(0)}% less than last week.";
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// HEADER
+              Text("BetterSpent", style: AppTextStyles.heading),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Text(
+                    isOnline ? "ONLINE — SMART INPUT" : "OFFLINE — MANUAL MODE",
+                    style: AppTextStyles.small.copyWith(
+                      color: isOnline ? AppColors.primary : Colors.grey,
+                    ),
+                  ),
+                  const Spacer(),
+                  Switch(
+                    value: isOnline,
+                    activeColor: AppColors.primary,
+                    onChanged: (value) {
+                      setState(() {
+                        isOnline = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              /// STAT GRID
+              HomeStatGrid(
+                balance: "\$4,250",
+                income: "\$5,000",
+                maxWeek: "\$1,200",
+                maxDay: "\$170",
+              ),
+
+              const SizedBox(height: 16),
+
+              /// INSIGHT (always shown, calculated locally)
+              SpendingInsightCard(message: _calculateInsight()),
+
+              const SizedBox(height: 16),
+
+              /// EXPENSE INPUT SECTION
+              if (isOnline)
+                PrimaryCard(
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _controller,
+                        style: AppTextStyles.body,
+                        decoration: const InputDecoration(
+                          hintText: "Enter expense (e.g. 50 dinner)",
+                          border: InputBorder.none,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            _controller.clear();
+                          },
+                          child: const Text("Add Expense"),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                PrimaryCard(
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Smart input unavailable offline.",
+                        style: AppTextStyles.body,
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {},
+                          child: const Text("Add Expense Manually"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+--- File: lib/features/home/presentation/widgets/home_stat_grid.dart ---
+import 'package:flutter/material.dart';
+import '../../../../core/widgets/primary_card.dart';
+import '../../../../core/theme/app_text_styles.dart';
+
+class HomeStatGrid extends StatelessWidget {
+  final String balance;
+  final String income;
+  final String maxWeek;
+  final String maxDay;
+
+  const HomeStatGrid({
+    super.key,
+    required this.balance,
+    required this.income,
+    required this.maxWeek,
+    required this.maxDay,
+  });
+
+  Widget _buildItem(String title, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: AppTextStyles.small),
+        const SizedBox(height: 6),
+        Text(value, style: AppTextStyles.heading),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PrimaryCard(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: _buildItem("Balance", balance)),
+              Expanded(child: _buildItem("Income", income)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _buildItem("Max / Week", maxWeek)),
+              Expanded(child: _buildItem("Max / Day", maxDay)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+--- File: lib/features/settings/presentation/screens/settings_screen.dart ---
+import 'package:flutter/material.dart';
+
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: Text('Settings')));
+  }
+}
+
+--- File: lib/features/settings/presentation/widgets/danger_tile.dart ---
+import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+
+class DangerTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const DangerTile({super.key, required this.title, required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(
+        title,
+        style: AppTextStyles.body.copyWith(color: AppColors.danger),
+      ),
+      subtitle: Text(subtitle, style: AppTextStyles.small),
+      trailing: const Icon(Icons.delete, color: AppColors.danger),
+    );
+  }
+}
+
+--- File: lib/features/summary/presentation/screens/summary_screen.dart ---
+import 'package:flutter/material.dart';
+
+class SummaryScreen extends StatelessWidget {
+  const SummaryScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: Text('Summary')));
+  }
+}
+
+--- File: lib/features/summary/presentation/widgets/metric_card.dart ---
+import 'package:flutter/material.dart';
+import '../../../../core/widgets/primary_card.dart';
+import '../../../../core/theme/app_text_styles.dart';
+
+class MetricCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final String subtitle;
+  final Color? valueColor;
+
+  const MetricCard({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: PrimaryCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppTextStyles.small),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: AppTextStyles.heading.copyWith(color: valueColor),
+            ),
+            const SizedBox(height: 4),
+            Text(subtitle, style: AppTextStyles.small),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+--- File: lib/main.dart ---
+import 'package:flutter/material.dart';
+import 'core/router/app_router.dart';
+
+void main() {
+  runApp(const BetterSpentApp());
+}
+
+class BetterSpentApp extends StatelessWidget {
+  const BetterSpentApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      routerConfig: AppRouter.router,
+    );
+  }
+}
+
+--- File: lib/models/expense.dart ---
+class Expense {
+  final String id;
+  final String category;
+  final double amount;
+  final DateTime date;
+  final String note;
+
+  Expense({
+    required this.id,
+    required this.category,
+    required this.amount,
+    required this.date,
+    required this.note,
+  });
+}
+
+--- File: lib/services/storage/mock_expense_data.dart ---
+import '../../models/expense.dart';
+
+final mockExpenses = [
+  Expense(
+    id: '1',
+    category: 'Food',
+    amount: 120.50,
+    date: DateTime.now(),
+    note: 'Dinner',
+  ),
+  Expense(
+    id: '2',
+    category: 'Transport',
+    amount: 45.00,
+    date: DateTime.now(),
+    note: 'Taxi',
+  ),
+  Expense(
+    id: '3',
+    category: 'Shopping',
+    amount: 210.00,
+    date: DateTime.now(),
+    note: 'Clothes',
+  ),
+];
