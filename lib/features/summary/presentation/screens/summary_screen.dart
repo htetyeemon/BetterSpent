@@ -3,14 +3,14 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/bottom_navigation.dart';
-import '../../../../core/widgets/stat_card.dart';
 import '../../../../core/router/route_names.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/period_toggle.dart';
 import '../widgets/category_spending_card.dart';
+import '../widgets/stat_card.dart';
 
 class SummaryScreen extends StatefulWidget {
-  const SummaryScreen({Key? key}) : super(key: key);
+  const SummaryScreen({super.key});
 
   @override
   State<SummaryScreen> createState() => _SummaryScreenState();

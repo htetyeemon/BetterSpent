@@ -4,7 +4,7 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 
 class MonthlySummaryCard extends StatefulWidget {
-  const MonthlySummaryCard({Key? key}) : super(key: key);
+  const MonthlySummaryCard({super.key});
 
   @override
   State<MonthlySummaryCard> createState() => _MonthlySummaryCardState();
@@ -15,26 +15,30 @@ class _MonthlySummaryCardState extends State<MonthlySummaryCard> {
 
   void _previousMonth() {
     setState(() {
-      _selectedMonth = DateTime(
-        _selectedMonth.year,
-        _selectedMonth.month - 1,
-      );
+      _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1);
     });
   }
 
   void _nextMonth() {
     setState(() {
-      _selectedMonth = DateTime(
-        _selectedMonth.year,
-        _selectedMonth.month + 1,
-      );
+      _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1);
     });
   }
 
   String _getMonthYearString() {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return '${months[_selectedMonth.month - 1]} ${_selectedMonth.year}';
   }
@@ -45,8 +49,10 @@ class _MonthlySummaryCardState extends State<MonthlySummaryCard> {
       return (index % 3 == 0) ? 25.0 + (index * 2.5) : 15.0 + (index * 1.5);
     });
 
-    final double monthlyTotal =
-        dailySpending.fold(0.0, (sum, val) => sum + val);
+    final double monthlyTotal = dailySpending.fold(
+      0.0,
+      (sum, val) => sum + val,
+    );
     final double monthlyBudget = 1500.0;
 
     return Container(
@@ -67,10 +73,7 @@ class _MonthlySummaryCardState extends State<MonthlySummaryCard> {
                 onPressed: _previousMonth,
                 color: AppColors.textPrimary,
               ),
-              Text(
-                _getMonthYearString(),
-                style: AppTextStyles.h3,
-              ),
+              Text(_getMonthYearString(), style: AppTextStyles.h3),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
                 onPressed: _nextMonth,
@@ -94,9 +97,7 @@ class _MonthlySummaryCardState extends State<MonthlySummaryCard> {
                   const SizedBox(height: AppConstants.spacingXs),
                   Text(
                     '\$${monthlyTotal.toStringAsFixed(2)}',
-                    style: AppTextStyles.h2.copyWith(
-                      color: AppColors.primary,
-                    ),
+                    style: AppTextStyles.h2.copyWith(color: AppColors.primary),
                   ),
                 ],
               ),

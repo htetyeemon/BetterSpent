@@ -3,7 +3,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../data/help_content.dart';
 
 class HelpInfoSection extends StatelessWidget {
-  const HelpInfoSection({Key? key}) : super(key: key);
+  const HelpInfoSection({super.key});
 
   @override
   Widget build(BuildContext context) {

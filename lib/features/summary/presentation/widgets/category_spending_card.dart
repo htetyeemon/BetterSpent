@@ -3,7 +3,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/category_icon.dart';
-import '../../../../core/widgets/progress_bar.dart';
+import 'progress_bar.dart';
 
 class CategorySpendingCard extends StatelessWidget {
   final String category;
@@ -11,11 +11,11 @@ class CategorySpendingCard extends StatelessWidget {
   final double percentage;
 
   const CategorySpendingCard({
-    Key? key,
+    super.key,
     required this.category,
     required this.amount,
     required this.percentage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
