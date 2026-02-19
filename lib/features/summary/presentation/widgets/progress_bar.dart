@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class CustomProgressBar extends StatelessWidget {
   final double progress; // 0.0 to 1.0
@@ -8,12 +8,12 @@ class CustomProgressBar extends StatelessWidget {
   final Color? backgroundColor;
 
   const CustomProgressBar({
-    Key? key,
+    super.key,
     required this.progress,
     this.color,
     this.height = 8.0,
     this.backgroundColor,
-  }) : super(key: key);
+  });
 
   Color get _progressColor {
     if (color != null) return color!;

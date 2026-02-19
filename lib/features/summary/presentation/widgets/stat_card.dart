@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
-import '../constants/app_text_styles.dart';
-import '../constants/app_constants.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/constants/app_constants.dart';
 
 class StatCard extends StatelessWidget {
   final String label;
@@ -12,14 +12,14 @@ class StatCard extends StatelessWidget {
   final Widget? trailing;
 
   const StatCard({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     this.icon,
     this.iconColor,
     this.valueColor,
     this.trailing,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class StatCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (trailing != null) trailing!,
+              ?trailing,
             ],
           ),
           const SizedBox(height: AppConstants.spacingSm),
