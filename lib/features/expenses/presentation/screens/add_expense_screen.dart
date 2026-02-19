@@ -10,7 +10,7 @@ import '../widgets/category_chip_selector.dart';
 import '../widgets/amount_input_field.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({Key? key}) : super(key: key);
+  const AddExpenseScreen({super.key});
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
@@ -147,9 +147,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
                     /// SAVE BUTTON
                     PrimaryButton(
-                      text: 'SAVE EXPENSE',
+                      text: 'ADD EXPENSE',
                       onPressed: () {
-                        Navigator.pop(context);
+                        context.go(RouteNames.home);
                       },
                     ),
                   ],
