@@ -19,15 +19,15 @@ class IncomeColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
                 'INCOME',
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -35,31 +35,33 @@ class IncomeColumn extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
               ),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => _showIncomeDialog(context),
-                    child: const Icon(
-                      Icons.add,
-                      size: 16,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () => _showEditIncomeDialog(context),
-                    child: const Icon(
-                      Icons.edit_outlined,
-                      size: 16,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
+            ),
+            GestureDetector(
+              onTap: () => _showIncomeDialog(context),
+              child: const Icon(
+                Icons.add,
+                size: 16,
+                color: AppColors.textSecondary,
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => _showEditIncomeDialog(context),
+              child: const Icon(
+                Icons.edit_outlined,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        /// Wrap big amount to prevent overflow
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
             '+$currencySymbol${income.toStringAsFixed(2)}',
             style: const TextStyle(
               fontSize: 28,
@@ -67,16 +69,17 @@ class IncomeColumn extends StatelessWidget {
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Last updated $incomeDate',
-            style: TextStyle(
-              fontSize: 10,
-              color: AppColors.textSecondary.withOpacity(0.5),
-            ),
+        ),
+
+        const SizedBox(height: 4),
+        Text(
+          'Last updated $incomeDate',
+          style: TextStyle(
+            fontSize: 10,
+            color: AppColors.textSecondary.withOpacity(0.5),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

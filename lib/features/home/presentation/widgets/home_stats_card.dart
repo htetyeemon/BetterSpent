@@ -26,7 +26,7 @@ class HomeStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20), // slightly reduced padding
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppConstants.radiusXl),
@@ -36,16 +36,21 @@ class HomeStatsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              _buildStatColumn(
-                'BALANCE',
-                '\$${MockData.mockBalance.toStringAsFixed(2)}',
-                AppColors.textPrimary,
+              Expanded(
+                child: _buildStatColumn(
+                  'BALANCE',
+                  '\$${MockData.mockBalance.toStringAsFixed(2)}',
+                  AppColors.textPrimary,
+                ),
               ),
-              IncomeColumn(
-                currencySymbol: currencySymbol,
-                income: income,
-                incomeDate: incomeDate,
-                onIncomeSaved: onIncomeSaved,
+              const SizedBox(width: 16),
+              Expanded(
+                child: IncomeColumn(
+                  currencySymbol: currencySymbol,
+                  income: income,
+                  incomeDate: incomeDate,
+                  onIncomeSaved: onIncomeSaved,
+                ),
               ),
             ],
           ),
@@ -54,15 +59,20 @@ class HomeStatsCard extends StatelessWidget {
           const SizedBox(height: 24),
           Row(
             children: [
-              BudgetColumn(
-                currencySymbol: currencySymbol,
-                monthlyBudget: monthlyBudget,
-                onBudgetSaved: onBudgetSaved,
+              Expanded(
+                child: BudgetColumn(
+                  currencySymbol: currencySymbol,
+                  monthlyBudget: monthlyBudget,
+                  onBudgetSaved: onBudgetSaved,
+                ),
               ),
-              _buildStatColumn(
-                'MAX SPEND/DAY',
-                '\$${MockData.mockDailyLimit.toStringAsFixed(2)}',
-                AppColors.accent,
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildStatColumn(
+                  'MAX SPEND/DAY',
+                  '\$${MockData.mockDailyLimit.toStringAsFixed(2)}',
+                  AppColors.accent,
+                ),
               ),
             ],
           ),
@@ -72,30 +82,30 @@ class HomeStatsCard extends StatelessWidget {
   }
 
   Widget _buildStatColumn(String label, String value, Color valueColor) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 1.2,
-              color: AppColors.textSecondary,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1.2,
+            color: AppColors.textSecondary,
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
-              color: valueColor,
-            ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 26, // slightly reduced
+            fontWeight: FontWeight.w600,
+            color: valueColor,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

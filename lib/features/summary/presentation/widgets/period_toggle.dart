@@ -50,7 +50,6 @@ class _ToggleButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const _ToggleButton({
-    super.key,
     required this.text,
     required this.isSelected,
     required this.onTap,

@@ -6,8 +6,11 @@ class SecondaryButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const SecondaryButton({Key? key, required this.text, required this.onPressed})
-    : super(key: key);
+  const SecondaryButton({
+    super.key,
+    required this.text,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {

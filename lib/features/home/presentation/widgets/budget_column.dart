@@ -16,34 +16,42 @@ class BudgetColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
                 'MONTHLY BUDGET',
-                style: TextStyle(
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 1.2,
                   color: AppColors.textSecondary,
                 ),
               ),
-              const SizedBox(width: 6),
-              GestureDetector(
-                onTap: () => _showBudgetDialog(context),
-                child: const Icon(
-                  Icons.edit_outlined,
-                  size: 14,
-                  color: AppColors.textSecondary,
-                ),
+            ),
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: () => _showBudgetDialog(context),
+              child: const Icon(
+                Icons.edit_outlined,
+                size: 14,
+                color: AppColors.textSecondary,
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        /// Prevent large amount overflow
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
             '$currencySymbol${monthlyBudget.toStringAsFixed(2)}',
             style: const TextStyle(
               fontSize: 28,
@@ -51,8 +59,8 @@ class BudgetColumn extends StatelessWidget {
               color: AppColors.secondary,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

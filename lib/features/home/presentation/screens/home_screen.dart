@@ -30,23 +30,32 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+
+      // ✅ Properly wrapped bottom nav
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: _currentNavIndex,
+        onTap: (index) {
+          setState(() => _currentNavIndex = index);
+          _navigateToScreen(index);
+        },
+      ),
+
       body: SafeArea(
         child: Column(
           children: [
-            // Header with Logo and Online Toggle
+            // Header
             HomeHeader(
               isOnline: _isOnline,
               onToggle: () => setState(() => _isOnline = !_isOnline),
             ),
 
-            // Scrollable Content
+            // Scrollable content
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Stats Card - Combined Balance, Income, Max Spend
                     HomeStatsCard(
                       currencySymbol: _currencySymbol,
                       income: _income,
@@ -66,13 +75,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Message Card
                     MessageCard(
                       message: MockData.getRandomMotivationalMessage(),
                     ),
                     const SizedBox(height: 20),
 
-                    // Expense Input Card
                     ExpenseInputCard(
                       isOnline: _isOnline,
                       onAddExpenseManually: () {
@@ -81,25 +88,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Daily Streak Card
                     const DailyStreakCardInline(),
                     const SizedBox(height: 20),
 
-                    // Today's Spending Section
                     TodaysSpendingSection(isOnline: _isOnline),
-                    const SizedBox(height: 96), // Bottom padding for nav
+
+                    // Smaller padding (Scaffold handles nav space now)
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
-            ),
-
-            // Bottom Navigation
-            BottomNavigation(
-              currentIndex: _currentNavIndex,
-              onTap: (index) {
-                setState(() => _currentNavIndex = index);
-                _navigateToScreen(index);
-              },
             ),
           ],
         ),
@@ -110,7 +108,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _navigateToScreen(int index) {
     switch (index) {
       case 0:
-        // Already on home
         break;
       case 1:
         context.go(RouteNames.expenses);

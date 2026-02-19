@@ -5,7 +5,7 @@ import '../constants/app_constants.dart';
 class BaseDialog extends StatelessWidget {
   final Widget child;
 
-  const BaseDialog({Key? key, required this.child}) : super(key: key);
+  const BaseDialog({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

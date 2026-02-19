@@ -5,8 +5,7 @@ class CategoryIcon extends StatelessWidget {
   final String category;
   final double size;
 
-  const CategoryIcon({Key? key, required this.category, this.size = 24})
-    : super(key: key);
+  const CategoryIcon({super.key, required this.category, this.size = 24});
 
   IconData _getIconForCategory(String category) {
     switch (category.toUpperCase()) {

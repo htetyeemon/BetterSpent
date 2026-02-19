@@ -14,7 +14,7 @@ class AppTextField extends StatelessWidget {
   final bool autofocus;
 
   const AppTextField({
-    Key? key,
+    super.key,
     this.prefix,
     required this.controller,
     required this.keyboardType,
@@ -23,7 +23,7 @@ class AppTextField extends StatelessWidget {
     this.validator,
     this.style,
     this.autofocus = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,7 @@ class AppTextField extends StatelessWidget {
       ),
       child: Row(
         children: [
-          if (prefix != null) prefix!,
+          ?prefix,
           Expanded(
             child: TextFormField(
               controller: controller,
