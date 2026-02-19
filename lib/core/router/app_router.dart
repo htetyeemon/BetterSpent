@@ -8,11 +8,16 @@ import '../../features/expenses/presentation/screens/add_expense_screen.dart';
 import '../../features/expenses/presentation/screens/edit_expense_screen.dart';
 import '../../features/summary/presentation/screens/summary_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/onboarding/presentation/screens/get_started_screen.dart';
 
 class AppRouter {
-  static final GoRouter router = GoRouter(
-    initialLocation: RouteNames.home,
+  static final GoRouter appRouter = GoRouter(
+    initialLocation: RouteNames.getStarted,
     routes: [
+      GoRoute(
+        path: RouteNames.getStarted,
+        builder: (context, state) => const GetStartedScreen(),
+      ),
       GoRoute(
         path: RouteNames.home,
         builder: (context, state) => const HomeScreen(),

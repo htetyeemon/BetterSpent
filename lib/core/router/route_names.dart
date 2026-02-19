@@ -1,4 +1,7 @@
 class RouteNames {
+  //onboarding
+  static const String getStarted = '/get-started';
+
   // Main Routes
   static const String home = '/';
   static const String expenses = '/expenses';

@@ -11,8 +11,8 @@ class BetterSpentApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      routerConfig: AppRouter.appRouter, // 👈 THIS LINE FIXES IT
       debugShowCheckedModeBanner: false,
-      routerConfig: AppRouter.router,
     );
   }
 }
