@@ -57,7 +57,16 @@ class ExpenseCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '$category  •  $time',
+                      category,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      time,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                       ),

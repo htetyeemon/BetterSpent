@@ -16,7 +16,7 @@ class ExpenseListContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingMd),
+      padding: EdgeInsets.symmetric(horizontal: AppConstants.spacingMd),
       children: [
         if (_showSection('Today'))
           DateSectionWidget(
@@ -57,10 +57,10 @@ class ExpenseListContent extends StatelessWidget {
             ],
           ),
 
-        if (_showSection('This Week'))
+        if (_showSection('Yesterday') || selectedFilter == 'All Time')
           const SizedBox(height: AppConstants.spacingLg),
 
-        if (_showSection('This Week'))
+        if (_showSection('This Week') || selectedFilter == 'All Time')
           DateSectionWidget(
             date: 'Feb 16, 2026',
             expenses: [
@@ -69,22 +69,40 @@ class ExpenseListContent extends StatelessWidget {
                 category: 'FOOD & DRINK',
                 amount: 45.00,
                 time: 'Yesterday, 7:30 PM',
-                onTap: () {},
+                onTap: () => _showExpenseDetail(
+                  context,
+                  name: 'Dinner at Olive Garden',
+                  category: 'FOOD & DRINK',
+                  amount: 45.00,
+                  time: 'Yesterday, 7:30 PM',
+                  note: 'Dinner outing',
+                  icon: Icons.restaurant_outlined,
+                  iconColor: AppColors.accent,
+                ),
               ),
               ExpenseCard(
                 name: 'Gas Station',
                 category: 'TRANSPORT',
                 amount: 50.00,
                 time: 'Yesterday, 6:00 PM',
-                onTap: () {},
+                onTap: () => _showExpenseDetail(
+                  context,
+                  name: 'Gas Station',
+                  category: 'TRANSPORT',
+                  amount: 50.00,
+                  time: 'Yesterday, 6:00 PM',
+                  note: 'Fuel refill',
+                  icon: Icons.local_gas_station_outlined,
+                  iconColor: AppColors.accent,
+                ),
               ),
             ],
           ),
 
-        if (_showSection('This Month'))
+        if (_showSection('This Month') || selectedFilter == 'All Time')
           const SizedBox(height: AppConstants.spacingLg),
 
-        if (_showSection('This Month'))
+        if (_showSection('This Month') || selectedFilter == 'All Time')
           DateSectionWidget(
             date: 'Feb 14, 2026',
             expenses: [
@@ -93,7 +111,16 @@ class ExpenseListContent extends StatelessWidget {
                 category: 'GROCERY',
                 amount: 85.20,
                 time: 'Feb 14, 2:45 PM',
-                onTap: () {},
+                onTap: () => _showExpenseDetail(
+                  context,
+                  name: 'Grocery Shopping',
+                  category: 'GROCERY',
+                  amount: 85.20,
+                  time: 'Feb 14, 2:45 PM',
+                  note: 'Weekly groceries',
+                  icon: Icons.shopping_cart_outlined,
+                  iconColor: AppColors.accent,
+                ),
               ),
             ],
           ),
