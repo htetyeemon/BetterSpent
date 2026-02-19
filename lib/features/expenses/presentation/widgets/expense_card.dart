@@ -28,7 +28,12 @@ class ExpenseCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(AppConstants.spacingMd),
+          padding: const EdgeInsets.only(
+            top: AppConstants.spacingMd,
+            bottom: AppConstants.spacingMd,
+            left: AppConstants.spacingXl,
+            right: AppConstants.spacingXl,
+          ),
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(AppConstants.radiusLg),
@@ -37,7 +42,7 @@ class ExpenseCard extends StatelessWidget {
             children: [
               CategoryIcon(category: category),
 
-              const SizedBox(width: AppConstants.spacingMd),
+              const SizedBox(width: AppConstants.spacingXl),
 
               //Fix overflow by constraining text
               Expanded(
@@ -63,7 +68,7 @@ class ExpenseCard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: AppConstants.spacingMd),
+              const SizedBox(width: AppConstants.spacingXl),
 
               //Prevent amount from causing overflow
               Flexible(

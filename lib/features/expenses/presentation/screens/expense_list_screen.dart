@@ -17,6 +17,7 @@ class ExpenseListScreen extends StatefulWidget {
 class _ExpenseListScreenState extends State<ExpenseListScreen> {
   String _selectedFilter = 'All Time';
   int _currentNavIndex = 1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +50,11 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
               },
             ),
             const SizedBox(height: AppConstants.spacingMd),
-            const Expanded(child: ExpenseListContent()),
+
+            Expanded(
+              child: ExpenseListContent(selectedFilter: _selectedFilter),
+            ),
+
             BottomNavigation(
               currentIndex: _currentNavIndex,
               onTap: (index) {

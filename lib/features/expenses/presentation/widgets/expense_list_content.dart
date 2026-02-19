@@ -9,113 +9,113 @@ import 'expense_detail_dialog.dart';
 import 'delete_expense_dialog.dart';
 
 class ExpenseListContent extends StatelessWidget {
-  const ExpenseListContent({super.key});
+  final String selectedFilter;
+
+  const ExpenseListContent({super.key, required this.selectedFilter});
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingMd),
       children: [
-        DateSectionWidget(
-          date: 'Feb 17, 2026',
-          expenses: [
-            ExpenseCard(
-              name: 'Morning Coffee',
-              category: 'FOOD & DRINK',
-              amount: 4.50,
-              time: 'Today, 8:30 AM',
-              onTap: () => _showExpenseDetail(
-                context,
+        if (_showSection('Today'))
+          DateSectionWidget(
+            date: 'Feb 17, 2026',
+            expenses: [
+              ExpenseCard(
                 name: 'Morning Coffee',
                 category: 'FOOD & DRINK',
                 amount: 4.50,
                 time: 'Today, 8:30 AM',
-                note: 'Coffee at local café',
-                icon: Icons.local_cafe_outlined,
-                iconColor: AppColors.accent,
+                onTap: () => _showExpenseDetail(
+                  context,
+                  name: 'Morning Coffee',
+                  category: 'FOOD & DRINK',
+                  amount: 4.50,
+                  time: 'Today, 8:30 AM',
+                  note: 'Coffee at local café',
+                  icon: Icons.local_cafe_outlined,
+                  iconColor: AppColors.accent,
+                ),
               ),
-            ),
-            ExpenseCard(
-              name: 'Lunch at Subway',
-              category: 'FOOD & DRINK',
-              amount: 12.30,
-              time: 'Today, 12:15 PM',
-              onTap: () => _showExpenseDetail(
-                context,
+              ExpenseCard(
                 name: 'Lunch at Subway',
                 category: 'FOOD & DRINK',
                 amount: 12.30,
                 time: 'Today, 12:15 PM',
-                note: 'Quick lunch break',
-                icon: Icons.restaurant_outlined,
-                iconColor: AppColors.accent,
+                onTap: () => _showExpenseDetail(
+                  context,
+                  name: 'Lunch at Subway',
+                  category: 'FOOD & DRINK',
+                  amount: 12.30,
+                  time: 'Today, 12:15 PM',
+                  note: 'Quick lunch break',
+                  icon: Icons.restaurant_outlined,
+                  iconColor: AppColors.accent,
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppConstants.spacingLg),
-        DateSectionWidget(
-          date: 'Feb 16, 2026',
-          expenses: [
-            ExpenseCard(
-              name: 'Dinner at Olive Garden',
-              category: 'FOOD & DRINK',
-              amount: 45.00,
-              time: 'Yesterday, 7:30 PM',
-              onTap: () => _showExpenseDetail(
-                context,
+            ],
+          ),
+
+        if (_showSection('This Week'))
+          const SizedBox(height: AppConstants.spacingLg),
+
+        if (_showSection('This Week'))
+          DateSectionWidget(
+            date: 'Feb 16, 2026',
+            expenses: [
+              ExpenseCard(
                 name: 'Dinner at Olive Garden',
                 category: 'FOOD & DRINK',
                 amount: 45.00,
                 time: 'Yesterday, 7:30 PM',
-                note: 'Dinner with friends',
-                icon: Icons.restaurant_outlined,
-                iconColor: AppColors.accent,
+                onTap: () {},
               ),
-            ),
-            ExpenseCard(
-              name: 'Gas Station',
-              category: 'TRANSPORT',
-              amount: 50.00,
-              time: 'Yesterday, 6:00 PM',
-              onTap: () => _showExpenseDetail(
-                context,
+              ExpenseCard(
                 name: 'Gas Station',
                 category: 'TRANSPORT',
                 amount: 50.00,
                 time: 'Yesterday, 6:00 PM',
-                note: 'Fuel fill-up',
-                icon: Icons.directions_car_outlined,
-                iconColor: const Color(0xFF0088FF),
+                onTap: () {},
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppConstants.spacingLg),
-        DateSectionWidget(
-          date: 'Feb 14, 2026',
-          expenses: [
-            ExpenseCard(
-              name: 'Grocery Shopping',
-              category: 'GROCERY',
-              amount: 85.20,
-              time: 'Feb 14, 2:45 PM',
-              onTap: () => _showExpenseDetail(
-                context,
+            ],
+          ),
+
+        if (_showSection('This Month'))
+          const SizedBox(height: AppConstants.spacingLg),
+
+        if (_showSection('This Month'))
+          DateSectionWidget(
+            date: 'Feb 14, 2026',
+            expenses: [
+              ExpenseCard(
                 name: 'Grocery Shopping',
                 category: 'GROCERY',
                 amount: 85.20,
                 time: 'Feb 14, 2:45 PM',
-                note: 'Weekly groceries',
-                icon: Icons.shopping_cart_outlined,
-                iconColor: AppColors.primary,
+                onTap: () {},
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+
         const SizedBox(height: AppConstants.spacingXl),
       ],
     );
+  }
+
+  bool _showSection(String sectionType) {
+    if (selectedFilter == 'All Time') return true;
+
+    switch (selectedFilter) {
+      case 'Today':
+        return sectionType == 'Today';
+      case 'This Week':
+        return sectionType == 'This Week';
+      case 'This Month':
+        return sectionType == 'This Month';
+      default:
+        return true;
+    }
   }
 
   void _showExpenseDetail(
