@@ -8,10 +8,10 @@ class PeriodToggle extends StatelessWidget {
   final Function(String) onPeriodChanged;
 
   const PeriodToggle({
-    Key? key,
+    super.key,
     required this.selectedPeriod,
     required this.onPeriodChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +50,11 @@ class _ToggleButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const _ToggleButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.isSelected,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

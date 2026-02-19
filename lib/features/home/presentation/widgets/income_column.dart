@@ -10,12 +10,12 @@ class IncomeColumn extends StatelessWidget {
   final Function(double amount, String date) onIncomeSaved;
 
   const IncomeColumn({
-    Key? key,
+    super.key,
     required this.currencySymbol,
     required this.income,
     required this.incomeDate,
     required this.onIncomeSaved,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

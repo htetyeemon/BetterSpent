@@ -7,10 +7,10 @@ class SmartInputSettingsSection extends StatelessWidget {
   final Function(bool) onAiInputChanged;
 
   const SmartInputSettingsSection({
-    Key? key,
+    super.key,
     required this.aiInputEnabled,
     required this.onAiInputChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,10 +60,7 @@ class SmartInputSettingsSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              ToggleSwitch(
-                value: aiInputEnabled,
-                onChanged: onAiInputChanged,
-              ),
+              ToggleSwitch(value: aiInputEnabled, onChanged: onAiInputChanged),
             ],
           ),
         ),

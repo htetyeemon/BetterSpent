@@ -8,8 +8,7 @@ import '../../../../core/widgets/app_text_field.dart';
 class AmountInputField extends StatelessWidget {
   final TextEditingController controller;
 
-  const AmountInputField({Key? key, required this.controller})
-    : super(key: key);
+  const AmountInputField({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {

@@ -3,16 +3,17 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../../core/widgets/success_snackbar.dart';
 
 class ExpenseInputCard extends StatefulWidget {
   final bool isOnline;
   final VoidCallback onAddExpenseManually;
 
   const ExpenseInputCard({
-    Key? key,
+    super.key,
     required this.isOnline,
     required this.onAddExpenseManually,
-  }) : super(key: key);
+  });
 
   @override
   State<ExpenseInputCard> createState() => _ExpenseInputCardState();
@@ -89,6 +90,9 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
           text: 'Add expense',
           onPressed: () {
             // Parse and add expense
+            if (_inputController.text.trim().isEmpty) return;
+
+            showSuccessSnackBar(context, 'Expense added');
             _inputController.clear();
           },
         ),

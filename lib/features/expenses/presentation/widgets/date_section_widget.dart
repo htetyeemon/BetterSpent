@@ -7,10 +7,10 @@ class DateSectionWidget extends StatelessWidget {
   final List<Widget> expenses;
 
   const DateSectionWidget({
-    Key? key,
+    super.key,
     required this.date,
     required this.expenses,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

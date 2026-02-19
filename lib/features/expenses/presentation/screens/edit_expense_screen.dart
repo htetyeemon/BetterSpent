@@ -11,7 +11,7 @@ import '../widgets/category_chip_selector.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 
 class EditExpenseScreen extends StatefulWidget {
-  const EditExpenseScreen({Key? key}) : super(key: key);
+  const EditExpenseScreen({super.key});
   @override
   State<EditExpenseScreen> createState() => _EditExpenseScreenState();
 }

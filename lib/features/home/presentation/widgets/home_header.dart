@@ -7,8 +7,7 @@ class HomeHeader extends StatelessWidget {
   final bool isOnline;
   final VoidCallback onToggle;
 
-  const HomeHeader({Key? key, required this.isOnline, required this.onToggle})
-    : super(key: key);
+  const HomeHeader({super.key, required this.isOnline, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {

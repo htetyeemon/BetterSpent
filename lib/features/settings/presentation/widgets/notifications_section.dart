@@ -9,12 +9,12 @@ class NotificationsSection extends StatelessWidget {
   final Function(bool) onMotivationalChanged;
 
   const NotificationsSection({
-    Key? key,
+    super.key,
     required this.budgetAlertsEnabled,
     required this.motivationalEnabled,
     required this.onBudgetAlertsChanged,
     required this.onMotivationalChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +45,7 @@ class NotificationsSection extends StatelessWidget {
                 budgetAlertsEnabled,
                 onBudgetAlertsChanged,
               ),
-              Divider(
-                height: 1,
-                thickness: 1,
-                color: AppColors.borderDark,
-              ),
+              Divider(height: 1, thickness: 1, color: AppColors.borderDark),
               _buildNotificationItem(
                 'Motivational messages',
                 'Daily encouragement and tips',

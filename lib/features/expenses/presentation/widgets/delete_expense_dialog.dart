@@ -6,8 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 class DeleteExpenseDialog extends StatelessWidget {
   final VoidCallback onConfirm;
 
-  const DeleteExpenseDialog({Key? key, required this.onConfirm})
-    : super(key: key);
+  const DeleteExpenseDialog({super.key, required this.onConfirm});
 
   @override
   Widget build(BuildContext context) {

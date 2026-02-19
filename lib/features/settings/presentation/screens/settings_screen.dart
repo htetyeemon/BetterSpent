@@ -10,7 +10,7 @@ import '../widgets/data_management_section.dart';
 import '../widgets/help_info_section.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();

@@ -14,14 +14,14 @@ class HomeStatsCard extends StatelessWidget {
   final Function(double amount) onBudgetSaved;
 
   const HomeStatsCard({
-    Key? key,
+    super.key,
     required this.currencySymbol,
     required this.income,
     required this.incomeDate,
     required this.onIncomeSaved,
     required this.monthlyBudget,
     required this.onBudgetSaved,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

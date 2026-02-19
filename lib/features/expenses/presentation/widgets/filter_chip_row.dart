@@ -9,11 +9,11 @@ class FilterChipRow extends StatelessWidget {
   final List<String> filters;
 
   const FilterChipRow({
-    Key? key,
+    super.key,
     required this.selectedFilter,
     required this.onFilterChanged,
     this.filters = const ['All Time', 'Today', 'This Week', 'This Month'],
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

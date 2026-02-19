@@ -9,7 +9,7 @@ import '../widgets/filter_chip_row.dart';
 import '../widgets/expense_list_content.dart';
 
 class ExpenseListScreen extends StatefulWidget {
-  const ExpenseListScreen({Key? key}) : super(key: key);
+  const ExpenseListScreen({super.key});
   @override
   State<ExpenseListScreen> createState() => _ExpenseListScreenState();
 }
@@ -49,9 +49,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
               },
             ),
             const SizedBox(height: AppConstants.spacingMd),
-            const Expanded(
-              child: ExpenseListContent(),
-            ),
+            const Expanded(child: ExpenseListContent()),
             BottomNavigation(
               currentIndex: _currentNavIndex,
               onTap: (index) {

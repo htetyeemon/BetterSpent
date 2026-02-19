@@ -6,7 +6,7 @@ import '../../../../models/mock_data.dart';
 class DailyStreakCardInline extends StatelessWidget {
   final int? streakDays;
 
-  const DailyStreakCardInline({Key? key, this.streakDays}) : super(key: key);
+  const DailyStreakCardInline({super.key, this.streakDays});
 
   @override
   Widget build(BuildContext context) {

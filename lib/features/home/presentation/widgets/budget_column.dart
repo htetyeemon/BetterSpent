@@ -8,11 +8,11 @@ class BudgetColumn extends StatelessWidget {
   final Function(double amount) onBudgetSaved;
 
   const BudgetColumn({
-    Key? key,
+    super.key,
     required this.currencySymbol,
     required this.monthlyBudget,
     required this.onBudgetSaved,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

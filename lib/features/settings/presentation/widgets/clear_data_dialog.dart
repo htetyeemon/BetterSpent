@@ -5,7 +5,7 @@ import '../../../../core/constants/app_text_styles.dart';
 class ClearDataDialog extends StatelessWidget {
   final VoidCallback onConfirm;
 
-  const ClearDataDialog({Key? key, required this.onConfirm}) : super(key: key);
+  const ClearDataDialog({super.key, required this.onConfirm});
 
   @override
   Widget build(BuildContext context) {

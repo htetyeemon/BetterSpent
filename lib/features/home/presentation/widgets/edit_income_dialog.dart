@@ -16,11 +16,11 @@ class EditIncomeDialog extends StatefulWidget {
   final void Function(double amount, String date) onSave;
 
   const EditIncomeDialog({
-    Key? key,
+    super.key,
     required this.currencySymbol,
     required this.initialAmount,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   static void show(
     BuildContext context, {

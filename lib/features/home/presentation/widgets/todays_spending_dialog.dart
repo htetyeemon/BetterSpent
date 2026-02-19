@@ -9,14 +9,13 @@ import '../../../../core/widgets/category_icon.dart';
 class TodaysSpendingDialog extends StatelessWidget {
   final bool isOnline;
 
-  const TodaysSpendingDialog({Key? key, this.isOnline = true})
-    : super(key: key);
+  const TodaysSpendingDialog({super.key, this.isOnline = true});
 
   @override
   Widget build(BuildContext context) {
     final todayExpenses = MockData.getTodayExpenses();
     final total = MockData.calculateTotal(todayExpenses);
-    
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20),
@@ -36,10 +35,12 @@ class TodaysSpendingDialog extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    ...todayExpenses.map((expense) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildExpenseItem(expense),
-                    )),
+                    ...todayExpenses.map(
+                      (expense) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildExpenseItem(expense),
+                      ),
+                    ),
                     const SizedBox(height: 4),
                     _buildTotal(total),
                   ],

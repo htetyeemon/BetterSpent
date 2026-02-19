@@ -8,10 +8,10 @@ class EditExpenseActions extends StatelessWidget {
   final VoidCallback onSave;
 
   const EditExpenseActions({
-    Key? key,
+    super.key,
     required this.onCancel,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,26 +30,18 @@ class EditExpenseActions extends StatelessWidget {
                   vertical: AppConstants.spacingMd,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    AppConstants.radiusLg,
-                  ),
+                  borderRadius: BorderRadius.circular(AppConstants.radiusLg),
                 ),
               ),
               child: const Text(
                 'Cancel',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
           const SizedBox(width: AppConstants.spacingSm),
           Expanded(
-            child: PrimaryButton(
-              text: 'Save Changes',
-              onPressed: onSave,
-            ),
+            child: PrimaryButton(text: 'Save Changes', onPressed: onSave),
           ),
         ],
       ),

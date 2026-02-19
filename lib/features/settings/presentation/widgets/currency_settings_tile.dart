@@ -8,11 +8,11 @@ class CurrencySettingsTile extends StatelessWidget {
   final Function(String name, String symbol) onCurrencySelected;
 
   const CurrencySettingsTile({
-    Key? key,
+    super.key,
     required this.selectedCurrencyName,
     required this.selectedCurrencySymbol,
     required this.onCurrencySelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +88,7 @@ class CurrencySettingsTile extends StatelessWidget {
                 ),
                 child: const Text(
                   'Change',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
               ),
             ],

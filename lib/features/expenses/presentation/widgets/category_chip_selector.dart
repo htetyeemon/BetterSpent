@@ -9,11 +9,11 @@ class CategoryChipSelector extends StatelessWidget {
   final Function(String) onCategorySelected;
 
   const CategoryChipSelector({
-    Key? key,
+    super.key,
     required this.categories,
     required this.selectedCategory,
     required this.onCategorySelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +22,7 @@ class CategoryChipSelector extends StatelessWidget {
       children: [
         Text(
           'CATEGORY',
-          style: AppTextStyles.labelSmall.copyWith(
-            letterSpacing: 1.2,
-          ),
+          style: AppTextStyles.labelSmall.copyWith(letterSpacing: 1.2),
         ),
         const SizedBox(height: AppConstants.spacingSm),
         Wrap(
@@ -41,12 +39,8 @@ class CategoryChipSelector extends StatelessWidget {
                   vertical: AppConstants.spacingSm,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.surface,
-                  borderRadius: BorderRadius.circular(
-                    AppConstants.radiusXl,
-                  ),
+                  color: isSelected ? AppColors.primary : AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppConstants.radiusXl),
                   border: Border.all(
                     color: isSelected
                         ? AppColors.primary
@@ -56,9 +50,7 @@ class CategoryChipSelector extends StatelessWidget {
                 child: Text(
                   category,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: isSelected
-                        ? Colors.black
-                        : AppColors.textPrimary,
+                    color: isSelected ? Colors.black : AppColors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

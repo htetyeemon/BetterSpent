@@ -6,6 +6,7 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../../core/widgets/success_snackbar.dart';
 import '../widgets/category_chip_selector.dart';
 import '../widgets/amount_input_field.dart';
 
@@ -149,6 +150,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     PrimaryButton(
                       text: 'ADD EXPENSE',
                       onPressed: () {
+                        if (_amountController.text.trim().isEmpty) return;
+
+                        showSuccessSnackBar(context, 'Expense added');
+
                         context.go(RouteNames.home);
                       },
                     ),

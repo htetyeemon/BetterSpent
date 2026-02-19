@@ -9,11 +9,11 @@ class MessageCard extends StatelessWidget {
   final bool isWarning;
 
   const MessageCard({
-    Key? key,
+    super.key,
     required this.message,
     this.icon = Icons.lightbulb_outline,
     this.isWarning = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -16,11 +16,11 @@ class AddIncomeDialog extends StatefulWidget {
   final String mode;
 
   const AddIncomeDialog({
-    Key? key,
+    super.key,
     required this.currencySymbol,
     required this.onSave,
     this.mode = 'add',
-  }) : super(key: key);
+  });
 
   static void show(
     BuildContext context, {

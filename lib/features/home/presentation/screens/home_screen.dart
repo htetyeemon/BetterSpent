@@ -12,7 +12,7 @@ import '../widgets/todays_spending_section.dart';
 import '../../../../models/mock_data.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isOnline = true;
   double _income = MockData.mockIncome;
   String _incomeDate = '1-05-2026';
-  String _currencySymbol = '\$';
+  final String _currencySymbol = '\$';
   double _monthlyBudget = 2500.00;
 
   @override
@@ -121,6 +121,40 @@ class _HomeScreenState extends State<HomeScreen> {
       case 3:
         context.go(RouteNames.settings);
         break;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final uri = GoRouterState.of(context).uri;
+    final added = uri.queryParameters['added'];
+
+    if (added == 'true') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.check_circle, color: Colors.green, size: 22),
+                SizedBox(width: 12),
+                Text(
+                  'Expense added',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+            backgroundColor: AppColors.surfaceLight,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      });
     }
   }
 }

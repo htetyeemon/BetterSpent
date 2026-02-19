@@ -9,16 +9,13 @@ import '../../../../core/constants/app_constants.dart';
 class TodaysSpendingSection extends StatelessWidget {
   final bool isOnline;
 
-  const TodaysSpendingSection({
-    Key? key,
-    required this.isOnline,
-  }) : super(key: key);
+  const TodaysSpendingSection({super.key, required this.isOnline});
 
   @override
   Widget build(BuildContext context) {
     final todayExpenses = MockData.getTodayExpenses();
     final displayExpenses = todayExpenses.take(3).toList();
-    
+
     return Column(
       children: [
         // Header
@@ -27,11 +24,7 @@ class TodaysSpendingSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.trending_up,
-                  size: 20,
-                  color: AppColors.textPrimary,
-                ),
+                Icon(Icons.trending_up, size: 20, color: AppColors.textPrimary),
                 const SizedBox(width: 8),
                 const Text(
                   'Today\'s Spending',
@@ -45,10 +38,7 @@ class TodaysSpendingSection extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                TodaysSpendingDialog.show(
-                  context,
-                  isOnline: isOnline,
-                );
+                TodaysSpendingDialog.show(context, isOnline: isOnline);
               },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
@@ -72,7 +62,9 @@ class TodaysSpendingSection extends StatelessWidget {
         ...displayExpenses.asMap().entries.map((entry) {
           final expense = entry.value;
           return Padding(
-            padding: EdgeInsets.only(bottom: entry.key < displayExpenses.length - 1 ? 12 : 0),
+            padding: EdgeInsets.only(
+              bottom: entry.key < displayExpenses.length - 1 ? 12 : 0,
+            ),
             child: _buildExpenseItem(expense),
           );
         }),

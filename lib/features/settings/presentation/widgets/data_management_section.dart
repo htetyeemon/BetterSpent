@@ -3,7 +3,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../widgets/clear_data_dialog.dart';
 
 class DataManagementSection extends StatelessWidget {
-  const DataManagementSection({Key? key}) : super(key: key);
+  const DataManagementSection({super.key});
 
   @override
   Widget build(BuildContext context) {

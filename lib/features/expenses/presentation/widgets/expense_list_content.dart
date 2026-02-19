@@ -9,14 +9,12 @@ import 'expense_detail_dialog.dart';
 import 'delete_expense_dialog.dart';
 
 class ExpenseListContent extends StatelessWidget {
-  const ExpenseListContent({Key? key}) : super(key: key);
+  const ExpenseListContent({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppConstants.spacingMd,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingMd),
       children: [
         DateSectionWidget(
           date: 'Feb 17, 2026',

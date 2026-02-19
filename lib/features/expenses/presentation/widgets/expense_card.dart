@@ -12,13 +12,13 @@ class ExpenseCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const ExpenseCard({
-    Key? key,
+    super.key,
     required this.name,
     required this.category,
     required this.amount,
     this.time,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

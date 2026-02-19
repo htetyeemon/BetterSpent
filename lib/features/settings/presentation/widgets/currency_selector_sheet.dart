@@ -7,10 +7,10 @@ class CurrencySelectorSheet extends StatefulWidget {
   final void Function(String name, String symbol) onCurrencySelected;
 
   const CurrencySelectorSheet({
-    Key? key,
+    super.key,
     required this.selectedCurrency,
     required this.onCurrencySelected,
-  }) : super(key: key);
+  });
 
   @override
   State<CurrencySelectorSheet> createState() => _CurrencySelectorSheetState();

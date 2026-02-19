@@ -15,7 +15,7 @@ class ExpenseDetailDialog extends StatelessWidget {
   final VoidCallback onDelete;
 
   const ExpenseDetailDialog({
-    Key? key,
+    super.key,
     required this.name,
     required this.category,
     required this.amount,
@@ -25,7 +25,7 @@ class ExpenseDetailDialog extends StatelessWidget {
     required this.iconColor,
     required this.onEdit,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
