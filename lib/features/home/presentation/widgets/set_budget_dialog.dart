@@ -232,7 +232,7 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
                         shape: shape,
                       ),
                       child: const Text(
-                        'Save Budget',
+                        'Save',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

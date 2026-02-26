@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/bottom_navigation.dart';
 import '../../../../core/router/route_names.dart';
-import 'package:go_router/go_router.dart';
+
 import '../widgets/smart_input_settings_section.dart';
 import '../widgets/currency_settings_tile.dart';
 import '../widgets/notifications_section.dart';
@@ -18,9 +20,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   int _currentNavIndex = 3;
+
   bool _aiInputEnabled = true;
   bool _budgetAlertsEnabled = true;
   bool _motivationalEnabled = false;
+
   String _selectedCurrencyName = 'Baht';
   String _selectedCurrencySymbol = '฿';
 
@@ -31,35 +35,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
+            // ✅ FIXED HEADER
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  Positioned(
-                    left: 0,
+                  Align(
+                    alignment: Alignment.centerLeft,
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back),
                       onPressed: () => context.go(RouteNames.home),
                       color: AppColors.textPrimary,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
                     ),
                   ),
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        'Settings',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
+                  const Text(
+                    'Settings',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(width: 24),
                 ],
               ),
             ),
@@ -69,7 +66,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
                 children: [
-                  // Smart Input Settings
                   SmartInputSettingsSection(
                     aiInputEnabled: _aiInputEnabled,
                     onAiInputChanged: (value) {
@@ -78,7 +74,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Currency Settings
                   CurrencySettingsTile(
                     selectedCurrencyName: _selectedCurrencyName,
                     selectedCurrencySymbol: _selectedCurrencySymbol,
@@ -91,7 +86,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Notifications
                   NotificationsSection(
                     budgetAlertsEnabled: _budgetAlertsEnabled,
                     motivationalEnabled: _motivationalEnabled,
@@ -104,11 +98,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Data Management
                   const DataManagementSection(),
                   const SizedBox(height: 24),
 
-                  // Help & Info
                   const HelpInfoSection(),
                 ],
               ),
@@ -140,7 +132,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         context.go(RouteNames.summary);
         break;
       case 3:
-        // Already on settings
         break;
     }
   }

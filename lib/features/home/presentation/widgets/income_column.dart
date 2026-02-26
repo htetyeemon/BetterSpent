@@ -29,7 +29,7 @@ class IncomeColumn extends StatelessWidget {
                 'INCOME',
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 1.2,
                   color: AppColors.textSecondary,

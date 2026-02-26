@@ -167,7 +167,7 @@ class _AddIncomeDialogState extends State<AddIncomeDialog> {
                 const SizedBox(width: AppConstants.spacingSm),
                 Expanded(
                   child: PrimaryButton(
-                    text: _isAdd ? 'Add Income' : 'Update Income',
+                    text: _isAdd ? 'Add' : 'Update',
                     onPressed: _submit,
                   ),
                 ),

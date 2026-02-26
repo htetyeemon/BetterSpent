@@ -26,7 +26,7 @@ class HomeStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20), // slightly reduced padding
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppConstants.radiusXl),
@@ -34,7 +34,9 @@ class HomeStatsCard extends StatelessWidget {
       ),
       child: Column(
         children: [
+          /// Top Row (Balance + Income)
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: _buildStatColumn(
@@ -54,10 +56,14 @@ class HomeStatsCard extends StatelessWidget {
               ),
             ],
           ),
+
           const SizedBox(height: 24),
           Container(height: 1, color: AppColors.borderDark),
           const SizedBox(height: 24),
+
+          /// Bottom Row (Budget + Max Spend)
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: BudgetColumn(
@@ -85,26 +91,36 @@ class HomeStatsCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        /// Label
         Text(
           label,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: FontWeight.w500,
             letterSpacing: 1.2,
             color: AppColors.textSecondary,
           ),
         ),
+
         const SizedBox(height: 8),
-        Text(
-          value,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 26, // slightly reduced
-            fontWeight: FontWeight.w600,
-            color: valueColor,
+
+        /// Value (now consistent with Income & Budget)
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 28, // unified font size
+              fontWeight: FontWeight.w600,
+              color: valueColor,
+            ),
           ),
         ),
+
+        /// Spacer to match IncomeColumn height visually
+        const SizedBox(height: 14),
       ],
     );
   }

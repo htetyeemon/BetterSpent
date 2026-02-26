@@ -27,7 +27,7 @@ class BudgetColumn extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 1.2,
                   color: AppColors.textSecondary,
