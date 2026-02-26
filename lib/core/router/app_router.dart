@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import 'route_names.dart';
@@ -14,36 +15,49 @@ class AppRouter {
   static final GoRouter appRouter = GoRouter(
     initialLocation: RouteNames.getStarted,
     routes: [
-      GoRoute(
+      _noTransitionRoute(
         path: RouteNames.getStarted,
-        builder: (context, state) => const GetStartedScreen(),
+        child: const GetStartedScreen(),
       ),
-      GoRoute(
-        path: RouteNames.home,
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
+
+      _noTransitionRoute(path: RouteNames.home, child: const HomeScreen()),
+      _noTransitionRoute(
         path: RouteNames.expenses,
-        builder: (context, state) => const ExpenseListScreen(),
+        child: const ExpenseListScreen(),
       ),
-      GoRoute(
+
+      _noTransitionRoute(
         path: RouteNames.addExpense,
-        builder: (context, state) => const AddExpenseScreen(),
+        child: const AddExpenseScreen(),
       ),
-      GoRoute(
+
+      _noTransitionRoute(
         path: RouteNames.editExpense,
-        builder: (context, state) => const EditExpenseScreen(),
+        child: const EditExpenseScreen(),
       ),
-      GoRoute(
+
+      _noTransitionRoute(
         path: RouteNames.summary,
-        builder: (context, state) => const SummaryScreen(),
+        child: const SummaryScreen(),
       ),
-      GoRoute(
+
+      _noTransitionRoute(
         path: RouteNames.settings,
-        builder: (context, state) => const SettingsScreen(),
+        child: const SettingsScreen(),
       ),
     ],
   );
+
+  static GoRoute _noTransitionRoute({
+    required String path,
+    required Widget child,
+  }) {
+    return GoRoute(
+      path: path,
+      pageBuilder: (context, state) =>
+          NoTransitionPage<void>(key: state.pageKey, child: child),
+    );
+  }
 
   AppRouter._();
 }
