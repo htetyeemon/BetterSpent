@@ -18,14 +18,15 @@ class BudgetColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: [
             Expanded(
               child: Text(
                 'MONTHLY BUDGET',
-                overflow: TextOverflow.ellipsis,
                 maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -34,7 +35,6 @@ class BudgetColumn extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 6),
             GestureDetector(
               onTap: () => _showBudgetDialog(context),
               child: const Icon(
@@ -45,9 +45,9 @@ class BudgetColumn extends StatelessWidget {
             ),
           ],
         ),
+
         const SizedBox(height: 8),
 
-        /// Prevent large amount overflow
         FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,

@@ -22,6 +22,7 @@ class IncomeColumn extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        /// LABEL + ACTIONS
         Row(
           children: [
             const Expanded(
@@ -55,9 +56,10 @@ class IncomeColumn extends StatelessWidget {
             ),
           ],
         ),
+
         const SizedBox(height: 8),
 
-        /// Wrap big amount to prevent overflow
+        /// VALUE
         FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
@@ -72,6 +74,8 @@ class IncomeColumn extends StatelessWidget {
         ),
 
         const SizedBox(height: 4),
+
+        /// BOTTOM TEXT
         Text(
           'Last updated $incomeDate',
           style: TextStyle(
