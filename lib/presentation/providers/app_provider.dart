@@ -16,13 +16,17 @@ import '../../domain/usecases/get_daily_streak_use_case.dart';
 import '../../data/repositories_impl/expense_repository_impl.dart';
 import '../../data/repositories_impl/financial_profile_repository_impl.dart';
 import '../../data/repositories_impl/user_settings_repository_impl.dart';
+import '../../data/datasources/auth_service.dart';
 
 class AppProvider extends ChangeNotifier {
+  final AuthService _authService = AuthService();
+
   // State
   bool _isInitialized = false;
   bool _isOnline = true;
   String? _uid;
   String? _error;
+  bool _isGoogleSignInLoading = false;
 
   List<Expense> _expenses = [];
   FinancialProfile _profile =
@@ -51,6 +55,9 @@ class AppProvider extends ChangeNotifier {
   bool get isOnline => _isOnline;
   String? get uid => _uid;
   String? get error => _error;
+  bool get isGoogleSignInLoading => _isGoogleSignInLoading;
+  bool get isAnonymous => _authService.isAnonymous;
+  bool get isGoogleUser => _authService.isGoogleUser;
   List<Expense> get expenses => _expenses;
   FinancialProfile get profile => _profile;
   UserSettings get settings => _settings;
@@ -80,11 +87,9 @@ class AppProvider extends ChangeNotifier {
       _isOnline = connectivity.any((r) => r != ConnectivityResult.none);
 
       // Sign in anonymously if not already authenticated
-      final auth = FirebaseAuth.instance;
-      User? user = auth.currentUser;
+      User? user = _authService.currentUser;
       if (user == null) {
-        final result = await auth.signInAnonymously();
-        user = result.user;
+        user = await _authService.signInAnonymously();
       }
       _uid = user?.uid;
 
@@ -161,6 +166,38 @@ class AppProvider extends ChangeNotifier {
     _profile = const FinancialProfile(income: 0, monthlyBudget: 0);
     _settings = const UserSettings();
     notifyListeners();
+  }
+
+  Future<void> signInWithGoogle() async {
+    _isGoogleSignInLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final user = await _authService.linkAnonymousWithGoogle();
+      _uid = user?.uid;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    } finally {
+      _isGoogleSignInLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> signOut() async {
+    await _authService.signOut();
+    _uid = null;
+    _expenses = [];
+    _profile = const FinancialProfile(income: 0, monthlyBudget: 0);
+    _settings = const UserSettings();
+    _expenseSub?.cancel();
+    _profileSub?.cancel();
+    _settingsSub?.cancel();
+    notifyListeners();
+    // Re-initialize with anonymous sign-in
+    await initialize();
   }
 
   @override

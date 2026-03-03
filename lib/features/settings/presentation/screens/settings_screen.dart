@@ -12,6 +12,7 @@ import '../widgets/currency_settings_tile.dart';
 import '../widgets/notifications_section.dart';
 import '../widgets/data_management_section.dart';
 import '../widgets/help_info_section.dart';
+import '../widgets/account_section.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -109,6 +110,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   DataManagementSection(
                     onClearData: () => provider.clearAllData(),
                   ),
+                  const SizedBox(height: 24),
+
+                  const AccountSection(),
                   const SizedBox(height: 24),
 
                   const HelpInfoSection(),
