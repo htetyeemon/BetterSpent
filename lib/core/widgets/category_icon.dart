@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
+import '../utils/category_helper.dart';
 
 class CategoryIcon extends StatelessWidget {
   final String category;
@@ -7,43 +8,47 @@ class CategoryIcon extends StatelessWidget {
 
   const CategoryIcon({super.key, required this.category, this.size = 24});
 
-  IconData _getIconForCategory(String category) {
-    switch (category.toUpperCase()) {
-      case 'FOOD & DRINK':
+  static IconData iconForCategory(String category) {
+    switch (CategoryHelper.normalizeLabel(category)) {
+      case 'Food & Drink':
         return Icons.restaurant_outlined;
-      case 'TRANSPORT':
+      case 'Transport':
         return Icons.directions_car_outlined;
-      case 'SHOPPING':
+      case 'Shopping':
         return Icons.shopping_bag_outlined;
-      case 'ENTERTAINMENT':
+      case 'Entertainment':
         return Icons.movie_outlined;
-      case 'BILLS':
+      case 'Bills':
         return Icons.receipt_outlined;
-      case 'GROCERY':
+      case 'Grocery':
         return Icons.shopping_cart_outlined;
-      case 'HEALTH':
+      case 'Health':
         return Icons.favorite_outline;
+      case 'Other':
+        return Icons.category_outlined;
       default:
         return Icons.category_outlined;
     }
   }
 
-  Color _getColorForCategory(String category) {
-    switch (category.toUpperCase()) {
-      case 'FOOD & DRINK':
+  static Color colorForCategory(String category) {
+    switch (CategoryHelper.normalizeLabel(category)) {
+      case 'Food & Drink':
         return AppColors.primary;
-      case 'TRANSPORT':
+      case 'Transport':
         return AppColors.secondary;
-      case 'SHOPPING':
+      case 'Shopping':
         return AppColors.accent;
-      case 'ENTERTAINMENT':
+      case 'Entertainment':
         return AppColors.primary;
-      case 'BILLS':
+      case 'Bills':
         return AppColors.error;
-      case 'GROCERY':
+      case 'Grocery':
         return AppColors.primary;
-      case 'HEALTH':
+      case 'Health':
         return AppColors.error;
+      case 'Other':
+        return AppColors.textSecondary;
       default:
         return AppColors.textSecondary;
     }
@@ -52,9 +57,9 @@ class CategoryIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Icon(
-      _getIconForCategory(category),
+      iconForCategory(category),
       size: size,
-      color: _getColorForCategory(category),
+      color: colorForCategory(category),
     );
   }
 }

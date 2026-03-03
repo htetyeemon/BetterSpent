@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/expense.dart';
+import '../../core/utils/category_helper.dart';
 
 class ExpenseFirestoreModel {
   final String id;
@@ -23,7 +24,7 @@ class ExpenseFirestoreModel {
     return ExpenseFirestoreModel(
       id: doc.id,
       amount: (data['amount'] as num).toDouble(),
-      category: data['category'] as String,
+      category: CategoryHelper.normalizeLabel((data['category'] as String?) ?? ''),
       date: data['date'] as Timestamp,
       note: (data['note'] as String?) ?? '',
     );
@@ -42,7 +43,7 @@ class ExpenseFirestoreModel {
     return ExpenseFirestoreModel(
       id: expense.id,
       amount: expense.amount,
-      category: expense.category,
+      category: CategoryHelper.normalizeLabel(expense.category),
       date: Timestamp.fromDate(expense.date),
       note: expense.note,
     );

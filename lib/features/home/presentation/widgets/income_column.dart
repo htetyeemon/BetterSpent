@@ -6,14 +6,12 @@ import 'edit_income_dialog.dart';
 class IncomeColumn extends StatelessWidget {
   final String currencySymbol;
   final double income;
-  final String incomeDate;
-  final Function(double amount, String date) onIncomeSaved;
+  final void Function(double amount) onIncomeSaved;
 
   const IncomeColumn({
     super.key,
     required this.currencySymbol,
     required this.income,
-    required this.incomeDate,
     required this.onIncomeSaved,
   });
 
@@ -73,16 +71,6 @@ class IncomeColumn extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 4),
-
-        /// BOTTOM TEXT
-        Text(
-          'Last updated $incomeDate',
-          style: TextStyle(
-            fontSize: 10,
-            color: AppColors.textSecondary.withOpacity(0.5),
-          ),
-        ),
       ],
     );
   }

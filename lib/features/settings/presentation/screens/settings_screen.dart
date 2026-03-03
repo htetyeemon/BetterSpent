@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/bottom_navigation.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../presentation/providers/app_provider.dart';
@@ -85,7 +87,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+              padding: const EdgeInsets.fromLTRB(
+                AppConstants.spacingLg,
+                AppConstants.spacingLg,
+                AppConstants.spacingLg,
+                AppConstants.spacingLg,
+              ),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -99,11 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const Text(
                     'Settings',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: AppTextStyles.h2,
                   ),
                 ],
               ),
@@ -112,7 +115,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Content
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
+                padding: const EdgeInsets.fromLTRB(
+                  AppConstants.spacingLg,
+                  0,
+                  AppConstants.spacingLg,
+                  AppConstants.spacingXl * 3,
+                ),
                 children: [
                   SmartInputSettingsSection(
                     aiInputEnabled: settings.aiInputEnabled,
@@ -122,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppConstants.spacingLg),
 
                   CurrencySettingsTile(
                     selectedCurrencyCode: settings.currency,
@@ -134,7 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppConstants.spacingLg),
 
                   NotificationsSection(
                     budgetAlertsEnabled: settings.budgetWarningEnabled,
@@ -150,15 +158,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppConstants.spacingLg),
 
                   DataManagementSection(
                     onClearData: () => provider.clearAllData(),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppConstants.spacingLg),
 
                   const AccountSection(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppConstants.spacingLg),
 
                   const HelpInfoSection(),
                 ],

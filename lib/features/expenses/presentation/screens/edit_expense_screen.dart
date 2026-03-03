@@ -5,6 +5,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/category_helper.dart';
 import '../widgets/edit_expense_actions.dart';
 import '../widgets/amount_input_field.dart';
 import '../widgets/category_chip_selector.dart';
@@ -26,14 +27,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
   Expense? _originalExpense;
   bool _initializedFromExtra = false;
 
-  final List<String> _categories = [
-    'Food & Drink',
-    'Transport',
-    'Shopping',
-    'Entertainment',
-    'Bills',
-    'Other',
-  ];
+  final List<String> _categories = AppConstants.expenseCategories;
 
   @override
   void didChangeDependencies() {
@@ -47,9 +41,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
       _amountController.text = extra.amount.toStringAsFixed(2);
       _noteController.text = extra.note;
       _selectedDate = extra.date;
-      _selectedCategory = _categories.contains(extra.category)
-          ? extra.category
-          : 'Other';
+      _selectedCategory = CategoryHelper.normalizeLabel(extra.category);
     }
   }
 
@@ -168,7 +160,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
 
                 final updated = original.copyWith(
                   amount: amount,
-                  category: _selectedCategory,
+                  category: CategoryHelper.normalizeLabel(_selectedCategory),
                   date: _selectedDate,
                   note: _noteController.text.trim(),
                 );

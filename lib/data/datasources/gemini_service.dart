@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import '../../core/constants/app_constants.dart';
+import '../../core/utils/category_helper.dart';
 
 class ParsedExpenseInput {
   final double amount;
@@ -28,14 +30,7 @@ class GeminiService {
     'gemini-pro',
   ];
 
-  static const List<String> _allowedCategories = [
-    'Food & Drink',
-    'Transport',
-    'Shopping',
-    'Entertainment',
-    'Bills',
-    'Other',
-  ];
+  static const List<String> _allowedCategories = AppConstants.expenseCategories;
 
   String get _apiKey {
     final key = dotenv.env['GEMINI_API_KEY'];
@@ -164,9 +159,7 @@ Rules:
       final categoryRaw = (raw['category'] as String?)?.trim();
       final noteRaw = (raw['note'] as String?)?.trim();
       final dateRaw = (raw['date'] as String?)?.trim();
-      final category = _allowedCategories.contains(categoryRaw)
-          ? categoryRaw!
-          : 'Other';
+      final category = CategoryHelper.normalizeLabel(categoryRaw ?? '');
       final date = _parseIsoDateOrNow(dateRaw) ?? now;
 
       parsedExpenses.add(

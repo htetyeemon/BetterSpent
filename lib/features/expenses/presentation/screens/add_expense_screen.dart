@@ -7,6 +7,8 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../../core/widgets/success_snackbar.dart';
+import '../../../../core/utils/category_helper.dart';
 import '../widgets/category_chip_selector.dart';
 import '../widgets/amount_input_field.dart';
 import '../../../../domain/entities/expense.dart';
@@ -23,17 +25,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
 
-  String _selectedCategory = 'Food & Drink';
+  String _selectedCategory = AppConstants.expenseCategories.first;
   DateTime _selectedDate = DateTime.now();
 
-  final List<String> _categories = [
-    'Food & Drink',
-    'Transport',
-    'Shopping',
-    'Entertainment',
-    'Bills',
-    'Other',
-  ];
+  final List<String> _categories = AppConstants.expenseCategories;
 
   @override
   void dispose() {
@@ -153,22 +148,46 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                       text: 'ADD EXPENSE',
                       onPressed: () async {
                         if (_amountController.text.trim().isEmpty) return;
-                        final amount = double.tryParse(_amountController.text.trim());
+                        final amount = double.tryParse(
+                          _amountController.text.trim(),
+                        );
                         if (amount == null) return;
 
                         final expense = Expense(
                           id: '',
                           amount: amount,
-                          category: _selectedCategory,
+                          category: CategoryHelper.normalizeLabel(
+                            _selectedCategory,
+                          ),
                           date: _selectedDate,
                           note: _noteController.text.trim(),
                         );
 
                         final provider = context.read<AppProvider>();
-                        await provider.addExpense(expense);
-
-                        if (context.mounted) {
-                          context.go('${RouteNames.home}?added=true');
+                        try {
+                          await provider.addExpense(expense);
+                          if (!context.mounted) return;
+                          context.go(RouteNames.home);
+                          showSuccessSnackBar(
+                            context,
+                            'Expense added successfully',
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          if (!provider.isOnline) {
+                            context.go(RouteNames.home);
+                            showSuccessSnackBar(
+                              context,
+                              'Expense added successfully',
+                            );
+                            return;
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to add expense: $e'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
                         }
                       },
                     ),

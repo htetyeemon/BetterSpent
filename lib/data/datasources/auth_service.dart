@@ -20,9 +20,20 @@ class AuthService {
 
   Future<User?> signInWithGoogle() async {
     if (kIsWeb) {
-      final provider = GoogleAuthProvider();
-      final result = await _auth.signInWithPopup(provider);
-      return result.user;
+      final provider = GoogleAuthProvider()
+        ..setCustomParameters({'prompt': 'select_account'});
+      try {
+        final result = await _auth.signInWithPopup(provider);
+        return result.user;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'popup-blocked' ||
+            e.code == 'operation-not-supported-in-this-environment') {
+          throw Exception(
+            'Google sign-in popup was blocked. Please allow popups and open the app in a regular browser tab.',
+          );
+        }
+        rethrow;
+      }
     }
 
     final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -47,15 +58,33 @@ class AuthService {
     }
 
     if (kIsWeb) {
-      final provider = GoogleAuthProvider();
+      final provider = GoogleAuthProvider()
+        ..setCustomParameters({'prompt': 'select_account'});
       try {
         final result = await currentUser.linkWithPopup(provider);
         return result.user;
       } on FirebaseAuthException catch (e) {
         if (e.code == 'credential-already-in-use' ||
             e.code == 'email-already-in-use') {
-          final result = await _auth.signInWithPopup(provider);
-          return result.user;
+          try {
+            final result = await _auth.signInWithPopup(provider);
+            return result.user;
+          } on FirebaseAuthException catch (popupError) {
+            if (popupError.code == 'popup-blocked' ||
+                popupError.code ==
+                    'operation-not-supported-in-this-environment') {
+              throw Exception(
+                'Google sign-in popup was blocked. Please allow popups and open the app in a regular browser tab.',
+              );
+            }
+            rethrow;
+          }
+        }
+        if (e.code == 'popup-blocked' ||
+            e.code == 'operation-not-supported-in-this-environment') {
+          throw Exception(
+            'Google sign-in popup was blocked. Please allow popups and open the app in a regular browser tab.',
+          );
         }
         rethrow;
       }

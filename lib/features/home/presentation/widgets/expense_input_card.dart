@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/category_helper.dart';
 import '../../../../core/widgets/success_snackbar.dart';
 import '../../../../data/datasources/gemini_service.dart';
 import '../../../../domain/entities/expense.dart';
@@ -79,7 +80,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
             (aiParsed) => Expense(
               id: '',
               amount: aiParsed.amount,
-              category: aiParsed.category,
+              category: CategoryHelper.normalizeLabel(aiParsed.category),
               date: aiParsed.date,
               note: aiParsed.note,
             ),

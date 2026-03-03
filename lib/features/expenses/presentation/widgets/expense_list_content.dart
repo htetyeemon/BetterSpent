@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../core/widgets/category_icon.dart';
+import '../../../../core/utils/category_helper.dart';
 import '../../../../domain/entities/expense.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import 'expense_card.dart';
@@ -101,12 +103,12 @@ class ExpenseListContent extends StatelessWidget {
     ExpenseDetailDialog.show(
       context,
       name: expense.note.isNotEmpty ? expense.note : expense.category,
-      category: expense.category.toUpperCase(),
+      category: CategoryHelper.normalizeLabel(expense.category).toUpperCase(),
       amount: expense.amount,
       time: DateFormat('MMM d, h:mm a').format(expense.date),
       note: expense.note,
-      categoryIcon: Icons.category_outlined,
-      iconColor: AppColors.accent,
+      categoryIcon: CategoryIcon.iconForCategory(expense.category),
+      iconColor: CategoryIcon.colorForCategory(expense.category),
       onEdit: () => context.push(RouteNames.editExpense, extra: expense),
       onDelete: () => DeleteExpenseDialog.show(
         context,

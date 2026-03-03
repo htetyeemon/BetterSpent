@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/utils/date_helper.dart';
 import '../../../../core/widgets/base_dialog.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/secondary_button.dart';
@@ -12,7 +11,7 @@ import '../../../../core/widgets/app_text_field.dart';
 
 class AddIncomeDialog extends StatefulWidget {
   final String currencySymbol;
-  final void Function(double amount, String date) onSave;
+  final void Function(double amount) onSave;
   final String mode;
 
   const AddIncomeDialog({
@@ -25,7 +24,7 @@ class AddIncomeDialog extends StatefulWidget {
   static void show(
     BuildContext context, {
     required String currencySymbol,
-    required void Function(double amount, String date) onSave,
+    required void Function(double amount) onSave,
     String mode = 'add',
   }) {
     showDialog(
@@ -59,9 +58,7 @@ class _AddIncomeDialogState extends State<AddIncomeDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     final amount = double.parse(_controller.text);
-    final date = DateHelper.formatDate(DateTime.now());
-
-    widget.onSave(amount, date);
+    widget.onSave(amount);
     Navigator.pop(context);
   }
 

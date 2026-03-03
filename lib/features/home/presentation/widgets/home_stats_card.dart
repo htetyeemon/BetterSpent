@@ -9,16 +9,14 @@ import '../../../../presentation/providers/app_provider.dart';
 class HomeStatsCard extends StatelessWidget {
   final String currencySymbol;
   final double income;
-  final String incomeDate;
-  final Function(double amount, String date) onIncomeSaved;
+  final void Function(double amount) onIncomeSaved;
   final double monthlyBudget;
-  final Function(double amount) onBudgetSaved;
+  final void Function(double amount) onBudgetSaved;
 
   const HomeStatsCard({
     super.key,
     required this.currencySymbol,
     required this.income,
-    required this.incomeDate,
     required this.onIncomeSaved,
     required this.monthlyBudget,
     required this.onBudgetSaved,
@@ -31,7 +29,10 @@ class HomeStatsCard extends StatelessWidget {
     final maxSpendPerDay = provider.maxSpendPerDay;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppConstants.spacingLg,
+        vertical: AppConstants.spacingMd,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppConstants.radiusXl),
@@ -51,21 +52,20 @@ class HomeStatsCard extends StatelessWidget {
                   AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppConstants.spacingMd),
               Expanded(
                 child: IncomeColumn(
                   currencySymbol: currencySymbol,
                   income: income,
-                  incomeDate: incomeDate,
                   onIncomeSaved: onIncomeSaved,
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: AppConstants.spacingLg),
           Container(height: 1, color: AppColors.borderDark),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppConstants.spacingLg),
 
           /// BOTTOM ROW
           Row(
@@ -79,7 +79,7 @@ class HomeStatsCard extends StatelessWidget {
                   onBudgetSaved: onBudgetSaved,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppConstants.spacingMd),
               Expanded(
                 child: _buildStatColumn(
                   'MAX SPEND/DAY',

@@ -29,14 +29,14 @@ class AppConstants {
 
   // Expense Categories
   static const List<String> expenseCategories = [
-    'FOOD & DRINK',
-    'TRANSPORT',
-    'SHOPPING',
-    'ENTERTAINMENT',
-    'BILLS',
-    'GROCERY',
-    'HEALTH',
-    'OTHER',
+    'Food & Drink',
+    'Transport',
+    'Shopping',
+    'Entertainment',
+    'Bills',
+    'Grocery',
+    'Health',
+    'Other',
   ];
 
   // Default Values

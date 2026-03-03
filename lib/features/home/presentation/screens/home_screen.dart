@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/bottom_navigation.dart';
 import '../../../../core/router/route_names.dart';
-import '../../../../core/utils/date_helper.dart';
 import '../widgets/message_card.dart';
 import '../widgets/expense_input_card.dart';
 import '../widgets/home_header.dart';
@@ -38,9 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final currencySymbol = provider.currencySymbol;
     final income = provider.profile.income;
-    final incomeDate = provider.profile.incomeUpdatedAt != null
-        ? DateHelper.formatDateTime(provider.profile.incomeUpdatedAt!)
-        : 'Never';
     final monthlyBudget = provider.profile.monthlyBudget;
     final isOnline = provider.isOnline;
 
@@ -61,15 +58,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppConstants.spacingLg,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     HomeStatsCard(
                       currencySymbol: currencySymbol,
                       income: income,
-                      incomeDate: incomeDate,
-                      onIncomeSaved: (amount, date) {
+                      onIncomeSaved: (amount) {
                         provider.updateProfile(
                           provider.profile.copyWith(
                             income: amount,
@@ -84,9 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppConstants.spacingLg),
                     _buildMessageCard(provider),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppConstants.spacingLg),
                     ExpenseInputCard(
                       isOnline: isOnline,
                       aiInputEnabled: provider.settings.aiInputEnabled,
@@ -94,11 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         context.go(RouteNames.addExpense);
                       },
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppConstants.spacingLg),
                     DailyStreakCardInline(streak: provider.dailyStreak),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppConstants.spacingLg),
                     TodaysSpendingSection(isOnline: isOnline),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppConstants.spacingLg),
                   ],
                 ),
               ),
@@ -136,32 +134,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final uri = GoRouterState.of(context).uri;
-    final added = uri.queryParameters['added'];
-    if (added == 'true') {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: const [
-                Icon(Icons.check_circle, color: Colors.green, size: 22),
-                SizedBox(width: 12),
-                Text('Expense added', style: TextStyle(fontWeight: FontWeight.w600)),
-              ],
-            ),
-            backgroundColor: AppColors.surfaceLight,
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      });
-    }
-  }
 }
 
 class _NotificationHelper {
