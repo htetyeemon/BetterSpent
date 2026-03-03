@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/success_snackbar.dart';
 import '../../../../presentation/providers/app_provider.dart';
 
 class AccountSection extends StatelessWidget {
@@ -54,7 +55,7 @@ class AccountSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                '🔐 Sign in / Log in for Backup',
+                'Sign in / Log in for Backup',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -64,10 +65,7 @@ class AccountSection extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 'Link your Google account to back up data',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -97,10 +95,7 @@ class AccountSection extends StatelessWidget {
                   ),
                   child: const Text(
                     'Sign in',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: AppColors.primary, fontSize: 14),
                   ),
                 ),
         ),
@@ -119,7 +114,7 @@ class AccountSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                '✅ Logged in with Google',
+                'Logged in with Google',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -139,10 +134,7 @@ class AccountSection extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 accountEmail,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -161,29 +153,18 @@ class AccountSection extends StatelessWidget {
           ),
           child: const Text(
             'Sign Out',
-            style: TextStyle(
-              color: AppColors.error,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppColors.error, fontSize: 14),
           ),
         ),
       ],
     );
   }
 
-  Future<void> _handleSignIn(
-    BuildContext context,
-    AppProvider provider,
-  ) async {
+  Future<void> _handleSignIn(BuildContext context, AppProvider provider) async {
     try {
       await provider.signInWithGoogle();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Signed in with Google successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showSuccessSnackBar(context, 'Signed in with Google successfully');
       }
     } catch (e) {
       if (context.mounted) {
@@ -191,10 +172,7 @@ class AccountSection extends StatelessWidget {
             ? 'Sign-in cancelled'
             : 'Sign-in failed: ${e.toString()}';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: AppColors.error,
-          ),
+          SnackBar(content: Text(message), backgroundColor: AppColors.error),
         );
       }
     }

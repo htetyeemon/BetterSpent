@@ -8,7 +8,7 @@ class UserSettings {
     this.currency = 'USD',
     this.aiInputEnabled = true,
     this.budgetWarningEnabled = true,
-    this.motivationalMessageEnabled = false,
+    this.motivationalMessageEnabled = true,
   });
 
   UserSettings copyWith({

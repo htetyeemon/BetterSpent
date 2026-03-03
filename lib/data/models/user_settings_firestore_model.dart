@@ -23,7 +23,7 @@ class UserSettingsFirestoreModel {
       aiInputEnabled: (data['aiInputEnabled'] as bool?) ?? true,
       budgetWarningEnabled: (data['budgetWarningEnabled'] as bool?) ?? true,
       motivationalMessageEnabled:
-          (data['motivationalMessageEnabled'] as bool?) ?? false,
+          (data['motivationalMessageEnabled'] as bool?) ?? true,
     );
   }
 

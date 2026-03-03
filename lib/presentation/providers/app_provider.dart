@@ -218,7 +218,10 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final user = await _authService.linkAnonymousWithGoogle();
-      _uid = user?.uid;
+      final newUid = user?.uid;
+      if (newUid != null) {
+        await _switchUserDataContext(newUid);
+      }
       notifyListeners();
     } catch (e) {
       _error = e.toString();
@@ -228,6 +231,23 @@ class AppProvider extends ChangeNotifier {
       _isGoogleSignInLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> _switchUserDataContext(String uid) async {
+    if (_uid == uid && _expenseRepo != null) return;
+
+    await _expenseSub?.cancel();
+    await _profileSub?.cancel();
+    await _settingsSub?.cancel();
+
+    _uid = uid;
+    _expenses = [];
+    _profile =
+        const FinancialProfile(income: 0, monthlyBudget: 0, incomeUpdatedAt: null);
+    _settings = const UserSettings();
+
+    _setupRepositories();
+    _setupStreams();
   }
 
   Future<void> signOut() async {
