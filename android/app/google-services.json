@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "269364737307",
+    "project_id": "betterspent-2568",
+    "storage_bucket": "betterspent-2568.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269364737307:android:26faa8e74621f483000fbe",
+        "android_client_info": {
+          "package_name": "com.example.better_spent"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVy0SNInmidYgr7Ke7uSDTQp0ApuTmSU0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
