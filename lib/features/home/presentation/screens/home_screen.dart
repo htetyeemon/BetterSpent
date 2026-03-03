@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/bottom_navigation.dart';
 import '../../../../core/router/route_names.dart';
@@ -9,7 +10,7 @@ import '../widgets/home_header.dart';
 import '../widgets/home_stats_card.dart';
 import '../widgets/daily_streak_card_inline.dart';
 import '../widgets/todays_spending_section.dart';
-import '../../../../models/mock_data.dart';
+import '../../../../presentation/providers/app_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,18 +21,27 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentNavIndex = 0;
-  bool _isOnline = true;
-  double _income = MockData.mockIncome;
-  String _incomeDate = '1-05-2026';
-  final String _currencySymbol = '\$';
-  double _monthlyBudget = 2500.00;
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AppProvider>();
+
+    if (!provider.isInitialized) {
+      return const Scaffold(
+        backgroundColor: AppColors.background,
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
+
+    final currencySymbol = provider.currencySymbol;
+    final income = provider.profile.income;
+    final monthlyBudget = provider.profile.monthlyBudget;
+    final isOnline = provider.isOnline;
+
     return Scaffold(
       backgroundColor: AppColors.background,
-
-      // ✅ Properly wrapped bottom nav
       bottomNavigationBar: BottomNavigation(
         currentIndex: _currentNavIndex,
         onTap: (index) {
@@ -39,17 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
           _navigateToScreen(index);
         },
       ),
-
       body: SafeArea(
         child: Column(
           children: [
-            // Header
             HomeHeader(
-              isOnline: _isOnline,
-              onToggle: () => setState(() => _isOnline = !_isOnline),
+              isOnline: isOnline,
+              onToggle: () {},
             ),
-
-            // Scrollable content
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -57,43 +63,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     HomeStatsCard(
-                      currencySymbol: _currencySymbol,
-                      income: _income,
-                      incomeDate: _incomeDate,
+                      currencySymbol: currencySymbol,
+                      income: income,
+                      incomeDate: '',
                       onIncomeSaved: (amount, date) {
-                        setState(() {
-                          _income = amount;
-                          _incomeDate = date;
-                        });
+                        provider.updateProfile(
+                          provider.profile.copyWith(income: amount),
+                        );
                       },
-                      monthlyBudget: _monthlyBudget,
+                      monthlyBudget: monthlyBudget,
                       onBudgetSaved: (amount) {
-                        setState(() {
-                          _monthlyBudget = amount;
-                        });
+                        provider.updateProfile(
+                          provider.profile.copyWith(monthlyBudget: amount),
+                        );
                       },
                     ),
                     const SizedBox(height: 20),
-
-                    MessageCard(
-                      message: MockData.getRandomMotivationalMessage(),
-                    ),
+                    _buildMessageCard(provider),
                     const SizedBox(height: 20),
-
                     ExpenseInputCard(
-                      isOnline: _isOnline,
+                      isOnline: isOnline,
                       onAddExpenseManually: () {
                         context.go(RouteNames.addExpense);
                       },
                     ),
                     const SizedBox(height: 20),
-
-                    const DailyStreakCardInline(),
+                    DailyStreakCardInline(streak: provider.dailyStreak),
                     const SizedBox(height: 20),
-
-                    TodaysSpendingSection(isOnline: _isOnline),
-
-                    // Smaller padding (Scaffold handles nav space now)
+                    TodaysSpendingSection(isOnline: isOnline),
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -103,6 +100,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildMessageCard(AppProvider provider) {
+    final notification = _NotificationHelper(provider).getNotification();
+    if (notification.isEmpty) return const SizedBox.shrink();
+    return MessageCard(message: notification);
   }
 
   void _navigateToScreen(int index) {
@@ -124,10 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     final uri = GoRouterState.of(context).uri;
     final added = uri.queryParameters['added'];
-
     if (added == 'true') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -136,22 +137,72 @@ class _HomeScreenState extends State<HomeScreen> {
               children: const [
                 Icon(Icons.check_circle, color: Colors.green, size: 22),
                 SizedBox(width: 12),
-                Text(
-                  'Expense added',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
+                Text('Expense added', style: TextStyle(fontWeight: FontWeight.w600)),
               ],
             ),
             backgroundColor: AppColors.surfaceLight,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             duration: const Duration(seconds: 2),
           ),
         );
       });
     }
+  }
+}
+
+class _NotificationHelper {
+  final AppProvider provider;
+  _NotificationHelper(this.provider);
+
+  String getNotification() {
+    final settings = provider.settings;
+    final profile = provider.profile;
+    final expenses = provider.expenses;
+    final maxSpendPerDay = provider.maxSpendPerDay;
+
+    if (profile.income == 0 && profile.monthlyBudget == 0) {
+      return '';
+    }
+
+    final now = DateTime.now();
+    final todaySpending = expenses
+        .where((e) =>
+            e.date.year == now.year &&
+            e.date.month == now.month &&
+            e.date.day == now.day)
+        .fold<double>(0.0, (sum, e) => sum + e.amount);
+
+    final totalMonthSpending = expenses
+        .where((e) => e.date.year == now.year && e.date.month == now.month)
+        .fold<double>(0.0, (sum, e) => sum + e.amount);
+
+    final totalSpending = expenses.fold<double>(0.0, (sum, e) => sum + e.amount);
+
+    final hasWarning = (maxSpendPerDay > 0 && todaySpending > maxSpendPerDay) ||
+        totalMonthSpending > profile.monthlyBudget ||
+        totalSpending > profile.income;
+
+    if (hasWarning && settings.budgetWarningEnabled) {
+      if (totalSpending > profile.income) {
+        return '⚠️ Your total spending has exceeded your income!';
+      } else if (totalMonthSpending > profile.monthlyBudget) {
+        return '⚠️ You\'ve exceeded your monthly budget!';
+      } else {
+        return '⚠️ You\'ve exceeded your daily spending limit!';
+      }
+    }
+
+    if (!hasWarning && settings.motivationalMessageEnabled) {
+      const messages = [
+        'You\'re doing great! Keep tracking your expenses daily.',
+        'Nice work! You\'re building a healthy financial habit.',
+        'Keep it up! Small savings add up to big results.',
+      ];
+      return messages[now.millisecondsSinceEpoch % messages.length];
+    }
+
+    return '';
   }
 }

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../models/mock_data.dart';
 
 class DailyStreakCardInline extends StatelessWidget {
-  final int? streakDays;
+  final int streak;
 
-  const DailyStreakCardInline({super.key, this.streakDays});
+  const DailyStreakCardInline({super.key, this.streak = 0});
 
   @override
   Widget build(BuildContext context) {
-    final days = streakDays ?? MockData.mockStreakDays;
+    final days = streak;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(

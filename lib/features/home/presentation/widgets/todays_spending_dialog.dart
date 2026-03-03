@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../models/mock_data.dart';
-import '../../../../models/expense_model.dart';
+import '../../../../domain/entities/expense.dart';
 import '../../../../core/widgets/category_icon.dart';
+import '../../../../presentation/providers/app_provider.dart';
 
 class TodaysSpendingDialog extends StatelessWidget {
   final bool isOnline;
@@ -13,8 +14,15 @@ class TodaysSpendingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final todayExpenses = MockData.getTodayExpenses();
-    final total = MockData.calculateTotal(todayExpenses);
+    final provider = context.watch<AppProvider>();
+    final now = DateTime.now();
+    final todayExpenses = provider.expenses
+        .where((e) =>
+            e.date.year == now.year &&
+            e.date.month == now.month &&
+            e.date.day == now.day)
+        .toList();
+    final total = todayExpenses.fold<double>(0, (sum, e) => sum + e.amount);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -114,7 +122,8 @@ class TodaysSpendingDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildExpenseItem(ExpenseModel expense) {
+  Widget _buildExpenseItem(Expense expense) {
+    final displayName = expense.note.isNotEmpty ? expense.note : expense.category;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -139,14 +148,14 @@ class TodaysSpendingDialog extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isOnline && expense.name.length > 15
-                      ? expense.name.split(' ').first
-                      : expense.name,
+                  displayName,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(

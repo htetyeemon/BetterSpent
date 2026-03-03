@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'core/constants/app_colors.dart';
 import 'core/router/app_router.dart';
+import 'firebase_options.dart';
+import 'presentation/providers/app_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const BetterSpentApp());
 }
 
@@ -11,12 +17,15 @@ class BetterSpentApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: AppRouter.appRouter,
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        scaffoldBackgroundColor: AppColors.background,
-        canvasColor: AppColors.background,
+    return ChangeNotifierProvider(
+      create: (_) => AppProvider()..initialize(),
+      child: MaterialApp.router(
+        routerConfig: AppRouter.appRouter,
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          scaffoldBackgroundColor: AppColors.background,
+          canvasColor: AppColors.background,
+        ),
       ),
     );
   }

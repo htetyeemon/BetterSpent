@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/widgets/success_snackbar.dart';
 import '../widgets/category_chip_selector.dart';
 import '../widgets/amount_input_field.dart';
+import '../../../../domain/entities/expense.dart';
+import '../../../../presentation/providers/app_provider.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
@@ -149,12 +151,25 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     /// SAVE BUTTON
                     PrimaryButton(
                       text: 'ADD EXPENSE',
-                      onPressed: () {
+                      onPressed: () async {
                         if (_amountController.text.trim().isEmpty) return;
+                        final amount = double.tryParse(_amountController.text.trim());
+                        if (amount == null) return;
 
-                        showSuccessSnackBar(context, 'Expense added');
+                        final expense = Expense(
+                          id: '',
+                          amount: amount,
+                          category: _selectedCategory,
+                          date: _selectedDate,
+                          note: _noteController.text.trim(),
+                        );
 
-                        context.go(RouteNames.home);
+                        final provider = context.read<AppProvider>();
+                        await provider.addExpense(expense);
+
+                        if (context.mounted) {
+                          context.go('${RouteNames.home}?added=true');
+                        }
                       },
                     ),
                   ],
