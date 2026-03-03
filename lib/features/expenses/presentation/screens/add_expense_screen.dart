@@ -168,7 +168,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         await provider.addExpense(expense);
 
                         if (context.mounted) {
-                          context.go(RouteNames.home, extra: {'added': 'true'});
+                          context.go('${RouteNames.home}?added=true');
                         }
                       },
                     ),

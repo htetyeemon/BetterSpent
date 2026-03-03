@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildMessageCard(AppProvider provider) {
-    final notification = _GetNotificationHelper(provider).getNotification();
+    final notification = _NotificationHelper(provider).getNotification();
     if (notification.isEmpty) return const SizedBox.shrink();
     return MessageCard(message: notification);
   }
@@ -152,9 +152,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _GetNotificationHelper {
+class _NotificationHelper {
   final AppProvider provider;
-  _GetNotificationHelper(this.provider);
+  _NotificationHelper(this.provider);
 
   String getNotification() {
     final settings = provider.settings;

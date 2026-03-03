@@ -49,8 +49,7 @@ class GetNotificationUseCase {
 
     final totalSpending = expenses.fold<double>(0.0, (sum, e) => sum + e.amount);
 
-    // Check warning conditions
-    final hasWarning = todaySpending > maxSpendPerDay ||
+    final hasWarning = (maxSpendPerDay > 0 && todaySpending > maxSpendPerDay) ||
         totalMonthSpending > profile.monthlyBudget ||
         totalSpending > profile.income;
 
