@@ -19,6 +19,9 @@ class ParsedExpenseInput {
 }
 
 class GeminiService {
+  static const String _hardcodedApiKey =
+      'AIzaSyDvBLOtHKTkx0vJvQ3a0ZLaah6QFIxyX78';
+
   static const List<String> _apiVersions = ['v1', 'v1beta'];
   static const List<String> _fallbackModelCandidates = [
     'gemini-2.5-flash',
@@ -33,11 +36,22 @@ class GeminiService {
   static const List<String> _allowedCategories = AppConstants.expenseCategories;
 
   String get _apiKey {
-    final key = dotenv.env['GEMINI_API_KEY'];
-    if (key == null || key.isEmpty) {
-      throw Exception('GEMINI_API_KEY not found in .env');
+    if (_hardcodedApiKey.isNotEmpty) {
+      return _hardcodedApiKey;
     }
-    return key;
+
+    final envKey = _sanitize(dotenv.env['GEMINI_API_KEY']);
+    if (envKey != null && envKey.isNotEmpty) {
+      return envKey;
+    }
+    const defineKey = String.fromEnvironment('GEMINI_API_KEY');
+    final sanitizedDefine = _sanitize(defineKey);
+    if (sanitizedDefine != null && sanitizedDefine.isNotEmpty) {
+      return sanitizedDefine;
+    }
+    throw Exception(
+      'GEMINI_API_KEY not found. Set in .env or pass --dart-define=GEMINI_API_KEY=your_key',
+    );
   }
 
   String get apiKey => _apiKey;
@@ -256,5 +270,16 @@ Rules:
     if (m.contains('pro')) return 4;
     if (m.contains('flash')) return 5;
     return 10;
+  }
+
+  String? _sanitize(String? raw) {
+    if (raw == null) return null;
+    var value = raw.replaceAll('\ufeff', '').trim();
+    if (value.isEmpty) return null;
+    if ((value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.substring(1, value.length - 1).trim();
+    }
+    return value;
   }
 }

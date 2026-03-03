@@ -7,7 +7,6 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/widgets/success_snackbar.dart';
 import '../../../../core/utils/category_helper.dart';
 import '../widgets/category_chip_selector.dart';
 import '../widgets/amount_input_field.dart';
@@ -167,18 +166,16 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         try {
                           await provider.addExpense(expense);
                           if (!context.mounted) return;
-                          context.go(RouteNames.home);
-                          showSuccessSnackBar(
-                            context,
-                            'Expense added successfully',
+                          context.go(
+                            RouteNames.home,
+                            extra: 'Expense added successfully',
                           );
                         } catch (e) {
                           if (!context.mounted) return;
                           if (!provider.isOnline) {
-                            context.go(RouteNames.home);
-                            showSuccessSnackBar(
-                              context,
-                              'Expense added successfully',
+                            context.go(
+                              RouteNames.home,
+                              extra: 'Expense added successfully',
                             );
                             return;
                           }

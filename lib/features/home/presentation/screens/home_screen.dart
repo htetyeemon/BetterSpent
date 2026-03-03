@@ -12,6 +12,7 @@ import '../widgets/home_stats_card.dart';
 import '../widgets/daily_streak_card_inline.dart';
 import '../widgets/todays_spending_section.dart';
 import '../../../../presentation/providers/app_provider.dart';
+import '../../../../core/widgets/success_snackbar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,23 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentNavIndex = 0;
+  bool _hasShownRouteMessage = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hasShownRouteMessage) return;
+
+    final extra = GoRouterState.of(context).extra;
+    final message = extra is String ? extra : null;
+    if (message == null || message.isEmpty) return;
+
+    _hasShownRouteMessage = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      showSuccessSnackBar(context, message);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

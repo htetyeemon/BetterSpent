@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import 'route_names.dart';
+import '../services/app_launch_service.dart';
 
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/expenses/presentation/screens/expense_list_screen.dart';
@@ -13,7 +14,14 @@ import '../../features/onboarding/presentation/screens/get_started_screen.dart';
 
 class AppRouter {
   static final GoRouter appRouter = GoRouter(
-    initialLocation: RouteNames.getStarted,
+    initialLocation: RouteNames.home,
+    redirect: (context, state) {
+      final seenGetStarted = AppLaunchService.hasSeenGetStarted;
+      final onGetStarted = state.matchedLocation == RouteNames.getStarted;
+      if (seenGetStarted && onGetStarted) return RouteNames.home;
+      return null;
+    },
+    errorBuilder: (context, state) => const HomeScreen(),
     routes: [
       _noTransitionRoute(
         path: RouteNames.getStarted,

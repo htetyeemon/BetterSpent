@@ -16,17 +16,14 @@ class GetDailyStreakUseCase {
 
     if (daysWithExpenses.isEmpty) return 0;
 
-    // Check if today or yesterday has an expense (streak must be current)
-    final yesterday = today.subtract(const Duration(days: 1));
-    if (daysWithExpenses.first != today && daysWithExpenses.first != yesterday) {
+    // Streak is active only if user has at least one expense today.
+    if (!daysWithExpenses.contains(today)) {
       return 0;
     }
 
     int streak = 0;
-    DateTime checkDay = daysWithExpenses.contains(today) ? today : yesterday;
-
     for (int i = 0; i < 365; i++) {
-      final day = checkDay.subtract(Duration(days: i));
+      final day = today.subtract(Duration(days: i));
       if (daysWithExpenses.contains(day)) {
         streak++;
       } else {

@@ -5,6 +5,7 @@ import '../../../../../core/constants/app_text_styles.dart';
 import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/widgets/primary_button.dart';
 import '../../../../../core/router/route_names.dart';
+import '../../../../../core/services/app_launch_service.dart';
 
 class GetStartedScreen extends StatelessWidget {
   const GetStartedScreen({super.key});
@@ -60,7 +61,9 @@ class GetStartedScreen extends StatelessWidget {
                 children: [
                   PrimaryButton(
                     text: 'GET STARTED',
-                    onPressed: () {
+                    onPressed: () async {
+                      await AppLaunchService.markGetStartedSeen();
+                      if (!context.mounted) return;
                       context.go(RouteNames.home);
                     },
                   ),
