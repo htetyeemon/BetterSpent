@@ -33,11 +33,19 @@ class GeminiService {
   static const List<String> _allowedCategories = AppConstants.expenseCategories;
 
   String get _apiKey {
-    final key = dotenv.env['GEMINI_API_KEY'];
-    if (key == null || key.isEmpty) {
-      throw Exception('GEMINI_API_KEY not found in .env');
+    // First try .env file
+    final envKey = dotenv.env['GEMINI_API_KEY'];
+    if (envKey != null && envKey.isNotEmpty) {
+      return envKey;
     }
-    return key;
+    // Fallback to compile-time dart-define
+    const dartDefineKey = String.fromEnvironment('GEMINI_API_KEY');
+    if (dartDefineKey.isNotEmpty) {
+      return dartDefineKey;
+    }
+    throw Exception(
+      'GEMINI_API_KEY not found. Set it in .env file or pass --dart-define=GEMINI_API_KEY=your_key during build.',
+    );
   }
 
   String get apiKey => _apiKey;

@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +21,15 @@ void main() async {
 
   // ✅ Initialize Firebase with generated options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // ✅ Handle redirect result on web (required for signInWithRedirect flow)
+  if (kIsWeb) {
+    try {
+      await FirebaseAuth.instance.getRedirectResult();
+    } catch (e) {
+      debugPrint('getRedirectResult error: $e');
+    }
+  }
 
   runApp(
     ChangeNotifierProvider(

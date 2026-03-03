@@ -28,9 +28,9 @@ class AuthService {
       } on FirebaseAuthException catch (e) {
         if (e.code == 'popup-blocked' ||
             e.code == 'operation-not-supported-in-this-environment') {
-          throw Exception(
-            'Google sign-in popup was blocked. Please allow popups and open the app in a regular browser tab.',
-          );
+          // Initiate redirect flow; the result is handled by getRedirectResult() in main.dart.
+          await _auth.signInWithRedirect(provider);
+          return null;
         }
         rethrow;
       }
@@ -73,18 +73,18 @@ class AuthService {
             if (popupError.code == 'popup-blocked' ||
                 popupError.code ==
                     'operation-not-supported-in-this-environment') {
-              throw Exception(
-                'Google sign-in popup was blocked. Please allow popups and open the app in a regular browser tab.',
-              );
+              // Initiate redirect flow; the result is handled by getRedirectResult() in main.dart.
+              await _auth.signInWithRedirect(provider);
+              return null;
             }
             rethrow;
           }
         }
         if (e.code == 'popup-blocked' ||
             e.code == 'operation-not-supported-in-this-environment') {
-          throw Exception(
-            'Google sign-in popup was blocked. Please allow popups and open the app in a regular browser tab.',
-          );
+          // Initiate redirect flow; the result is handled by getRedirectResult() in main.dart.
+          await _auth.signInWithRedirect(provider);
+          return null;
         }
         rethrow;
       }
