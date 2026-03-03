@@ -157,7 +157,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         if (amount == null) return;
 
                         final expense = Expense(
-                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          id: '',
                           amount: amount,
                           category: _selectedCategory,
                           date: _selectedDate,
