@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../widgets/income_column.dart';
 import '../widgets/budget_column.dart';
-import '../../../../models/mock_data.dart';
+import '../../../../presentation/providers/app_provider.dart';
 
 class HomeStatsCard extends StatelessWidget {
   final String currencySymbol;
@@ -25,6 +26,10 @@ class HomeStatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AppProvider>();
+    final balance = provider.balance;
+    final maxSpendPerDay = provider.maxSpendPerDay;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
@@ -42,7 +47,7 @@ class HomeStatsCard extends StatelessWidget {
               Expanded(
                 child: _buildStatColumn(
                   'BALANCE',
-                  '\$${MockData.mockBalance.toStringAsFixed(2)}',
+                  '$currencySymbol${balance.toStringAsFixed(2)}',
                   AppColors.textPrimary,
                 ),
               ),
@@ -77,7 +82,7 @@ class HomeStatsCard extends StatelessWidget {
               Expanded(
                 child: _buildStatColumn(
                   'MAX SPEND/DAY',
-                  '\$${MockData.mockDailyLimit.toStringAsFixed(2)}',
+                  '$currencySymbol${maxSpendPerDay.toStringAsFixed(2)}',
                   AppColors.accent,
                 ),
               ),

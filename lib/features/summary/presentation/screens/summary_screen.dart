@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -8,6 +9,11 @@ import 'package:go_router/go_router.dart';
 import '../widgets/period_toggle.dart';
 import '../widgets/category_spending_card.dart';
 import '../widgets/stat_card.dart';
+import '../../../../presentation/providers/app_provider.dart';
+import '../../../../domain/usecases/get_weekly_summary_use_case.dart';
+import '../../../../domain/usecases/get_monthly_summary_use_case.dart';
+import '../../../../domain/usecases/get_spending_by_category_use_case.dart';
+import '../../../../domain/usecases/get_insights_prediction_use_case.dart';
 
 class SummaryScreen extends StatefulWidget {
   const SummaryScreen({super.key});
@@ -20,8 +26,33 @@ class _SummaryScreenState extends State<SummaryScreen> {
   String _selectedPeriod = 'This Week';
   int _currentNavIndex = 2;
 
+  final _weeklySummaryUseCase = GetWeeklySummaryUseCase();
+  final _monthlySummaryUseCase = GetMonthlySummaryUseCase();
+  final _spendingByCategoryUseCase = GetSpendingByCategoryUseCase();
+  final _insightsPredictionUseCase = GetInsightsPredictionUseCase();
+
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AppProvider>();
+    final expenses = provider.expenses;
+
+    final weeklySummary = _weeklySummaryUseCase.execute(expenses);
+    final monthlySummary = _monthlySummaryUseCase.execute(expenses);
+
+    final totalSpent = _selectedPeriod == 'This Week'
+        ? weeklySummary.totalWeeklySpending
+        : monthlySummary.totalMonthlySpending;
+    final avgPerDay = _selectedPeriod == 'This Week'
+        ? weeklySummary.averagePerDay
+        : monthlySummary.averagePerDay;
+
+    final categorySpending = _spendingByCategoryUseCase.execute(expenses);
+    final insight = _insightsPredictionUseCase.execute(
+      avgPerDay,
+      provider.maxSpendPerDay,
+    );
+    final currencySymbol = provider.currencySymbol;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -69,18 +100,18 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 children: [
                   // Stat Cards
                   Row(
-                    children: const [
+                    children: [
                       Expanded(
                         child: StatCard(
                           label: 'Total Spent',
-                          value: '\$156.50',
+                          value: '$currencySymbol${totalSpent.toStringAsFixed(2)}',
                         ),
                       ),
-                      SizedBox(width: AppConstants.spacingMd),
+                      const SizedBox(width: AppConstants.spacingMd),
                       Expanded(
                         child: StatCard(
                           label: 'Avg. Per Day',
-                          value: '\$22.36',
+                          value: '$currencySymbol${avgPerDay.toStringAsFixed(2)}',
                         ),
                       ),
                     ],
@@ -113,11 +144,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
                         ),
                         const SizedBox(height: AppConstants.spacingMd),
                         Text(
-                          _selectedPeriod == 'This Week'
-                              ? 'Your spending is 15% higher than last week. Try reducing expenses in Food & Drink category to stay on track.'
-                              : 'You have spent 40% of your monthly budget so far. At this pace, you may exceed your limit by month-end.',
+                          insight.message,
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textTertiary,
+                            color: insight.willExceedBudget
+                                ? AppColors.error
+                                : AppColors.textTertiary,
                             height: 1.5,
                           ),
                         ),
@@ -130,25 +161,25 @@ class _SummaryScreenState extends State<SummaryScreen> {
                   const Text('Spending by category', style: AppTextStyles.h3),
                   const SizedBox(height: AppConstants.spacingMd),
 
-                  const CategorySpendingCard(
-                    category: 'FOOD & DRINK',
-                    amount: 61.80,
-                    percentage: 39,
-                  ),
-                  const SizedBox(height: AppConstants.spacingMd),
+                  if (categorySpending.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Text(
+                        'No spending data yet',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    )
+                  else
+                    ...categorySpending.map((cs) => Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: AppConstants.spacingMd),
+                          child: CategorySpendingCard(
+                            category: cs.category.toUpperCase(),
+                            amount: cs.amount,
+                            percentage: cs.percentage.round(),
+                          ),
+                        )),
 
-                  const CategorySpendingCard(
-                    category: 'TRANSPORT',
-                    amount: 65.00,
-                    percentage: 42,
-                  ),
-                  const SizedBox(height: AppConstants.spacingMd),
-
-                  const CategorySpendingCard(
-                    category: 'SHOPPING',
-                    amount: 29.70,
-                    percentage: 19,
-                  ),
                   const SizedBox(height: AppConstants.spacingXl),
                 ],
               ),
@@ -185,3 +216,4 @@ class _SummaryScreenState extends State<SummaryScreen> {
     }
   }
 }
+

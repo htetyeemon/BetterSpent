@@ -3,7 +3,9 @@ import '../../../../core/constants/app_colors.dart';
 import '../widgets/clear_data_dialog.dart';
 
 class DataManagementSection extends StatelessWidget {
-  const DataManagementSection({super.key});
+  final VoidCallback? onClearData;
+
+  const DataManagementSection({super.key, this.onClearData});
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class DataManagementSection extends StatelessWidget {
               ClearDataDialog.show(
                 context,
                 onConfirm: () {
+                  onClearData?.call();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('All data cleared'),

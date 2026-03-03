@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/bottom_navigation.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../presentation/providers/app_provider.dart';
 
 import '../widgets/smart_input_settings_section.dart';
 import '../widgets/currency_settings_tile.dart';
@@ -21,21 +23,21 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   int _currentNavIndex = 3;
 
-  bool _aiInputEnabled = true;
-  bool _budgetAlertsEnabled = true;
-  bool _motivationalEnabled = false;
-
-  String _selectedCurrencyName = 'Baht';
-  String _selectedCurrencySymbol = '฿';
+  String _getCurrencyName(String code) =>
+      code == 'THB' ? 'Baht' : 'US Dollar';
+  String _getCurrencySymbol(String code) => code == 'THB' ? '฿' : '\$';
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AppProvider>();
+    final settings = provider.settings;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            // ✅ FIXED HEADER
+            // Header
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
               child: Stack(
@@ -67,38 +69,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
                 children: [
                   SmartInputSettingsSection(
-                    aiInputEnabled: _aiInputEnabled,
+                    aiInputEnabled: settings.aiInputEnabled,
                     onAiInputChanged: (value) {
-                      setState(() => _aiInputEnabled = value);
+                      provider.updateSettings(
+                        settings.copyWith(aiInputEnabled: value),
+                      );
                     },
                   ),
                   const SizedBox(height: 24),
 
                   CurrencySettingsTile(
-                    selectedCurrencyName: _selectedCurrencyName,
-                    selectedCurrencySymbol: _selectedCurrencySymbol,
+                    selectedCurrencyName: _getCurrencyName(settings.currency),
+                    selectedCurrencySymbol: _getCurrencySymbol(settings.currency),
                     onCurrencySelected: (name, symbol) {
-                      setState(() {
-                        _selectedCurrencyName = name;
-                        _selectedCurrencySymbol = symbol;
-                      });
+                      final code = symbol == '฿' ? 'THB' : 'USD';
+                      provider.updateSettings(
+                        settings.copyWith(currency: code),
+                      );
                     },
                   ),
                   const SizedBox(height: 24),
 
                   NotificationsSection(
-                    budgetAlertsEnabled: _budgetAlertsEnabled,
-                    motivationalEnabled: _motivationalEnabled,
+                    budgetAlertsEnabled: settings.budgetWarningEnabled,
+                    motivationalEnabled: settings.motivationalMessageEnabled,
                     onBudgetAlertsChanged: (value) {
-                      setState(() => _budgetAlertsEnabled = value);
+                      provider.updateSettings(
+                        settings.copyWith(budgetWarningEnabled: value),
+                      );
                     },
                     onMotivationalChanged: (value) {
-                      setState(() => _motivationalEnabled = value);
+                      provider.updateSettings(
+                        settings.copyWith(motivationalMessageEnabled: value),
+                      );
                     },
                   ),
                   const SizedBox(height: 24),
 
-                  const DataManagementSection(),
+                  DataManagementSection(
+                    onClearData: () => provider.clearAllData(),
+                  ),
                   const SizedBox(height: 24),
 
                   const HelpInfoSection(),
