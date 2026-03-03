@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/router/route_names.dart';
-import '../../../../core/widgets/category_icon.dart';
 import '../../../../domain/entities/expense.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import 'expense_card.dart';
@@ -56,6 +55,7 @@ class ExpenseListContent extends StatelessWidget {
     final filtered = _filterExpenses(provider.expenses);
     final grouped = _groupByDate(filtered);
     final dateKeys = grouped.keys.toList();
+    final currencySymbol = provider.currencySymbol;
 
     if (filtered.isEmpty) {
       return Center(
@@ -81,9 +81,10 @@ class ExpenseListContent extends StatelessWidget {
           expenses: dayExpenses.map((expense) {
             return ExpenseCard(
               name: expense.note.isNotEmpty ? expense.note : expense.category,
-              category: expense.category.toUpperCase(),
+              category: expense.category,
               amount: expense.amount,
               time: DateFormat('MMM d, h:mm a').format(expense.date),
+              currencySymbol: currencySymbol,
               onTap: () => _showExpenseDetail(context, expense, provider),
             );
           }).toList(),
@@ -106,7 +107,7 @@ class ExpenseListContent extends StatelessWidget {
       note: expense.note,
       categoryIcon: Icons.category_outlined,
       iconColor: AppColors.accent,
-      onEdit: () => context.push(RouteNames.editExpense),
+      onEdit: () => context.push(RouteNames.editExpense, extra: expense),
       onDelete: () => DeleteExpenseDialog.show(
         context,
         onConfirm: () {

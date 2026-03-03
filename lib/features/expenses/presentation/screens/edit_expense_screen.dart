@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../models/category_option.dart';
 import '../widgets/edit_expense_actions.dart';
 import '../widgets/amount_input_field.dart';
 import '../widgets/category_chip_selector.dart';
 import '../../../../core/widgets/custom_text_field.dart';
+import '../../../../domain/entities/expense.dart';
+import '../../../../presentation/providers/app_provider.dart';
 
 class EditExpenseScreen extends StatefulWidget {
   const EditExpenseScreen({super.key});
@@ -17,42 +19,39 @@ class EditExpenseScreen extends StatefulWidget {
 }
 
 class _EditExpenseScreenState extends State<EditExpenseScreen> {
-  final TextEditingController _amountController = TextEditingController(
-    text: '4.50',
-  );
-  final TextEditingController _noteController = TextEditingController(
-    text: 'Coffee at Starbucks',
-  );
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _noteController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  String _selectedCategory = 'Coffee';
+  String _selectedCategory = 'Other';
+  Expense? _originalExpense;
+  bool _initializedFromExtra = false;
 
-  final List<CategoryOption> _categories = [
-    CategoryOption(
-      name: 'Food',
-      icon: Icons.restaurant_outlined,
-      color: AppColors.primary,
-    ),
-    CategoryOption(
-      name: 'Coffee',
-      icon: Icons.local_cafe_outlined,
-      color: Color(0xFFFF8800),
-    ),
-    CategoryOption(
-      name: 'Transport',
-      icon: Icons.directions_car_outlined,
-      color: AppColors.secondary,
-    ),
-    CategoryOption(
-      name: 'Shopping',
-      icon: Icons.shopping_cart_outlined,
-      color: AppColors.primary,
-    ),
-    CategoryOption(
-      name: 'Other',
-      icon: Icons.category_outlined,
-      color: AppColors.textSecondary,
-    ),
+  final List<String> _categories = [
+    'Food & Drink',
+    'Transport',
+    'Shopping',
+    'Entertainment',
+    'Bills',
+    'Other',
   ];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initializedFromExtra) return;
+    _initializedFromExtra = true;
+
+    final extra = GoRouterState.of(context).extra;
+    if (extra is Expense) {
+      _originalExpense = extra;
+      _amountController.text = extra.amount.toStringAsFixed(2);
+      _noteController.text = extra.note;
+      _selectedDate = extra.date;
+      _selectedCategory = _categories.contains(extra.category)
+          ? extra.category
+          : 'Other';
+    }
+  }
 
   @override
   void dispose() {
@@ -108,7 +107,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
                     AmountInputField(controller: _amountController),
                     const SizedBox(height: AppConstants.spacingLg),
                     CategoryChipSelector(
-                      categories: _categories.map((c) => c.name).toList(),
+                      categories: _categories,
                       selectedCategory: _selectedCategory,
                       onCategorySelected: (s) =>
                           setState(() => _selectedCategory = s),
@@ -157,7 +156,27 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
 
             EditExpenseActions(
               onCancel: () => context.go(RouteNames.expenses),
-              onSave: () => context.go(RouteNames.expenses),
+              onSave: () async {
+                final original = _originalExpense;
+                if (original == null) {
+                  context.go(RouteNames.expenses);
+                  return;
+                }
+
+                final amount = double.tryParse(_amountController.text.trim());
+                if (amount == null || amount <= 0) return;
+
+                final updated = original.copyWith(
+                  amount: amount,
+                  category: _selectedCategory,
+                  date: _selectedDate,
+                  note: _noteController.text.trim(),
+                );
+
+                await context.read<AppProvider>().updateExpense(updated);
+                if (!context.mounted) return;
+                context.go(RouteNames.expenses);
+              },
             ),
           ],
         ),

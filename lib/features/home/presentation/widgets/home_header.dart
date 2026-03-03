@@ -5,9 +5,8 @@ import '../../../../core/constants/app_text_styles.dart';
 
 class HomeHeader extends StatelessWidget {
   final bool isOnline;
-  final VoidCallback onToggle;
 
-  const HomeHeader({super.key, required this.isOnline, required this.onToggle});
+  const HomeHeader({super.key, required this.isOnline});
 
   @override
   Widget build(BuildContext context) {
@@ -20,66 +19,29 @@ class HomeHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          /// Logo + Toggle
+          /// Logo
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: AppConstants.iconLg, // 32
-                    height: AppConstants.iconLg,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(
-                        AppConstants.radiusSm, // 8
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.check,
-                      color: Colors.black,
-                      size: 20, // keeping exact size to avoid shift
-                    ),
+              Container(
+                width: AppConstants.iconLg, // 32
+                height: AppConstants.iconLg,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(
+                    AppConstants.radiusSm, // 8
                   ),
-                  const SizedBox(width: AppConstants.spacingSm), // 8
-                  Text(
-                    'BetterSpent',
-                    style: AppTextStyles.h4.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+                ),
+                child: const Icon(
+                  Icons.check,
+                  color: Colors.black,
+                  size: 20, // keeping exact size to avoid shift
+                ),
               ),
-
-              /// Toggle
-              GestureDetector(
-                onTap: onToggle,
-                child: Container(
-                  width: 56,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: isOnline
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: AnimatedAlign(
-                    duration: AppConstants.animationShort,
-                    alignment: isOnline
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: AppConstants.spacingXs, // 4
-                      ),
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
+              const SizedBox(width: AppConstants.spacingSm), // 8
+              Text(
+                'BetterSpent',
+                style: AppTextStyles.h4.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],

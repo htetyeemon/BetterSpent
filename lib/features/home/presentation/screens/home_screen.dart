@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/bottom_navigation.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../core/utils/date_helper.dart';
 import '../widgets/message_card.dart';
 import '../widgets/expense_input_card.dart';
 import '../widgets/home_header.dart';
@@ -37,6 +38,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final currencySymbol = provider.currencySymbol;
     final income = provider.profile.income;
+    final incomeDate = provider.profile.incomeUpdatedAt != null
+        ? DateHelper.formatDateTime(provider.profile.incomeUpdatedAt!)
+        : 'Never';
     final monthlyBudget = provider.profile.monthlyBudget;
     final isOnline = provider.isOnline;
 
@@ -54,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             HomeHeader(
               isOnline: isOnline,
-              onToggle: () {},
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -65,10 +68,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     HomeStatsCard(
                       currencySymbol: currencySymbol,
                       income: income,
-                      incomeDate: '',
+                      incomeDate: incomeDate,
                       onIncomeSaved: (amount, date) {
                         provider.updateProfile(
-                          provider.profile.copyWith(income: amount),
+                          provider.profile.copyWith(
+                            income: amount,
+                            incomeUpdatedAt: DateTime.now(),
+                          ),
                         );
                       },
                       monthlyBudget: monthlyBudget,
@@ -83,6 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 20),
                     ExpenseInputCard(
                       isOnline: isOnline,
+                      aiInputEnabled: provider.settings.aiInputEnabled,
                       onAddExpenseManually: () {
                         context.go(RouteNames.addExpense);
                       },
@@ -105,7 +112,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildMessageCard(AppProvider provider) {
     final notification = _NotificationHelper(provider).getNotification();
     if (notification.isEmpty) return const SizedBox.shrink();
-    return MessageCard(message: notification);
+    final isWarning = notification.contains('⚠️');
+    return MessageCard(
+      message: notification,
+      isWarning: isWarning,
+      icon: isWarning ? Icons.warning_amber_rounded : Icons.lightbulb_outline,
+    );
   }
 
   void _navigateToScreen(int index) {

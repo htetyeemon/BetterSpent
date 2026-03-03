@@ -3,12 +3,12 @@ import '../../../../core/constants/app_colors.dart';
 import '../../models/currency.dart';
 
 class CurrencySelectorSheet extends StatefulWidget {
-  final String selectedCurrency;
-  final void Function(String name, String symbol) onCurrencySelected;
+  final String selectedCurrencyCode;
+  final void Function(String code) onCurrencySelected;
 
   const CurrencySelectorSheet({
     super.key,
-    required this.selectedCurrency,
+    required this.selectedCurrencyCode,
     required this.onCurrencySelected,
   });
 
@@ -160,14 +160,11 @@ class _CurrencySelectorSheetState extends State<CurrencySelectorSheet> {
                     itemBuilder: (context, index) {
                       final currency = _filteredCurrencies[index];
                       final isSelected =
-                          widget.selectedCurrency == currency.name;
+                          widget.selectedCurrencyCode == currency.code;
 
                       return InkWell(
                         onTap: () {
-                          widget.onCurrencySelected(
-                            currency.name,
-                            currency.symbol,
-                          );
+                          widget.onCurrencySelected(currency.code);
                           Navigator.pop(context);
                         },
                         child: Container(
@@ -221,15 +218,15 @@ class _CurrencySelectorSheetState extends State<CurrencySelectorSheet> {
 
   static void show(
     BuildContext context, {
-    required String selectedCurrency,
-    required void Function(String name, String symbol) onCurrencySelected,
+    required String selectedCurrencyCode,
+    required void Function(String code) onCurrencySelected,
   }) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => CurrencySelectorSheet(
-        selectedCurrency: selectedCurrency,
+        selectedCurrencyCode: selectedCurrencyCode,
         onCurrencySelected: onCurrencySelected,
       ),
     );

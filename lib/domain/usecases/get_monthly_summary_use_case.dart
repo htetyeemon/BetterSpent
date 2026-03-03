@@ -17,10 +17,10 @@ class GetMonthlySummaryUseCase {
       return e.date.year == now.year && e.date.month == now.month;
     }).toList();
     final total = monthlyExpenses.fold<double>(0.0, (sum, e) => sum + e.amount);
-    final currentDay = now.day;
+    final totalDaysInMonth = DateTime(now.year, now.month + 1, 0).day;
     return MonthlySummary(
       totalMonthlySpending: total,
-      averagePerDay: currentDay > 0 ? total / currentDay : 0,
+      averagePerDay: totalDaysInMonth > 0 ? total / totalDaysInMonth : 0,
     );
   }
 }

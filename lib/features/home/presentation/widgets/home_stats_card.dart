@@ -75,6 +75,7 @@ class HomeStatsCard extends StatelessWidget {
                 child: BudgetColumn(
                   currencySymbol: currencySymbol,
                   monthlyBudget: monthlyBudget,
+                  valueColor: AppColors.textPrimary,
                   onBudgetSaved: onBudgetSaved,
                 ),
               ),
@@ -83,7 +84,7 @@ class HomeStatsCard extends StatelessWidget {
                 child: _buildStatColumn(
                   'MAX SPEND/DAY',
                   '$currencySymbol${maxSpendPerDay.toStringAsFixed(2)}',
-                  AppColors.accent,
+                  AppColors.textPrimary,
                 ),
               ),
             ],

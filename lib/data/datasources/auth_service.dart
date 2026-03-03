@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -18,6 +19,12 @@ class AuthService {
   }
 
   Future<User?> signInWithGoogle() async {
+    if (kIsWeb) {
+      final provider = GoogleAuthProvider();
+      final result = await _auth.signInWithPopup(provider);
+      return result.user;
+    }
+
     final GoogleSignIn googleSignIn = GoogleSignIn();
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
     if (googleUser == null) throw Exception('Google sign-in cancelled');
@@ -37,6 +44,21 @@ class AuthService {
     final currentUser = _auth.currentUser;
     if (currentUser == null || !currentUser.isAnonymous) {
       throw Exception('No anonymous user to link');
+    }
+
+    if (kIsWeb) {
+      final provider = GoogleAuthProvider();
+      try {
+        final result = await currentUser.linkWithPopup(provider);
+        return result.user;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'credential-already-in-use' ||
+            e.code == 'email-already-in-use') {
+          final result = await _auth.signInWithPopup(provider);
+          return result.user;
+        }
+        rethrow;
+      }
     }
 
     final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -66,7 +88,9 @@ class AuthService {
   }
 
   Future<void> signOut() async {
-    await GoogleSignIn().signOut();
+    if (!kIsWeb) {
+      await GoogleSignIn().signOut();
+    }
     await _auth.signOut();
   }
 }

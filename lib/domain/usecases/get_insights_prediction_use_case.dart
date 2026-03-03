@@ -9,25 +9,36 @@ class InsightPrediction {
 }
 
 class GetInsightsPredictionUseCase {
-  InsightPrediction execute(double averagePerDay, double maxSpendPerDay) {
+  InsightPrediction execute(
+    double averagePerDay,
+    double maxSpendPerDay, {
+    required bool isMonthlyPeriod,
+  }) {
     if (maxSpendPerDay <= 0) {
-      return const InsightPrediction(
+      return InsightPrediction(
         willExceedBudget: true,
-        message: 'You have already exceeded your monthly budget.',
+        message: isMonthlyPeriod
+            ? 'You have no remaining daily budget. At this pace, this month is over budget.'
+            : 'You have no remaining daily budget. At this pace, this week is over budget.',
       );
     }
 
-    if (averagePerDay > maxSpendPerDay) {
-      return const InsightPrediction(
+    final projectedSpend = averagePerDay * (isMonthlyPeriod ? 30 : 7);
+    final periodBudgetLimit = maxSpendPerDay * (isMonthlyPeriod ? 30 : 7);
+    if (projectedSpend > periodBudgetLimit) {
+      return InsightPrediction(
         willExceedBudget: true,
-        message:
-            'At your current pace, you are likely to exceed your monthly budget.',
+        message: isMonthlyPeriod
+            ? 'Your average daily spending is above your daily limit. You are unlikely to maintain your budget this month.'
+            : 'Your average daily spending is above your daily limit. You are unlikely to maintain your budget this week.',
       );
     }
 
-    return const InsightPrediction(
+    return InsightPrediction(
       willExceedBudget: false,
-      message: 'You are on track with your spending goals. Keep it up!',
+      message: isMonthlyPeriod
+          ? 'Your average daily spending is within your daily limit. You are on track for this month.'
+          : 'Your average daily spending is within your daily limit. You are on track for this week.',
     );
   }
 }

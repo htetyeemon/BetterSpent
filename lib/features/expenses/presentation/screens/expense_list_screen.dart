@@ -50,6 +50,29 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
               },
             ),
             const SizedBox(height: AppConstants.spacingMd),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingLg,
+              ),
+              child: Row(
+                children: const [
+                  Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                  SizedBox(width: AppConstants.spacingSm),
+                  Text(
+                    'Tap an item to see more details',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppConstants.spacingMd),
 
             Expanded(
               child: ExpenseListContent(selectedFilter: _selectedFilter),

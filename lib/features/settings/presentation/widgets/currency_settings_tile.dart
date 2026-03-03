@@ -3,12 +3,14 @@ import '../../../../core/constants/app_colors.dart';
 import '../widgets/currency_selector_sheet.dart';
 
 class CurrencySettingsTile extends StatelessWidget {
+  final String selectedCurrencyCode;
   final String selectedCurrencyName;
   final String selectedCurrencySymbol;
-  final Function(String name, String symbol) onCurrencySelected;
+  final Function(String code) onCurrencySelected;
 
   const CurrencySettingsTile({
     super.key,
+    required this.selectedCurrencyCode,
     required this.selectedCurrencyName,
     required this.selectedCurrencySymbol,
     required this.onCurrencySelected,
@@ -69,7 +71,7 @@ class CurrencySettingsTile extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     isScrollControlled: true,
                     builder: (context) => CurrencySelectorSheet(
-                      selectedCurrency: selectedCurrencyName,
+                      selectedCurrencyCode: selectedCurrencyCode,
                       onCurrencySelected: onCurrencySelected,
                     ),
                   );

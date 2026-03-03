@@ -5,12 +5,14 @@ import 'set_budget_dialog.dart';
 class BudgetColumn extends StatelessWidget {
   final String currencySymbol;
   final double monthlyBudget;
+  final Color valueColor;
   final Function(double amount) onBudgetSaved;
 
   const BudgetColumn({
     super.key,
     required this.currencySymbol,
     required this.monthlyBudget,
+    this.valueColor = AppColors.secondary,
     required this.onBudgetSaved,
   });
 
@@ -53,10 +55,10 @@ class BudgetColumn extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Text(
             '$currencySymbol${monthlyBudget.toStringAsFixed(2)}',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w600,
-              color: AppColors.secondary,
+              color: valueColor,
             ),
           ),
         ),

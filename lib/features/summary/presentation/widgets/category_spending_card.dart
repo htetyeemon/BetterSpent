@@ -17,6 +17,14 @@ class CategorySpendingCard extends StatelessWidget {
     required this.percentage,
   });
 
+  String _formatPercentage(double value) {
+    if (value <= 0) return '0';
+    if (value < 0.01) return '<0.01';
+    if (value < 1) return value.toStringAsFixed(2);
+    if (value < 10) return value.toStringAsFixed(1);
+    return value.toStringAsFixed(0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -65,7 +73,7 @@ class CategorySpendingCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${percentage.toStringAsFixed(0)}%',
+                    '${_formatPercentage(percentage)}% of monthly budget',
                     style: AppTextStyles.bodySmall,
                   ),
                 ],

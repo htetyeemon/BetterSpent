@@ -30,7 +30,7 @@ class AppProvider extends ChangeNotifier {
 
   List<Expense> _expenses = [];
   FinancialProfile _profile =
-      const FinancialProfile(income: 0, monthlyBudget: 0);
+      const FinancialProfile(income: 0, monthlyBudget: 0, incomeUpdatedAt: null);
   UserSettings _settings = const UserSettings();
 
   // Repositories
@@ -58,6 +58,18 @@ class AppProvider extends ChangeNotifier {
   bool get isGoogleSignInLoading => _isGoogleSignInLoading;
   bool get isAnonymous => _authService.isAnonymous;
   bool get isGoogleUser => _authService.isGoogleUser;
+  String? get accountEmail => _authService.currentUser?.email;
+  String get accountName {
+    final displayName = _authService.currentUser?.displayName?.trim();
+    if (displayName != null && displayName.isNotEmpty) return displayName;
+
+    final email = _authService.currentUser?.email;
+    if (email != null && email.contains('@')) {
+      return email.split('@').first;
+    }
+
+    return 'Google Account';
+  }
   List<Expense> get expenses => _expenses;
   FinancialProfile get profile => _profile;
   UserSettings get settings => _settings;
@@ -67,7 +79,36 @@ class AppProvider extends ChangeNotifier {
       _getMaxSpendPerDay.execute(_profile.monthlyBudget, _expenses);
   int get dailyStreak => _getDailyStreak.execute(_expenses);
 
-  String get currencySymbol => _settings.currency == 'THB' ? '฿' : '\$';
+  String get currencySymbol {
+    switch (_settings.currency) {
+      case 'EUR':
+        return '€';
+      case 'GBP':
+        return '£';
+      case 'JPY':
+      case 'CNY':
+        return '¥';
+      case 'CHF':
+        return 'Fr';
+      case 'INR':
+        return '₹';
+      case 'THB':
+        return '฿';
+      case 'KRW':
+        return '₩';
+      case 'SEK':
+      case 'NOK':
+        return 'kr';
+      case 'BRL':
+        return 'R\$';
+      case 'ZAR':
+        return 'R';
+      case 'RUB':
+        return '₽';
+      default:
+        return '\$';
+    }
+  }
 
   Future<void> initialize() async {
     try {
@@ -155,6 +196,8 @@ class AppProvider extends ChangeNotifier {
   }
 
   Future<void> updateSettings(UserSettings settings) async {
+    _settings = settings;
+    notifyListeners();
     await _settingsRepo?.updateSettings(settings);
   }
 
@@ -163,7 +206,8 @@ class AppProvider extends ChangeNotifier {
     await _profileRepo?.deleteProfile();
     await _settingsRepo?.deleteSettings();
     _expenses = [];
-    _profile = const FinancialProfile(income: 0, monthlyBudget: 0);
+    _profile =
+        const FinancialProfile(income: 0, monthlyBudget: 0, incomeUpdatedAt: null);
     _settings = const UserSettings();
     notifyListeners();
   }
@@ -190,7 +234,8 @@ class AppProvider extends ChangeNotifier {
     await _authService.signOut();
     _uid = null;
     _expenses = [];
-    _profile = const FinancialProfile(income: 0, monthlyBudget: 0);
+    _profile =
+        const FinancialProfile(income: 0, monthlyBudget: 0, incomeUpdatedAt: null);
     _settings = const UserSettings();
     _expenseSub?.cancel();
     _profileSub?.cancel();

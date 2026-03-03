@@ -35,6 +35,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
     final expenses = provider.expenses;
+    final monthlyBudget = provider.profile.monthlyBudget;
+    final income = provider.profile.income;
+    final now = DateTime.now();
 
     final weeklySummary = _weeklySummaryUseCase.execute(expenses);
     final monthlySummary = _monthlySummaryUseCase.execute(expenses);
@@ -46,12 +49,33 @@ class _SummaryScreenState extends State<SummaryScreen> {
         ? weeklySummary.averagePerDay
         : monthlySummary.averagePerDay;
 
-    final categorySpending = _spendingByCategoryUseCase.execute(expenses);
+    final periodExpenses = _selectedPeriod == 'This Week'
+        ? expenses.where((e) {
+            final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+            final start =
+                DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
+            return !e.date.isBefore(start);
+          }).toList()
+        : expenses.where((e) {
+            return e.date.year == now.year && e.date.month == now.month;
+          }).toList();
+
+    final categorySpending = _spendingByCategoryUseCase.execute(
+      periodExpenses,
+      monthlyBudget: monthlyBudget,
+    );
     final insight = _insightsPredictionUseCase.execute(
       avgPerDay,
       provider.maxSpendPerDay,
+      isMonthlyPeriod: _selectedPeriod == 'This Month',
     );
     final currencySymbol = provider.currencySymbol;
+    final hasSpendingData = periodExpenses.isNotEmpty;
+    final needsSetup = monthlyBudget <= 0 || income <= 0;
+    final insightMessage = needsSetup
+        ? 'Set both Income and Monthly Budget in Home to see accurate insights and summary predictions.'
+        : insight.message;
+    final insightIsWarning = needsSetup || insight.willExceedBudget;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -104,58 +128,64 @@ class _SummaryScreenState extends State<SummaryScreen> {
                       Expanded(
                         child: StatCard(
                           label: 'Total Spent',
-                          value: '$currencySymbol${totalSpent.toStringAsFixed(2)}',
+                          value:
+                              '$currencySymbol${totalSpent.toStringAsFixed(2)}',
                         ),
                       ),
                       const SizedBox(width: AppConstants.spacingMd),
                       Expanded(
                         child: StatCard(
                           label: 'Avg. Per Day',
-                          value: '$currencySymbol${avgPerDay.toStringAsFixed(2)}',
+                          value:
+                              '$currencySymbol${avgPerDay.toStringAsFixed(2)}',
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: AppConstants.spacingLg),
 
-                  // Insights Card
-                  Container(
-                    padding: const EdgeInsets.all(AppConstants.spacingLg),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      border: Border.all(color: AppColors.borderDark),
-                      borderRadius: BorderRadius.circular(
-                        AppConstants.radiusLg,
+                  if (hasSpendingData) ...[
+                    // Insights Card
+                    Container(
+                      padding: const EdgeInsets.all(AppConstants.spacingLg),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        border: Border.all(color: AppColors.borderDark),
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.radiusLg,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.auto_awesome,
+                                color: insightIsWarning
+                                    ? AppColors.warning
+                                    : AppColors.primary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: AppConstants.spacingSm),
+                              const Text('Insights', style: AppTextStyles.h4),
+                            ],
+                          ),
+                          const SizedBox(height: AppConstants.spacingMd),
+                          Text(
+                            insightMessage,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: insightIsWarning
+                                  ? AppColors.warning
+                                  : AppColors.textTertiary,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: const [
-                            Icon(
-                              Icons.auto_awesome,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
-                            SizedBox(width: AppConstants.spacingSm),
-                            Text('Insights', style: AppTextStyles.h4),
-                          ],
-                        ),
-                        const SizedBox(height: AppConstants.spacingMd),
-                        Text(
-                          insight.message,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: insight.willExceedBudget
-                                ? AppColors.error
-                                : AppColors.textTertiary,
-                            height: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.spacingLg),
+                    const SizedBox(height: AppConstants.spacingLg),
+                  ],
 
                   // Spending by Category
                   const Text('Spending by category', style: AppTextStyles.h3),
@@ -170,15 +200,18 @@ class _SummaryScreenState extends State<SummaryScreen> {
                       ),
                     )
                   else
-                    ...categorySpending.map((cs) => Padding(
-                          padding: const EdgeInsets.only(
-                              bottom: AppConstants.spacingMd),
-                          child: CategorySpendingCard(
-                            category: cs.category.toUpperCase(),
-                            amount: cs.amount,
-                            percentage: cs.percentage.round(),
-                          ),
-                        )),
+                    ...categorySpending.map(
+                      (cs) => Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: AppConstants.spacingMd,
+                        ),
+                        child: CategorySpendingCard(
+                          category: cs.category.toUpperCase(),
+                          amount: cs.amount,
+                          percentage: cs.percentage,
+                        ),
+                      ),
+                    ),
 
                   const SizedBox(height: AppConstants.spacingXl),
                 ],
@@ -216,4 +249,3 @@ class _SummaryScreenState extends State<SummaryScreen> {
     }
   }
 }
-

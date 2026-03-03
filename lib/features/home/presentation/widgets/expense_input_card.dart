@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/success_snackbar.dart';
+import '../../../../data/datasources/gemini_service.dart';
+import '../../../../domain/entities/expense.dart';
+import '../../../../presentation/providers/app_provider.dart';
+import 'expense_input_body.dart';
+import 'expense_input_parser.dart';
+import 'expense_input_validator.dart';
 
 class ExpenseInputCard extends StatefulWidget {
   final bool isOnline;
+  final bool aiInputEnabled;
   final VoidCallback onAddExpenseManually;
 
   const ExpenseInputCard({
     super.key,
     required this.isOnline,
+    required this.aiInputEnabled,
     required this.onAddExpenseManually,
   });
 
@@ -21,6 +28,8 @@ class ExpenseInputCard extends StatefulWidget {
 
 class _ExpenseInputCardState extends State<ExpenseInputCard> {
   final TextEditingController _inputController = TextEditingController();
+  final GeminiService _geminiService = GeminiService();
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -30,6 +39,22 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
 
   @override
   Widget build(BuildContext context) {
+    final child = !widget.aiInputEnabled
+        ? ExpenseInputManualBody(
+            message: 'AI input is turned off in Settings',
+            onAddExpenseManually: widget.onAddExpenseManually,
+          )
+        : (widget.isOnline
+            ? ExpenseInputOnlineBody(
+                controller: _inputController,
+                isSubmitting: _isSubmitting,
+                onSubmit: _handleAddExpense,
+              )
+            : ExpenseInputManualBody(
+                message: 'Smart input is unavailable offline',
+                onAddExpenseManually: widget.onAddExpenseManually,
+              ));
+
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingLg),
       decoration: BoxDecoration(
@@ -37,98 +62,112 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
         borderRadius: BorderRadius.circular(AppConstants.radiusXl),
         border: Border.all(color: AppColors.borderDark),
       ),
-      child: widget.isOnline ? _buildOnlineInput() : _buildOfflineInput(),
+      child: child,
     );
   }
 
-  Widget _buildOnlineInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Expense Input', style: AppTextStyles.h3),
-        const SizedBox(height: AppConstants.spacingMd),
+  Future<void> _handleAddExpense() async {
+    final rawInput = _inputController.text.trim();
+    if (rawInput.isEmpty) return;
 
-        // Natural Language Input
-        TextField(
-          controller: _inputController,
-          maxLines: 3,
-          style: AppTextStyles.bodyMedium,
-          decoration: InputDecoration(
-            hintText: 'Type naturally (e.g. coffee 8, lunch 25, taxi 12)',
-            hintStyle: TextStyle(
-              color: AppColors.textSecondary.withOpacity(0.5),
+    setState(() => _isSubmitting = true);
+    try {
+      final aiParsedList = await _geminiService.parseExpenseInputs(rawInput);
+
+      final expenses = aiParsedList
+          .map(
+            (aiParsed) => Expense(
+              id: '',
+              amount: aiParsed.amount,
+              category: aiParsed.category,
+              date: aiParsed.date,
+              note: aiParsed.note,
             ),
-            filled: true,
-            fillColor: const Color(0xFF0F0F0F),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-              borderSide: const BorderSide(color: AppColors.borderDark),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-              borderSide: const BorderSide(color: AppColors.borderDark),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-              borderSide: const BorderSide(color: Color(0xFF3A3A3A)),
+          )
+          .toList();
+
+      final toAdd = expenses.isNotEmpty
+          ? expenses
+          : ExpenseInputParser.parseMultiple(rawInput);
+      final isAiResult = expenses.isNotEmpty;
+      final validated = ExpenseInputValidator.filterValidExpenses(
+        toAdd,
+        rawInput,
+        requireInputOverlap: !isAiResult,
+      );
+
+      if (validated.isEmpty) {
+        final reason = ExpenseInputValidator.firstValidationError(
+              toAdd,
+              rawInput,
+              requireInputOverlap: !isAiResult,
+            ) ??
+            'Could not detect a valid expense.';
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '$reason Your text is still in the input so you can edit and resubmit.',
             ),
           ),
-        ),
-        const SizedBox(height: AppConstants.spacingSm),
+        );
+        return;
+      }
 
-        // Example Text
-        Text(
-          '"Coffee 5.50" or "Dinner 42"',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: const Color(0xFF505050),
+      final provider = context.read<AppProvider>();
+      for (final expense in validated) {
+        await provider.addExpense(expense);
+      }
+      if (!mounted) return;
+
+      _inputController.clear();
+      showSuccessSnackBar(
+        context,
+        validated.length == 1
+            ? '1 expense added'
+            : '${validated.length} expenses added',
+      );
+    } catch (e) {
+      final fallback = ExpenseInputParser.parseMultiple(rawInput);
+      final validated = ExpenseInputValidator.filterValidExpenses(
+        fallback,
+        rawInput,
+        requireInputOverlap: true,
+      );
+      if (validated.isNotEmpty) {
+        final provider = context.read<AppProvider>();
+        for (final expense in validated) {
+          await provider.addExpense(expense);
+        }
+        if (!mounted) return;
+        _inputController.clear();
+        showSuccessSnackBar(
+          context,
+          validated.length == 1
+              ? '1 expense added (fallback parser)'
+              : '${validated.length} expenses added (fallback parser)',
+        );
+        return;
+      }
+
+      if (!mounted) return;
+      final reason = ExpenseInputValidator.firstValidationError(
+            fallback,
+            rawInput,
+            requireInputOverlap: true,
+          ) ??
+          'AI input failed and no valid expense was detected.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '$reason Error: $e. Your text is still in the input for editing.',
           ),
         ),
-        const SizedBox(height: AppConstants.spacingMd),
-
-        // Add Button
-        PrimaryButton(
-          text: 'Add expense',
-          onPressed: () {
-            // Parse and add expense
-            if (_inputController.text.trim().isEmpty) return;
-
-            showSuccessSnackBar(context, 'Expense added');
-            _inputController.clear();
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOfflineInput() {
-    return Column(
-      children: [
-        // Offline Message
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.cloud_off,
-              size: 20,
-              color: AppColors.textSecondary,
-            ),
-            const SizedBox(width: AppConstants.spacingSm),
-            Text(
-              'Smart input is unavailable offline',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppConstants.spacingLg),
-
-        // Manual Add Button
-        PrimaryButton(
-          text: 'ADD EXPENSE MANUALLY',
-          onPressed: widget.onAddExpenseManually,
-        ),
-      ],
-    );
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
   }
 }

@@ -4,10 +4,12 @@ import '../../domain/entities/financial_profile.dart';
 class FinancialProfileFirestoreModel {
   final double income;
   final double monthlyBudget;
+  final DateTime? incomeUpdatedAt;
 
   const FinancialProfileFirestoreModel({
     required this.income,
     required this.monthlyBudget,
+    this.incomeUpdatedAt,
   });
 
   factory FinancialProfileFirestoreModel.fromFirestore(
@@ -15,8 +17,9 @@ class FinancialProfileFirestoreModel {
   ) {
     final data = doc.data()!;
     return FinancialProfileFirestoreModel(
-      income: (data['income'] as num).toDouble(),
-      monthlyBudget: (data['monthlyBudget'] as num).toDouble(),
+      income: (data['income'] as num?)?.toDouble() ?? 0.0,
+      monthlyBudget: (data['monthlyBudget'] as num?)?.toDouble() ?? 0.0,
+      incomeUpdatedAt: _parseDateTime(data['incomeUpdatedAt']),
     );
   }
 
@@ -24,6 +27,7 @@ class FinancialProfileFirestoreModel {
     return {
       'income': income,
       'monthlyBudget': monthlyBudget,
+      'incomeUpdatedAt': incomeUpdatedAt?.toIso8601String(),
     };
   }
 
@@ -31,10 +35,24 @@ class FinancialProfileFirestoreModel {
     return FinancialProfileFirestoreModel(
       income: profile.income,
       monthlyBudget: profile.monthlyBudget,
+      incomeUpdatedAt: profile.incomeUpdatedAt,
     );
   }
 
   FinancialProfile toEntity() {
-    return FinancialProfile(income: income, monthlyBudget: monthlyBudget);
+    return FinancialProfile(
+      income: income,
+      monthlyBudget: monthlyBudget,
+      incomeUpdatedAt: incomeUpdatedAt,
+    );
+  }
+
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    if (value is String) {
+      return DateTime.tryParse(value);
+    }
+    return null;
   }
 }

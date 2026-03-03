@@ -109,13 +109,16 @@ class AccountSection extends StatelessWidget {
   }
 
   Widget _buildLoggedInView(BuildContext context, AppProvider provider) {
+    final accountName = provider.accountName;
+    final accountEmail = provider.accountEmail ?? 'No email available';
+
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 '✅ Logged in with Google',
                 style: TextStyle(
                   fontSize: 16,
@@ -123,13 +126,25 @@ class AccountSection extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
-                'Google Account',
+                accountName,
                 style: TextStyle(
                   fontSize: 14,
+                  color: AppColors.textPrimary.withOpacity(0.9),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                accountEmail,
+                style: TextStyle(
+                  fontSize: 13,
                   color: AppColors.textSecondary,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

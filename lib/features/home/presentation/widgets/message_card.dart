@@ -17,11 +17,15 @@ class MessageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final borderColor = isWarning ? AppColors.warning : AppColors.borderDark;
+    final messageColor = isWarning ? AppColors.warning : AppColors.textTertiary;
+    final iconColor = isWarning ? AppColors.warning : AppColors.primary;
+
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingLg),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border.all(color: AppColors.borderDark),
+        border: Border.all(color: borderColor),
         borderRadius: BorderRadius.circular(AppConstants.radiusXl),
       ),
       child: Row(
@@ -34,7 +38,7 @@ class MessageCard extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              color: isWarning ? AppColors.accent : AppColors.primary,
+              color: iconColor,
               size: AppConstants.iconLg,
             ),
           ),
@@ -43,7 +47,7 @@ class MessageCard extends StatelessWidget {
             child: Text(
               message,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textTertiary,
+                color: messageColor,
                 height: 1.5,
               ),
             ),

@@ -24,9 +24,54 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   int _currentNavIndex = 3;
 
-  String _getCurrencyName(String code) =>
-      code == 'THB' ? 'Baht' : 'US Dollar';
-  String _getCurrencySymbol(String code) => code == 'THB' ? '฿' : '\$';
+  static const Map<String, String> _currencyNames = {
+    'USD': 'US Dollar',
+    'EUR': 'Euro',
+    'GBP': 'British Pound',
+    'JPY': 'Japanese Yen',
+    'CNY': 'Chinese Yuan',
+    'AUD': 'Australian Dollar',
+    'CAD': 'Canadian Dollar',
+    'CHF': 'Swiss Franc',
+    'INR': 'Indian Rupee',
+    'SGD': 'Singapore Dollar',
+    'THB': 'Baht',
+    'KRW': 'South Korean Won',
+    'HKD': 'Hong Kong Dollar',
+    'NZD': 'New Zealand Dollar',
+    'SEK': 'Swedish Krona',
+    'NOK': 'Norwegian Krone',
+    'MXN': 'Mexican Peso',
+    'BRL': 'Brazilian Real',
+    'ZAR': 'South African Rand',
+    'RUB': 'Russian Ruble',
+  };
+
+  static const Map<String, String> _currencySymbols = {
+    'USD': '\$',
+    'EUR': '€',
+    'GBP': '£',
+    'JPY': '¥',
+    'CNY': '¥',
+    'AUD': '\$',
+    'CAD': '\$',
+    'CHF': 'Fr',
+    'INR': '₹',
+    'SGD': '\$',
+    'THB': '฿',
+    'KRW': '₩',
+    'HKD': '\$',
+    'NZD': '\$',
+    'SEK': 'kr',
+    'NOK': 'kr',
+    'MXN': '\$',
+    'BRL': 'R\$',
+    'ZAR': 'R',
+    'RUB': '₽',
+  };
+
+  String _getCurrencyName(String code) => _currencyNames[code] ?? 'US Dollar';
+  String _getCurrencySymbol(String code) => _currencySymbols[code] ?? '\$';
 
   @override
   Widget build(BuildContext context) {
@@ -80,10 +125,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 24),
 
                   CurrencySettingsTile(
+                    selectedCurrencyCode: settings.currency,
                     selectedCurrencyName: _getCurrencyName(settings.currency),
                     selectedCurrencySymbol: _getCurrencySymbol(settings.currency),
-                    onCurrencySelected: (name, symbol) {
-                      final code = symbol == '฿' ? 'THB' : 'USD';
+                    onCurrencySelected: (code) {
                       provider.updateSettings(
                         settings.copyWith(currency: code),
                       );
