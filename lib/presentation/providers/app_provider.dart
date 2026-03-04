@@ -17,6 +17,7 @@ import '../../data/repositories_impl/expense_repository_impl.dart';
 import '../../data/repositories_impl/financial_profile_repository_impl.dart';
 import '../../data/repositories_impl/user_settings_repository_impl.dart';
 import '../../data/datasources/auth_service.dart';
+import '../../core/services/app_launch_service.dart';
 
 class AppProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -26,7 +27,7 @@ class AppProvider extends ChangeNotifier {
   bool _isOnline = true;
   String? _uid;
   String? _error;
-  bool _isGoogleSignInLoading = false;
+  bool _isAuthLoading = false;
 
   List<Expense> _expenses = [];
   FinancialProfile _profile = const FinancialProfile(
@@ -58,9 +59,9 @@ class AppProvider extends ChangeNotifier {
   bool get isOnline => _isOnline;
   String? get uid => _uid;
   String? get error => _error;
-  bool get isGoogleSignInLoading => _isGoogleSignInLoading;
+  bool get isAuthLoading => _isAuthLoading;
   bool get isAnonymous => _authService.isAnonymous;
-  bool get isGoogleUser => _authService.isGoogleUser;
+  bool get isEmailUser => _authService.isEmailUser;
   String? get accountEmail => _authService.currentUser?.email;
   String get accountName {
     final displayName = _authService.currentUser?.displayName?.trim();
@@ -71,7 +72,7 @@ class AppProvider extends ChangeNotifier {
       return email.split('@').first;
     }
 
-    return 'Google Account';
+    return 'Account';
   }
 
   List<Expense> get expenses => _expenses;
@@ -116,6 +117,8 @@ class AppProvider extends ChangeNotifier {
 
   Future<void> initialize() async {
     try {
+      await _authService.ensurePersistence();
+
       // Setup connectivity listener
       _connectivitySub = Connectivity().onConnectivityChanged.listen((
         List<ConnectivityResult> results,
@@ -135,6 +138,7 @@ class AppProvider extends ChangeNotifier {
       User? user = _authService.currentUser;
       user ??= await _authService.signInAnonymously();
       _uid = user?.uid;
+      await AppLaunchService.refreshForCurrentUser();
 
       if (_uid != null) {
         _setupRepositories();
@@ -220,23 +224,82 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signInWithGoogle() async {
-    _isGoogleSignInLoading = true;
+  Future<void> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    _isAuthLoading = true;
     _error = null;
     notifyListeners();
     try {
-      final user = await _authService.linkAnonymousWithGoogle();
+      final user = await _authService.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       final newUid = user?.uid;
       if (newUid != null) {
         await _switchUserDataContext(newUid);
       }
+      await AppLaunchService.refreshForCurrentUser();
       notifyListeners();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
       rethrow;
     } finally {
-      _isGoogleSignInLoading = false;
+      _isAuthLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> createOrLinkWithEmailAndPassword({
+    required String email,
+    required String password,
+    String? displayName,
+  }) async {
+    _isAuthLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final user = isAnonymous
+          ? await _authService.linkAnonymousWithEmailAndPassword(
+              email: email,
+              password: password,
+              displayName: displayName,
+            )
+          : await _authService.createUserWithEmailAndPassword(
+              email: email,
+              password: password,
+              displayName: displayName,
+            );
+      final newUid = user?.uid;
+      if (newUid != null) {
+        await _switchUserDataContext(newUid);
+      }
+      await AppLaunchService.refreshForCurrentUser();
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    } finally {
+      _isAuthLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    _isAuthLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _authService.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    } finally {
+      _isAuthLoading = false;
       notifyListeners();
     }
   }
@@ -277,6 +340,39 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
     // Re-initialize with anonymous sign-in
     await initialize();
+  }
+
+  Future<void> deleteAccount() async {
+    _isAuthLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await clearAllData();
+      await _authService.deleteCurrentUser();
+
+      _uid = null;
+      _expenses = [];
+      _profile = const FinancialProfile(
+        income: 0,
+        monthlyBudget: 0,
+        incomeUpdatedAt: null,
+      );
+      _settings = const UserSettings();
+      await _expenseSub?.cancel();
+      await _profileSub?.cancel();
+      await _settingsSub?.cancel();
+      notifyListeners();
+
+      // Re-initialize with anonymous sign-in after account deletion.
+      await initialize();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    } finally {
+      _isAuthLoading = false;
+      notifyListeners();
+    }
   }
 
   @override

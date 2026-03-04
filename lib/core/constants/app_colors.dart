@@ -26,6 +26,7 @@ class AppColors {
   // Border Colors
   static const Color borderDark = Color(0xFF2A2A2A);
   static const Color borderLight = Color(0xFF3A3A3A);
+  static const Color toggleActive = Color(0xFF4F8CFF);
 
   // Transparent Colors
   static const Color overlay = Color(0xCC000000); // 80% opacity

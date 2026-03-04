@@ -15,7 +15,7 @@ class ToggleSwitch extends StatelessWidget {
         width: 48,
         height: 28,
         decoration: BoxDecoration(
-          color: value ? AppColors.primary : AppColors.borderDark,
+          color: value ? AppColors.toggleActive : AppColors.borderDark,
           borderRadius: BorderRadius.circular(14),
         ),
         child: AnimatedAlign(

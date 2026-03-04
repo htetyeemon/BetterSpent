@@ -16,6 +16,7 @@ class RouteNames {
   // Settings Routes
   static const String currencySelector = '/currency-selector';
   static const String helpInfo = '/help-info';
+  static const String accountAuth = '/account-auth';
 
   // Prevents instantiation
   RouteNames._();

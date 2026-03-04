@@ -7,6 +7,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/bottom_navigation.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../core/widgets/success_snackbar.dart';
 import '../../../../presentation/providers/app_provider.dart';
 
 import '../widgets/smart_input_settings_section.dart';
@@ -25,6 +26,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   int _currentNavIndex = 3;
+  bool _hasShownRouteMessage = false;
 
   static const Map<String, String> _currencyNames = {
     'USD': 'US Dollar',
@@ -74,6 +76,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _getCurrencyName(String code) => _currencyNames[code] ?? 'US Dollar';
   String _getCurrencySymbol(String code) => _currencySymbols[code] ?? '\$';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hasShownRouteMessage) return;
+
+    final extra = GoRouterState.of(context).extra;
+    final message = extra is String ? extra : null;
+    if (message == null || message.isEmpty) return;
+
+    _hasShownRouteMessage = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      showSuccessSnackBar(context, message);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

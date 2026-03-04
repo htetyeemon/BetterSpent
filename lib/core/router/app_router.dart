@@ -10,15 +10,18 @@ import '../../features/expenses/presentation/screens/add_expense_screen.dart';
 import '../../features/expenses/presentation/screens/edit_expense_screen.dart';
 import '../../features/summary/presentation/screens/summary_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/settings/presentation/screens/account_auth_screen.dart';
 import '../../features/onboarding/presentation/screens/get_started_screen.dart';
 
 class AppRouter {
   static final GoRouter appRouter = GoRouter(
     initialLocation: RouteNames.home,
     redirect: (context, state) {
-      final seenGetStarted = AppLaunchService.hasSeenGetStarted;
+      final shouldShowGetStarted = AppLaunchService.shouldShowGetStarted;
       final onGetStarted = state.matchedLocation == RouteNames.getStarted;
-      if (seenGetStarted && onGetStarted) return RouteNames.home;
+      final onHome = state.matchedLocation == RouteNames.home;
+      if (shouldShowGetStarted && onHome) return RouteNames.getStarted;
+      if (!shouldShowGetStarted && onGetStarted) return RouteNames.home;
       return null;
     },
     errorBuilder: (context, state) => const HomeScreen(),
@@ -52,6 +55,11 @@ class AppRouter {
       _noTransitionRoute(
         path: RouteNames.settings,
         child: const SettingsScreen(),
+      ),
+
+      _noTransitionRoute(
+        path: RouteNames.accountAuth,
+        child: const AccountAuthScreen(),
       ),
     ],
   );
