@@ -29,8 +29,11 @@ class AppProvider extends ChangeNotifier {
   bool _isGoogleSignInLoading = false;
 
   List<Expense> _expenses = [];
-  FinancialProfile _profile =
-      const FinancialProfile(income: 0, monthlyBudget: 0, incomeUpdatedAt: null);
+  FinancialProfile _profile = const FinancialProfile(
+    income: 0,
+    monthlyBudget: 0,
+    incomeUpdatedAt: null,
+  );
   UserSettings _settings = const UserSettings();
 
   // Repositories
@@ -70,6 +73,7 @@ class AppProvider extends ChangeNotifier {
 
     return 'Google Account';
   }
+
   List<Expense> get expenses => _expenses;
   FinancialProfile get profile => _profile;
   UserSettings get settings => _settings;
@@ -113,9 +117,9 @@ class AppProvider extends ChangeNotifier {
   Future<void> initialize() async {
     try {
       // Setup connectivity listener
-      _connectivitySub = Connectivity()
-          .onConnectivityChanged
-          .listen((List<ConnectivityResult> results) {
+      _connectivitySub = Connectivity().onConnectivityChanged.listen((
+        List<ConnectivityResult> results,
+      ) {
         final online = results.any((r) => r != ConnectivityResult.none);
         if (_isOnline != online) {
           _isOnline = online;
@@ -129,9 +133,7 @@ class AppProvider extends ChangeNotifier {
 
       // Sign in anonymously if not already authenticated
       User? user = _authService.currentUser;
-      if (user == null) {
-        user = await _authService.signInAnonymously();
-      }
+      user ??= await _authService.signInAnonymously();
       _uid = user?.uid;
 
       if (_uid != null) {
@@ -156,13 +158,16 @@ class AppProvider extends ChangeNotifier {
   }
 
   void _setupStreams() {
-    _expenseSub = _expenseRepo!.getExpenses().listen((expenses) {
-      _expenses = expenses;
-      notifyListeners();
-    }, onError: (e) {
-      _error = e.toString();
-      notifyListeners();
-    });
+    _expenseSub = _expenseRepo!.getExpenses().listen(
+      (expenses) {
+        _expenses = expenses;
+        notifyListeners();
+      },
+      onError: (e) {
+        _error = e.toString();
+        notifyListeners();
+      },
+    );
 
     _profileSub = _profileRepo!.getProfile().listen((profile) {
       if (profile != null) {
@@ -206,8 +211,11 @@ class AppProvider extends ChangeNotifier {
     await _profileRepo?.deleteProfile();
     await _settingsRepo?.deleteSettings();
     _expenses = [];
-    _profile =
-        const FinancialProfile(income: 0, monthlyBudget: 0, incomeUpdatedAt: null);
+    _profile = const FinancialProfile(
+      income: 0,
+      monthlyBudget: 0,
+      incomeUpdatedAt: null,
+    );
     _settings = const UserSettings();
     notifyListeners();
   }
@@ -242,8 +250,11 @@ class AppProvider extends ChangeNotifier {
 
     _uid = uid;
     _expenses = [];
-    _profile =
-        const FinancialProfile(income: 0, monthlyBudget: 0, incomeUpdatedAt: null);
+    _profile = const FinancialProfile(
+      income: 0,
+      monthlyBudget: 0,
+      incomeUpdatedAt: null,
+    );
     _settings = const UserSettings();
 
     _setupRepositories();
@@ -254,8 +265,11 @@ class AppProvider extends ChangeNotifier {
     await _authService.signOut();
     _uid = null;
     _expenses = [];
-    _profile =
-        const FinancialProfile(income: 0, monthlyBudget: 0, incomeUpdatedAt: null);
+    _profile = const FinancialProfile(
+      income: 0,
+      monthlyBudget: 0,
+      incomeUpdatedAt: null,
+    );
     _settings = const UserSettings();
     _expenseSub?.cancel();
     _profileSub?.cancel();

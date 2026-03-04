@@ -20,17 +20,16 @@ class ParsedExpenseInput {
 
 class GeminiService {
   static const String _hardcodedApiKey =
-      'AIzaSyDvBLOtHKTkx0vJvQ3a0ZLaah6QFIxyX78';
+      'AIzaSyB7RL4dkp-xX7wPKIVKHTNJx71YknsJ3EA';
 
   static const List<String> _apiVersions = ['v1', 'v1beta'];
   static const List<String> _fallbackModelCandidates = [
     'gemini-2.5-flash',
+    'gemini-flash-latest',
+    'gemini-2.5-flash-lite',
     'gemini-2.0-flash',
     'gemini-2.0-flash-lite',
-    'gemini-2.0-pro',
-    'gemini-1.5-flash-latest',
-    'gemini-1.5-flash',
-    'gemini-pro',
+    'gemini-pro-latest',
   ];
 
   static const List<String> _allowedCategories = AppConstants.expenseCategories;
@@ -62,7 +61,8 @@ class GeminiService {
     final now = DateTime.now();
     final todayIso = _toIsoDate(now);
 
-    final prompt = '''
+    final prompt =
+        '''
 Extract all expenses from this user input: "$trimmed"
 Today is $todayIso.
 

@@ -8,7 +8,6 @@ import '../../../../data/datasources/gemini_service.dart';
 import '../../../../domain/entities/expense.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import 'expense_input_body.dart';
-import 'expense_input_parser.dart';
 import 'expense_input_validator.dart';
 
 class ExpenseInputCard extends StatefulWidget {
@@ -31,6 +30,9 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
   final TextEditingController _inputController = TextEditingController();
   final GeminiService _geminiService = GeminiService();
   bool _isSubmitting = false;
+  String? _progressMessage;
+  Expense? _pendingPreview;
+  int _pendingCount = 0;
 
   @override
   void dispose() {
@@ -49,6 +51,9 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
             ? ExpenseInputOnlineBody(
                 controller: _inputController,
                 isSubmitting: _isSubmitting,
+                progressMessage: _progressMessage,
+                pendingPreview: _pendingPreview,
+                pendingCount: _pendingCount,
                 onSubmit: _handleAddExpense,
               )
             : ExpenseInputManualBody(
@@ -73,6 +78,12 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
 
     setState(() => _isSubmitting = true);
     try {
+      setState(() {
+        _progressMessage = 'Analyzing with AI parser...';
+        _pendingPreview = null;
+        _pendingCount = 0;
+      });
+
       final aiParsedList = await _geminiService.parseExpenseInputs(rawInput);
 
       final expenses = aiParsedList
@@ -87,21 +98,17 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
           )
           .toList();
 
-      final toAdd = expenses.isNotEmpty
-          ? expenses
-          : ExpenseInputParser.parseMultiple(rawInput);
-      final isAiResult = expenses.isNotEmpty;
       final validated = ExpenseInputValidator.filterValidExpenses(
-        toAdd,
+        expenses,
         rawInput,
-        requireInputOverlap: !isAiResult,
+        requireInputOverlap: false,
       );
 
       if (validated.isEmpty) {
         final reason = ExpenseInputValidator.firstValidationError(
-              toAdd,
+              expenses,
               rawInput,
-              requireInputOverlap: !isAiResult,
+              requireInputOverlap: false,
             ) ??
             'Could not detect a valid expense.';
         if (!mounted) return;
@@ -115,7 +122,15 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
         return;
       }
 
+      if (!mounted) return;
       final provider = context.read<AppProvider>();
+      setState(() {
+        _progressMessage =
+            validated.length == 1 ? 'Adding expense...' : 'Adding expenses...';
+        _pendingPreview = validated.first;
+        _pendingCount = validated.length;
+      });
+
       for (final expense in validated) {
         await provider.addExpense(expense);
       }
@@ -129,45 +144,22 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
             : '${validated.length} expenses added',
       );
     } catch (e) {
-      final fallback = ExpenseInputParser.parseMultiple(rawInput);
-      final validated = ExpenseInputValidator.filterValidExpenses(
-        fallback,
-        rawInput,
-        requireInputOverlap: true,
-      );
-      if (validated.isNotEmpty) {
-        final provider = context.read<AppProvider>();
-        for (final expense in validated) {
-          await provider.addExpense(expense);
-        }
-        if (!mounted) return;
-        _inputController.clear();
-        showSuccessSnackBar(
-          context,
-          validated.length == 1
-              ? '1 expense added (fallback parser)'
-              : '${validated.length} expenses added (fallback parser)',
-        );
-        return;
-      }
-
       if (!mounted) return;
-      final reason = ExpenseInputValidator.firstValidationError(
-            fallback,
-            rawInput,
-            requireInputOverlap: true,
-          ) ??
-          'AI input failed and no valid expense was detected.';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '$reason Error: $e. Your text is still in the input for editing.',
+            'AI parser failed: $e. Your text is still in the input for editing.',
           ),
         ),
       );
     } finally {
       if (mounted) {
-        setState(() => _isSubmitting = false);
+        setState(() {
+          _isSubmitting = false;
+          _progressMessage = null;
+          _pendingPreview = null;
+          _pendingCount = 0;
+        });
       }
     }
   }
