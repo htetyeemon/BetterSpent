@@ -64,7 +64,7 @@ class ExpenseInputOnlineBody extends StatelessWidget {
         const SizedBox(height: AppConstants.spacingMd),
         PrimaryButton(
           text: 'Add expense',
-          isLoading: isSubmitting,
+          isEnabled: !isSubmitting,
           onPressed: onSubmit,
         ),
         if (isSubmitting && progressMessage != null) ...[

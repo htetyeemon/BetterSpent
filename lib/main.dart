@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +33,7 @@ void main() async {
 
   // ✅ Initialize Firebase with generated options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await _activateAppCheck();
   try {
     await AppLaunchService.initialize();
   } catch (e) {
@@ -44,6 +46,21 @@ void main() async {
       child: const BetterSpentApp(),
     ),
   );
+}
+
+Future<void> _activateAppCheck() async {
+  const webRecaptchaSiteKey = String.fromEnvironment('WEB_RECAPTCHA_SITE_KEY');
+  try {
+    await FirebaseAppCheck.instance.activate(
+      webProvider: webRecaptchaSiteKey.isNotEmpty
+          ? ReCaptchaV3Provider(webRecaptchaSiteKey)
+          : ReCaptchaV3Provider('missing-site-key'),
+      androidProvider: AndroidProvider.playIntegrity,
+      appleProvider: AppleProvider.appAttest,
+    );
+  } catch (e) {
+    debugPrint('Firebase App Check activate failed: $e');
+  }
 }
 
 class BetterSpentApp extends StatelessWidget {

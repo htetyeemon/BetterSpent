@@ -7,6 +7,7 @@ class PrimaryButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final bool isLoading;
+  final bool isEnabled;
   final bool isFullWidth;
   final Color? backgroundColor;
   final Color? textColor;
@@ -17,6 +18,7 @@ class PrimaryButton extends StatelessWidget {
     required this.text,
     required this.onPressed,
     this.isLoading = false,
+    this.isEnabled = true,
     this.isFullWidth = true,
     this.backgroundColor,
     this.textColor,
@@ -28,10 +30,12 @@ class PrimaryButton extends StatelessWidget {
     return SizedBox(
       width: isFullWidth ? double.infinity : null,
       child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: (!isEnabled || isLoading) ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor ?? AppColors.primary,
           foregroundColor: textColor ?? AppColors.background,
+          disabledBackgroundColor: AppColors.surfaceLight,
+          disabledForegroundColor: AppColors.textSecondary,
           padding: const EdgeInsets.symmetric(
             horizontal: AppConstants.spacingLg,
             vertical: AppConstants.spacingMd,

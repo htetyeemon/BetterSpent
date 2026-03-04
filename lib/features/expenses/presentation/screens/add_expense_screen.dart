@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/router/route_names.dart';
@@ -164,6 +165,16 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
                         final provider = context.read<AppProvider>();
                         try {
+                          if (!provider.isOnline) {
+                            unawaited(provider.addExpense(expense).catchError((_) {}));
+                            if (!context.mounted) return;
+                            context.go(
+                              RouteNames.home,
+                              extra: 'Expense added successfully',
+                            );
+                            return;
+                          }
+
                           await provider.addExpense(expense);
                           if (!context.mounted) return;
                           context.go(
@@ -172,13 +183,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                           );
                         } catch (e) {
                           if (!context.mounted) return;
-                          if (!provider.isOnline) {
-                            context.go(
-                              RouteNames.home,
-                              extra: 'Expense added successfully',
-                            );
-                            return;
-                          }
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Failed to add expense: $e'),

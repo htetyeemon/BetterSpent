@@ -85,7 +85,7 @@ class ExpenseListContent extends StatelessWidget {
               name: expense.note.isNotEmpty ? expense.note : expense.category,
               category: expense.category,
               amount: expense.amount,
-              time: DateFormat('MMM d, h:mm a').format(expense.date),
+              time: DateFormat('MMM d, yyyy').format(expense.date),
               currencySymbol: currencySymbol,
               onTap: () => _showExpenseDetail(context, expense, provider),
             );
