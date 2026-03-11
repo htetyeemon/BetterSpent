@@ -55,18 +55,17 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                 horizontal: AppConstants.spacingLg,
               ),
               child: Row(
-                children: const [
-                  Icon(
+                children: [
+                  const Icon(
                     Icons.info_outline,
                     size: 16,
                     color: AppColors.textSecondary,
                   ),
-                  SizedBox(width: AppConstants.spacingSm),
+                  const SizedBox(width: AppConstants.spacingSm),
                   Text(
                     'Tap an item to see more details',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textTertiary,
                     ),
                   ),
                 ],

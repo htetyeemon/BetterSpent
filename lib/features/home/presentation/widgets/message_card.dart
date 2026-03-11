@@ -7,14 +7,12 @@ class MessageCard extends StatelessWidget {
   final String message;
   final IconData icon;
   final bool isWarning;
-  final VoidCallback? onClose;
 
   const MessageCard({
     super.key,
     required this.message,
     this.icon = Icons.lightbulb_outline,
     this.isWarning = false,
-    this.onClose,
   });
 
   @override
@@ -48,23 +46,12 @@ class MessageCard extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: AppTextStyles.bodyMedium.copyWith(
+              style: AppTextStyles.bodySmall.copyWith(
                 color: messageColor,
                 height: 1.5,
               ),
             ),
           ),
-          if (onClose != null) ...[
-            const SizedBox(width: AppConstants.spacingSm),
-            GestureDetector(
-              onTap: onClose,
-              child: Icon(
-                Icons.close,
-                size: 18,
-                color: messageColor.withValues(alpha: 0.8),
-              ),
-            ),
-          ],
         ],
       ),
     );

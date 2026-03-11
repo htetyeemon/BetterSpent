@@ -136,9 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
       message: notification,
       isWarning: isWarning,
       icon: isWarning ? Icons.warning_amber_rounded : Icons.lightbulb_outline,
-      onClose: () {
-        provider.dismissNotification(notification);
-      },
     );
   }
 
