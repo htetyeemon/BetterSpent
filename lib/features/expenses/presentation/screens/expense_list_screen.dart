@@ -59,13 +59,13 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                   const Icon(
                     Icons.info_outline,
                     size: 16,
-                    color: AppColors.textSecondary,
+                    color: AppColors.primary,
                   ),
                   const SizedBox(width: AppConstants.spacingSm),
                   Text(
                     'Tap an item to see more details',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textTertiary,
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
