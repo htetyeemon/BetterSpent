@@ -7,8 +7,13 @@ import '../../../../core/widgets/app_text_field.dart';
 
 class AmountInputField extends StatelessWidget {
   final TextEditingController controller;
+  final String currencySymbol;
 
-  const AmountInputField({super.key, required this.controller});
+  const AmountInputField({
+    super.key,
+    required this.controller,
+    required this.currencySymbol,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,7 @@ class AmountInputField extends StatelessWidget {
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
           ],
-          hintText: '0.00',
+          hintText: '',
           style: AppTextStyles.displayMedium,
           prefix: Padding(
             padding: const EdgeInsets.only(
@@ -35,7 +40,7 @@ class AmountInputField extends StatelessWidget {
               right: AppConstants.spacingSm,
             ),
             child: Text(
-              '\$',
+              currencySymbol,
               style: AppTextStyles.displayMedium.copyWith(
                 color: AppColors.textSecondary,
               ),

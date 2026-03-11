@@ -6,9 +6,9 @@ class HelpContent {
 1. View Your Budget Overview
 When you open the app, the Home Screen shows:
 • Current balance
-• Weekly remaining budget
+• Monthly remaining budget
 • Daily spending limit
-• Category spending summary
+• Latest income added
 
 2. Add an Expense (Fast Way – AI Input)
 If AI input is enabled:

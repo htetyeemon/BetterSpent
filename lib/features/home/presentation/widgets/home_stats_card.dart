@@ -5,6 +5,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../widgets/income_column.dart';
 import '../widgets/budget_column.dart';
 import '../../../../presentation/providers/app_provider.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class HomeStatsCard extends StatelessWidget {
   final String currencySymbol;
@@ -48,7 +49,7 @@ class HomeStatsCard extends StatelessWidget {
               Expanded(
                 child: _buildStatColumn(
                   'BALANCE',
-                  '$currencySymbol${balance.toStringAsFixed(2)}',
+                  '$currencySymbol${formatAmount(balance)}',
                   AppColors.textPrimary,
                 ),
               ),
@@ -83,7 +84,7 @@ class HomeStatsCard extends StatelessWidget {
               Expanded(
                 child: _buildStatColumn(
                   'MAX SPEND/DAY',
-                  '$currencySymbol${maxSpendPerDay.toStringAsFixed(2)}',
+                  '$currencySymbol${formatAmount(maxSpendPerDay)}',
                   AppColors.textPrimary,
                 ),
               ),

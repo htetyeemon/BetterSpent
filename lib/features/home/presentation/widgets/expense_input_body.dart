@@ -5,6 +5,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../domain/entities/expense.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class ExpenseInputOnlineBody extends StatelessWidget {
   final TextEditingController controller;
@@ -29,7 +30,7 @@ class ExpenseInputOnlineBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Expense Input', style: AppTextStyles.h3),
+        const Text('Enter expenses', style: AppTextStyles.h3),
         const SizedBox(height: AppConstants.spacingMd),
         TextField(
           controller: controller,
@@ -160,7 +161,7 @@ class _PendingExpenseCard extends StatelessWidget {
             ),
           ),
           Text(
-            '-\$${expense.amount.toStringAsFixed(2)}',
+            '-\$${formatAmount(expense.amount)}',
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textPrimary.withValues(alpha: 0.75),
             ),

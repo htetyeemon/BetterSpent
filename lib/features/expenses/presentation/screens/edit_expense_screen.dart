@@ -12,6 +12,7 @@ import '../widgets/category_chip_selector.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../domain/entities/expense.dart';
 import '../../../../presentation/providers/app_provider.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class EditExpenseScreen extends StatefulWidget {
   const EditExpenseScreen({super.key});
@@ -38,7 +39,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
     final extra = GoRouterState.of(context).extra;
     if (extra is Expense) {
       _originalExpense = extra;
-      _amountController.text = extra.amount.toStringAsFixed(2);
+      _amountController.text = formatAmount(extra.amount);
       _noteController.text = extra.note;
       _selectedDate = extra.date;
       _selectedCategory = CategoryHelper.normalizeLabel(extra.category);
@@ -66,6 +67,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currencySymbol = context.watch<AppProvider>().currencySymbol;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -96,7 +98,10 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AmountInputField(controller: _amountController),
+                    AmountInputField(
+                      controller: _amountController,
+                      currencySymbol: currencySymbol,
+                    ),
                     const SizedBox(height: AppConstants.spacingLg),
                     CategoryChipSelector(
                       categories: _categories,

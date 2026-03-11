@@ -14,6 +14,7 @@ import '../../../../domain/usecases/get_weekly_summary_use_case.dart';
 import '../../../../domain/usecases/get_monthly_summary_use_case.dart';
 import '../../../../domain/usecases/get_spending_by_category_use_case.dart';
 import '../../../../domain/usecases/get_insights_prediction_use_case.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class SummaryScreen extends StatefulWidget {
   const SummaryScreen({super.key});
@@ -129,7 +130,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                         child: StatCard(
                           label: 'Total Spent',
                           value:
-                              '$currencySymbol${totalSpent.toStringAsFixed(2)}',
+                              '$currencySymbol${formatAmount(totalSpent)}',
                         ),
                       ),
                       const SizedBox(width: AppConstants.spacingMd),
@@ -137,7 +138,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                         child: StatCard(
                           label: 'Avg. Per Day',
                           value:
-                              '$currencySymbol${avgPerDay.toStringAsFixed(2)}',
+                              '$currencySymbol${formatAmount(avgPerDay)}',
                         ),
                       ),
                     ],
@@ -209,6 +210,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                           category: cs.category.toUpperCase(),
                           amount: cs.amount,
                           percentage: cs.percentage,
+                          currencySymbol: currencySymbol,
                         ),
                       ),
                     ),

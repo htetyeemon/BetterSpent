@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class ExpenseDetailDialog extends StatelessWidget {
   final String name;
@@ -45,7 +46,7 @@ class ExpenseDetailDialog extends StatelessWidget {
             _buildDialogHeader(context),
             const SizedBox(height: AppConstants.spacingXl),
             Text(
-              '\$${amount.toStringAsFixed(2)}',
+              '\$${formatAmount(amount)}',
               style: const TextStyle(
                 fontSize: 48,
                 fontWeight: FontWeight.bold,
@@ -56,7 +57,7 @@ class ExpenseDetailDialog extends StatelessWidget {
             Text(
               time,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textPrimary.withOpacity(0.8),
+                color: AppColors.textPrimary.withValues(alpha: 0.8),
               ),
             ),
             const SizedBox(height: AppConstants.spacingSm),
@@ -181,7 +182,7 @@ class ExpenseDetailDialog extends StatelessWidget {
   }) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.8),
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       builder: (context) => ExpenseDetailDialog(
         name: name,
         category: category,

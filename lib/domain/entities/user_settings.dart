@@ -5,7 +5,7 @@ class UserSettings {
   final bool motivationalMessageEnabled;
 
   const UserSettings({
-    this.currency = 'USD',
+    this.currency = 'THB',
     this.aiInputEnabled = true,
     this.budgetWarningEnabled = true,
     this.motivationalMessageEnabled = true,

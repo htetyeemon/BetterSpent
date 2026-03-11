@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/category_icon.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class ExpenseCard extends StatelessWidget {
   final String name;
@@ -89,7 +90,7 @@ class ExpenseCard extends StatelessWidget {
 
             Flexible(
               child: Text(
-                '-$currencySymbol${amount.toStringAsFixed(2)}',
+                '-$currencySymbol${formatAmount(amount)}',
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,

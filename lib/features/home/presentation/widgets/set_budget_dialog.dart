@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class SetBudgetDialog extends StatefulWidget {
   final String currencySymbol;
@@ -24,7 +25,7 @@ class SetBudgetDialog extends StatefulWidget {
   }) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.8),
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       builder: (_) => SetBudgetDialog(
         currencySymbol: currencySymbol,
         onSave: onSave,
@@ -45,7 +46,7 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
   void initState() {
     super.initState();
     if (widget.currentBudget != null) {
-      _controller.text = widget.currentBudget!.toStringAsFixed(2);
+      _controller.text = formatAmount(widget.currentBudget!);
     }
   }
 
@@ -90,8 +91,8 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
                   Container(
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                  decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(
                         AppConstants.radiusMd,
                       ),
@@ -168,7 +169,7 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
                         ],
                         style: AppTextStyles.h3,
                         decoration: const InputDecoration(
-                          hintText: '0.00',
+                          hintText: '',
                           hintStyle: TextStyle(color: AppColors.textSecondary),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(

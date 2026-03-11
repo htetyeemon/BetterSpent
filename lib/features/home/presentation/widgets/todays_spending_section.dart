@@ -6,6 +6,7 @@ import '../../../../domain/entities/expense.dart';
 import '../../../../core/widgets/category_icon.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../presentation/providers/app_provider.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class TodaysSpendingSection extends StatelessWidget {
   final bool isOnline;
@@ -15,13 +16,15 @@ class TodaysSpendingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
+    final currencySymbol = provider.currencySymbol;
     final now = DateTime.now();
     final todayExpenses = provider.expenses
         .where((e) =>
             e.date.year == now.year &&
             e.date.month == now.month &&
             e.date.day == now.day)
-        .toList();
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
     final displayExpenses = todayExpenses.take(3).toList();
 
     return Column(
@@ -81,14 +84,14 @@ class TodaysSpendingSection extends StatelessWidget {
               padding: EdgeInsets.only(
                 bottom: entry.key < displayExpenses.length - 1 ? 12 : 0,
               ),
-              child: _buildExpenseItem(expense),
+              child: _buildExpenseItem(expense, currencySymbol),
             );
           }),
       ],
     );
   }
 
-  Widget _buildExpenseItem(Expense expense) {
+  Widget _buildExpenseItem(Expense expense, String currencySymbol) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -134,7 +137,7 @@ class TodaysSpendingSection extends StatelessWidget {
             ),
           ),
           Text(
-            '-\$${expense.amount.toStringAsFixed(2)}',
+            '-$currencySymbol${formatAmount(expense.amount)}',
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,

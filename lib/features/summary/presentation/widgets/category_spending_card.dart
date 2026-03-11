@@ -4,17 +4,20 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/category_icon.dart';
 import 'progress_bar.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class CategorySpendingCard extends StatelessWidget {
   final String category;
   final double amount;
   final double percentage;
+  final String currencySymbol;
 
   const CategorySpendingCard({
     super.key,
     required this.category,
     required this.amount,
     required this.percentage,
+    required this.currencySymbol,
   });
 
   String _formatPercentage(double value) {
@@ -67,7 +70,7 @@ class CategorySpendingCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '\$${amount.toStringAsFixed(2)}',
+                    '$currencySymbol${formatAmount(amount)}',
                     style: AppTextStyles.bodyLarge.copyWith(
                       fontWeight: FontWeight.w600,
                     ),

@@ -78,7 +78,7 @@ class _AddIncomeDialogState extends State<AddIncomeDialog> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                   ),
                   child: const Icon(
@@ -121,7 +121,7 @@ class _AddIncomeDialogState extends State<AddIncomeDialog> {
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
               ],
-              hintText: '0.00',
+              hintText: '',
               style: AppTextStyles.h3,
               prefix: Padding(
                 padding: const EdgeInsets.only(

@@ -27,7 +27,7 @@ class DeleteExpenseDialog extends StatelessWidget {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.1),
+                color: AppColors.error.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -129,7 +129,7 @@ class DeleteExpenseDialog extends StatelessWidget {
   static void show(BuildContext context, {required VoidCallback onConfirm}) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.8),
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       builder: (context) => DeleteExpenseDialog(onConfirm: onConfirm),
     );
   }

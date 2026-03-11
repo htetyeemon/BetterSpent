@@ -19,7 +19,7 @@ class UserSettingsFirestoreModel {
   ) {
     final data = doc.data()!;
     return UserSettingsFirestoreModel(
-      currency: (data['currency'] as String?) ?? 'USD',
+      currency: (data['currency'] as String?) ?? 'THB',
       aiInputEnabled: (data['aiInputEnabled'] as bool?) ?? true,
       budgetWarningEnabled: (data['budgetWarningEnabled'] as bool?) ?? true,
       motivationalMessageEnabled:

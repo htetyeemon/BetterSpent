@@ -36,6 +36,7 @@ class AppProvider extends ChangeNotifier {
     incomeUpdatedAt: null,
   );
   UserSettings _settings = const UserSettings();
+  String? _dismissedNotification;
 
   // Repositories
   ExpenseRepository? _expenseRepo;
@@ -78,6 +79,7 @@ class AppProvider extends ChangeNotifier {
   List<Expense> get expenses => _expenses;
   FinancialProfile get profile => _profile;
   UserSettings get settings => _settings;
+  String? get dismissedNotification => _dismissedNotification;
 
   double get balance => _getBalance.execute(_profile.income, _expenses);
   double get maxSpendPerDay =>
@@ -210,6 +212,12 @@ class AppProvider extends ChangeNotifier {
     await _settingsRepo?.updateSettings(settings);
   }
 
+  void dismissNotification(String notification) {
+    if (_dismissedNotification == notification) return;
+    _dismissedNotification = notification;
+    notifyListeners();
+  }
+
   Future<void> clearAllData() async {
     await _expenseRepo?.deleteAllExpenses();
     await _profileRepo?.deleteProfile();
@@ -221,6 +229,7 @@ class AppProvider extends ChangeNotifier {
       incomeUpdatedAt: null,
     );
     _settings = const UserSettings();
+    _dismissedNotification = null;
     notifyListeners();
   }
 
@@ -319,6 +328,7 @@ class AppProvider extends ChangeNotifier {
       incomeUpdatedAt: null,
     );
     _settings = const UserSettings();
+    _dismissedNotification = null;
 
     _setupRepositories();
     _setupStreams();
@@ -334,6 +344,7 @@ class AppProvider extends ChangeNotifier {
       incomeUpdatedAt: null,
     );
     _settings = const UserSettings();
+    _dismissedNotification = null;
     _expenseSub?.cancel();
     _profileSub?.cancel();
     _settingsSub?.cancel();
@@ -358,6 +369,7 @@ class AppProvider extends ChangeNotifier {
         incomeUpdatedAt: null,
       );
       _settings = const UserSettings();
+      _dismissedNotification = null;
       await _expenseSub?.cancel();
       await _profileSub?.cancel();
       await _settingsSub?.cancel();

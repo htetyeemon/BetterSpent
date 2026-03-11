@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../domain/entities/expense.dart';
 import '../../../../core/widgets/category_icon.dart';
 import '../../../../presentation/providers/app_provider.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class TodaysSpendingDialog extends StatelessWidget {
   final bool isOnline;
@@ -15,6 +16,7 @@ class TodaysSpendingDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
+    final currencySymbol = provider.currencySymbol;
     final now = DateTime.now();
     final todayExpenses = provider.expenses
         .where((e) =>
@@ -46,11 +48,11 @@ class TodaysSpendingDialog extends StatelessWidget {
                     ...todayExpenses.map(
                       (expense) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildExpenseItem(expense),
+                        child: _buildExpenseItem(expense, currencySymbol),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    _buildTotal(total),
+                    _buildTotal(total, currencySymbol),
                   ],
                 ),
               ),
@@ -90,7 +92,7 @@ class TodaysSpendingDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildTotal(double total) {
+  Widget _buildTotal(double total, String currencySymbol) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -110,7 +112,7 @@ class TodaysSpendingDialog extends StatelessWidget {
             ),
           ),
           Text(
-            '-\$${total.toStringAsFixed(2)}',
+            '-$currencySymbol${formatAmount(total)}',
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -122,7 +124,7 @@ class TodaysSpendingDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildExpenseItem(Expense expense) {
+  Widget _buildExpenseItem(Expense expense, String currencySymbol) {
     final displayName = expense.note.isNotEmpty ? expense.note : expense.category;
     return Container(
       padding: const EdgeInsets.all(20),
@@ -169,7 +171,7 @@ class TodaysSpendingDialog extends StatelessWidget {
             ),
           ),
           Text(
-            '-\$${expense.amount.toStringAsFixed(2)}',
+            '-$currencySymbol${formatAmount(expense.amount)}',
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -184,7 +186,7 @@ class TodaysSpendingDialog extends StatelessWidget {
   static void show(BuildContext context, {bool isOnline = true}) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.8),
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       builder: (context) => TodaysSpendingDialog(isOnline: isOnline),
     );
   }

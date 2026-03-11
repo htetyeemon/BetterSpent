@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import 'add_income_dialog.dart';
 import 'edit_income_dialog.dart';
+import '../../../../core/utils/amount_formatter.dart';
+import '../../../../core/widgets/expanded_tap_target.dart';
 
 class IncomeColumn extends StatelessWidget {
   final String currencySymbol;
@@ -23,32 +26,30 @@ class IncomeColumn extends StatelessWidget {
         /// LABEL + ACTIONS
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
                 'INCOME',
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                style: AppTextStyles.labelMedium.copyWith(
                   letterSpacing: 1.2,
                   color: AppColors.textSecondary,
                 ),
               ),
             ),
-            GestureDetector(
+            ExpandedTapTarget(
               onTap: () => _showIncomeDialog(context),
               child: const Icon(
                 Icons.add,
-                size: 16,
+                size: 18,
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(width: 8),
-            GestureDetector(
+            const SizedBox(width: 12),
+            ExpandedTapTarget(
               onTap: () => _showEditIncomeDialog(context),
               child: const Icon(
                 Icons.edit_outlined,
-                size: 16,
+                size: 18,
                 color: AppColors.textSecondary,
               ),
             ),
@@ -62,10 +63,9 @@ class IncomeColumn extends StatelessWidget {
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
           child: Text(
-            '+$currencySymbol${income.toStringAsFixed(2)}',
-            style: const TextStyle(
+            '+$currencySymbol${formatAmount(income)}',
+            style: AppTextStyles.h2.copyWith(
               fontSize: 28,
-              fontWeight: FontWeight.w600,
               color: AppColors.primary,
             ),
           ),

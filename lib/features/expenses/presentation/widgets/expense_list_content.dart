@@ -74,7 +74,7 @@ class ExpenseListContent extends StatelessWidget {
     return ListView.separated(
       padding: EdgeInsets.symmetric(horizontal: AppConstants.spacingMd),
       itemCount: dateKeys.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppConstants.spacingLg),
+      separatorBuilder: (_, _) => const SizedBox(height: AppConstants.spacingLg),
       itemBuilder: (context, index) {
         final dateKey = dateKeys[index];
         final dayExpenses = grouped[dateKey]!;

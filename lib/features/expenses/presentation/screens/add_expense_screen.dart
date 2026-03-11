@@ -39,6 +39,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currencySymbol = context.watch<AppProvider>().currencySymbol;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -71,7 +72,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     /// AMOUNT
-                    AmountInputField(controller: _amountController),
+                    AmountInputField(
+                      controller: _amountController,
+                      currencySymbol: currencySymbol,
+                    ),
 
                     const SizedBox(height: AppConstants.spacingLg),
 

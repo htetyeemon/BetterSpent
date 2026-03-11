@@ -128,11 +128,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildMessageCard(AppProvider provider) {
     final notification = _NotificationHelper(provider).getNotification();
     if (notification.isEmpty) return const SizedBox.shrink();
+    if (provider.dismissedNotification == notification) {
+      return const SizedBox.shrink();
+    }
     final isWarning = notification.contains('⚠️');
     return MessageCard(
       message: notification,
       isWarning: isWarning,
       icon: isWarning ? Icons.warning_amber_rounded : Icons.lightbulb_outline,
+      onClose: () {
+        provider.dismissNotification(notification);
+      },
     );
   }
 
@@ -202,7 +208,8 @@ class _NotificationHelper {
         'Nice work! You\'re building a healthy financial habit.',
         'Keep it up! Small savings add up to big results.',
       ];
-      return messages[now.millisecondsSinceEpoch % messages.length];
+      final daySeed = (now.year * 10000) + (now.month * 100) + now.day;
+      return messages[daySeed % messages.length];
     }
 
     return '';

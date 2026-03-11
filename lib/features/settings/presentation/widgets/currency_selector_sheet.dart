@@ -216,19 +216,4 @@ class _CurrencySelectorSheetState extends State<CurrencySelectorSheet> {
     );
   }
 
-  static void show(
-    BuildContext context, {
-    required String selectedCurrencyCode,
-    required void Function(String code) onCurrencySelected,
-  }) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => CurrencySelectorSheet(
-        selectedCurrencyCode: selectedCurrencyCode,
-        onCurrencySelected: onCurrencySelected,
-      ),
-    );
-  }
 }

@@ -8,6 +8,7 @@ import '../../../../core/widgets/base_dialog.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/secondary_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/utils/amount_formatter.dart';
 
 class EditIncomeDialog extends StatefulWidget {
   final String currencySymbol;
@@ -50,7 +51,7 @@ class _EditIncomeDialogState extends State<EditIncomeDialog> {
   void initState() {
     super.initState();
     _controller = TextEditingController(
-      text: widget.initialAmount.toStringAsFixed(2),
+      text: formatAmount(widget.initialAmount),
     );
   }
 
@@ -84,7 +85,7 @@ class _EditIncomeDialogState extends State<EditIncomeDialog> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                   ),
                   child: const Icon(
@@ -124,7 +125,7 @@ class _EditIncomeDialogState extends State<EditIncomeDialog> {
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
               ],
-              hintText: '0.00',
+              hintText: '',
               style: AppTextStyles.h3,
               prefix: Padding(
                 padding: const EdgeInsets.only(
