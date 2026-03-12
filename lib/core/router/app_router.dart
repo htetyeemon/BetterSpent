@@ -5,6 +5,7 @@ import 'route_names.dart';
 import '../services/app_launch_service.dart';
 
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/landing/presentation/screens/landing_screen.dart';
 import '../../features/expenses/presentation/screens/expense_list_screen.dart';
 import '../../features/expenses/presentation/screens/add_expense_screen.dart';
 import '../../features/expenses/presentation/screens/edit_expense_screen.dart';
@@ -26,6 +27,11 @@ class AppRouter {
     },
     errorBuilder: (context, state) => const HomeScreen(),
     routes: [
+      _noTransitionRoute(
+        path: RouteNames.landing,
+        child: LandingScreen(),
+      ),
+
       _noTransitionRoute(
         path: RouteNames.getStarted,
         child: const GetStartedScreen(),

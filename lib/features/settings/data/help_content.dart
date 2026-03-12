@@ -62,7 +62,7 @@ When internet returns, AI becomes available again.
 About This App
 
 App Name: BetterSpent
-Version: 1.4.2
+Version: 1.0.0
 Category: Finance
 ''',
   };

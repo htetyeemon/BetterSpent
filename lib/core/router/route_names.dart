@@ -1,4 +1,7 @@
 class RouteNames {
+  // Landing
+  static const String landing = '/landing';
+
   //onboarding
   static const String getStarted = '/get-started';
 
