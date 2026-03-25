@@ -111,7 +111,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
                   amount: amount,
                   category: CategoryHelper.normalizeLabel(_selectedCategory),
                   date: _selectedDate,
-                  note: _noteController.text.trim(),
+                  note: ExpenseScreenActions.sanitizeNote(_noteController.text),
                 );
 
                 await ExpenseScreenActions.updateExpense(

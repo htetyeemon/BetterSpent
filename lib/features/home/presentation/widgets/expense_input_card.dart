@@ -8,6 +8,7 @@ import '../../../../core/widgets/success_snackbar.dart';
 import '../../../../data/datasources/gemini_service.dart';
 import '../../../../domain/entities/expense.dart';
 import '../../../../presentation/providers/app_provider.dart';
+import '../../../../features/expenses/presentation/utils/expense_screen_actions.dart';
 import 'expense_input_body.dart';
 import 'expense_input_validator.dart';
 
@@ -94,7 +95,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
               amount: aiParsed.amount,
               category: CategoryHelper.normalizeLabel(aiParsed.category),
               date: aiParsed.date,
-              note: aiParsed.note,
+              note: ExpenseScreenActions.sanitizeNote(aiParsed.note),
             ),
           )
           .toList();

@@ -19,6 +19,14 @@ class ExpenseSaveResult {
 }
 
 class ExpenseScreenActions {
+  static String sanitizeNote(String note, {int maxWords = 200}) {
+    final trimmed = note.trim();
+    if (trimmed.isEmpty) return trimmed;
+    final words = trimmed.split(RegExp(r'\s+'));
+    if (words.length <= maxWords) return trimmed;
+    return words.take(maxWords).join(' ');
+  }
+
   static Expense? buildExpense({
     required String amountText,
     required String note,
@@ -33,7 +41,7 @@ class ExpenseScreenActions {
       amount: amount,
       category: category,
       date: date,
-      note: note.trim(),
+      note: sanitizeNote(note),
     );
   }
 
