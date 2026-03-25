@@ -7,6 +7,7 @@ import '../../../../core/router/route_names.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/filter_chip_row.dart';
 import '../widgets/expense_list_content.dart';
+import '../../../../core/utils/bottom_nav_helper.dart';
 
 class ExpenseListScreen extends StatefulWidget {
   const ExpenseListScreen({super.key});
@@ -80,18 +81,9 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
             BottomNavigation(
               currentIndex: _currentNavIndex,
               onTap: (index) {
+                final currentIndex = _currentNavIndex;
                 setState(() => _currentNavIndex = index);
-                switch (index) {
-                  case 0:
-                    context.go(RouteNames.home);
-                    break;
-                  case 2:
-                    context.go(RouteNames.summary);
-                    break;
-                  case 3:
-                    context.go(RouteNames.settings);
-                    break;
-                }
+                handleBottomNavTap(context, index, currentIndex);
               },
             ),
           ],

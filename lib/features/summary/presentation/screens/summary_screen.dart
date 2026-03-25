@@ -15,6 +15,7 @@ import '../../../../domain/usecases/get_monthly_summary_use_case.dart';
 import '../../../../domain/usecases/get_spending_by_category_use_case.dart';
 import '../../../../domain/usecases/get_insights_prediction_use_case.dart';
 import '../../../../core/utils/amount_formatter.dart';
+import '../../../../core/utils/bottom_nav_helper.dart';
 
 class SummaryScreen extends StatefulWidget {
   const SummaryScreen({super.key});
@@ -224,8 +225,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
             BottomNavigation(
               currentIndex: _currentNavIndex,
               onTap: (index) {
+                final currentIndex = _currentNavIndex;
                 setState(() => _currentNavIndex = index);
-                _navigateToScreen(index);
+                handleBottomNavTap(context, index, currentIndex);
               },
             ),
           ],
@@ -234,20 +236,4 @@ class _SummaryScreenState extends State<SummaryScreen> {
     );
   }
 
-  void _navigateToScreen(int index) {
-    switch (index) {
-      case 0:
-        context.go(RouteNames.home);
-        break;
-      case 1:
-        context.go(RouteNames.expenses);
-        break;
-      case 2:
-        // Already on summary
-        break;
-      case 3:
-        context.go(RouteNames.settings);
-        break;
-    }
-  }
 }

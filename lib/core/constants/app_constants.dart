@@ -42,4 +42,5 @@ class AppConstants {
   // Default Values
   static const String defaultCurrency = 'USD';
   static const double defaultSpendingLimit = 100.0;
+  static const int expenseStartYear = 2020;
 }

@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import '../../core/utils/category_helper.dart';
+import '../../core/utils/date_helper.dart';
 
 class ParsedExpenseInput {
   final double amount;
@@ -28,7 +29,7 @@ class GeminiService {
 
     final now = DateTime.now();
     final callable = _functions.httpsCallable('parseExpense');
-    final localDate = _toIsoDate(now);
+    final localDate = DateHelper.formatIsoDate(now);
 
     Map<String, dynamic> payload;
     try {
@@ -92,10 +93,4 @@ class GeminiService {
     }
   }
 
-  String _toIsoDate(DateTime date) {
-    final y = date.year.toString().padLeft(4, '0');
-    final m = date.month.toString().padLeft(2, '0');
-    final d = date.day.toString().padLeft(2, '0');
-    return '$y-$m-$d';
-  }
 }

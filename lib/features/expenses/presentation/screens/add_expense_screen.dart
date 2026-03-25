@@ -46,25 +46,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(AppConstants.spacingMd),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => context.go(RouteNames.home),
-                    color: AppColors.textPrimary,
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: Text('Add Expense', style: AppTextStyles.h2),
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
-              ),
-            ),
+            _buildHeader(context),
 
             Expanded(
               child: SingleChildScrollView(
@@ -72,131 +54,16 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// AMOUNT
-                    AmountInputField(
-                      controller: _amountController,
-                      currencySymbol: currencySymbol,
-                    ),
-
+                    _buildAmountSection(currencySymbol),
                     const SizedBox(height: AppConstants.spacingLg),
-
-                    /// CATEGORY
-                    CategoryChipSelector(
-                      categories: _categories,
-                      selectedCategory: _selectedCategory,
-                      onCategorySelected: (category) {
-                        setState(() => _selectedCategory = category);
-                      },
-                    ),
-
+                    _buildCategorySection(),
                     const SizedBox(height: AppConstants.spacingLg),
-
-                    /// NOTE
-                    Text(
-                      'NOTE',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: AppConstants.spacingSm),
-
-                    CustomTextField(
-                      controller: _noteController,
-                      hintText: 'Add a note...',
-                    ),
-
+                    _buildNoteSection(),
                     const SizedBox(height: AppConstants.spacingLg),
-
-                    /// DATE
-                    Text(
-                      'DATE',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: AppConstants.spacingSm),
-
-                    GestureDetector(
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedDate,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime.now(),
-                        );
-
-                        if (picked != null) {
-                          setState(() => _selectedDate = picked);
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(AppConstants.spacingMd),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(
-                            AppConstants.radiusLg,
-                          ),
-                          border: Border.all(color: AppColors.borderDark),
-                        ),
-                        child: Text(
-                          DateHelper.formatIsoDate(_selectedDate),
-                          style: AppTextStyles.bodyMedium,
-                        ),
-                      ),
-                    ),
-
+                    _buildDateSection(context),
                     const SizedBox(height: AppConstants.spacingXl),
                     const SizedBox(height: AppConstants.spacingXl),
-
-                    /// SAVE BUTTON
-                    PrimaryButton(
-                      text: 'ADD EXPENSE',
-                      onPressed: () async {
-                        if (_amountController.text.trim().isEmpty) return;
-                        final amount = double.tryParse(
-                          _amountController.text.trim(),
-                        );
-                        if (amount == null) return;
-
-                        final expense = Expense(
-                          id: '',
-                          amount: amount,
-                          category: CategoryHelper.normalizeLabel(
-                            _selectedCategory,
-                          ),
-                          date: _selectedDate,
-                          note: _noteController.text.trim(),
-                        );
-
-                        final provider = context.read<AppProvider>();
-                        try {
-                          if (!provider.isOnline) {
-                            unawaited(provider.addExpense(expense).catchError((_) {}));
-                            if (!context.mounted) return;
-                            context.go(
-                              RouteNames.home,
-                              extra: 'Expense added successfully',
-                            );
-                            return;
-                          }
-
-                          await provider.addExpense(expense);
-                          if (!context.mounted) return;
-                          context.go(
-                            RouteNames.home,
-                            extra: 'Expense added successfully',
-                          );
-                        } catch (e) {
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to add expense: $e'),
-                              backgroundColor: AppColors.error,
-                            ),
-                          );
-                        }
-                      },
-                    ),
+                    _buildSaveButton(context),
                   ],
                 ),
               ),
@@ -204,6 +71,157 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppConstants.spacingMd),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go(RouteNames.home),
+            color: AppColors.textPrimary,
+          ),
+          const Expanded(
+            child: Center(
+              child: Text('Add Expense', style: AppTextStyles.h2),
+            ),
+          ),
+          const SizedBox(width: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAmountSection(String currencySymbol) {
+    return AmountInputField(
+      controller: _amountController,
+      currencySymbol: currencySymbol,
+    );
+  }
+
+  Widget _buildCategorySection() {
+    return CategoryChipSelector(
+      categories: _categories,
+      selectedCategory: _selectedCategory,
+      onCategorySelected: (category) {
+        setState(() => _selectedCategory = category);
+      },
+    );
+  }
+
+  Widget _buildNoteSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'NOTE',
+          style: AppTextStyles.labelSmall.copyWith(
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: AppConstants.spacingSm),
+        CustomTextField(
+          controller: _noteController,
+          hintText: 'Add a note...',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'DATE',
+          style: AppTextStyles.labelSmall.copyWith(
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: AppConstants.spacingSm),
+        GestureDetector(
+              onTap: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: _selectedDate,
+              firstDate: DateTime(AppConstants.expenseStartYear),
+              lastDate: DateTime.now(),
+            );
+
+            if (picked != null) {
+              setState(() => _selectedDate = picked);
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(AppConstants.spacingMd),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(
+                AppConstants.radiusLg,
+              ),
+              border: Border.all(color: AppColors.borderDark),
+            ),
+            child: Text(
+              DateHelper.formatIsoDate(_selectedDate),
+              style: AppTextStyles.bodyMedium,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSaveButton(BuildContext context) {
+    return PrimaryButton(
+      text: 'ADD EXPENSE',
+      onPressed: () async {
+        if (_amountController.text.trim().isEmpty) return;
+        final amount = double.tryParse(
+          _amountController.text.trim(),
+        );
+        if (amount == null) return;
+
+        final expense = Expense(
+          id: '',
+          amount: amount,
+          category: CategoryHelper.normalizeLabel(
+            _selectedCategory,
+          ),
+          date: _selectedDate,
+          note: _noteController.text.trim(),
+        );
+
+        final provider = context.read<AppProvider>();
+        try {
+          if (!provider.isOnline) {
+            unawaited(provider.addExpense(expense).catchError((_) {}));
+            if (!context.mounted) return;
+            context.go(
+              RouteNames.home,
+              extra: 'Expense added successfully',
+            );
+            return;
+          }
+
+          await provider.addExpense(expense);
+          if (!context.mounted) return;
+          context.go(
+            RouteNames.home,
+            extra: 'Expense added successfully',
+          );
+        } catch (e) {
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to add expense: $e'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      },
     );
   }
 }

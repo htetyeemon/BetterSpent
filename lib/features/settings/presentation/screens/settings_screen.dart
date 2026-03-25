@@ -9,6 +9,7 @@ import '../../../../core/widgets/bottom_navigation.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/widgets/success_snackbar.dart';
 import '../../../../presentation/providers/app_provider.dart';
+import '../../../../core/utils/bottom_nav_helper.dart';
 
 import '../widgets/smart_input_settings_section.dart';
 import '../widgets/currency_settings_tile.dart';
@@ -195,8 +196,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             BottomNavigation(
               currentIndex: _currentNavIndex,
               onTap: (index) {
+                final currentIndex = _currentNavIndex;
                 setState(() => _currentNavIndex = index);
-                _navigateToScreen(index);
+                handleBottomNavTap(context, index, currentIndex);
               },
             ),
           ],
@@ -205,19 +207,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _navigateToScreen(int index) {
-    switch (index) {
-      case 0:
-        context.go(RouteNames.home);
-        break;
-      case 1:
-        context.go(RouteNames.expenses);
-        break;
-      case 2:
-        context.go(RouteNames.summary);
-        break;
-      case 3:
-        break;
-    }
-  }
 }

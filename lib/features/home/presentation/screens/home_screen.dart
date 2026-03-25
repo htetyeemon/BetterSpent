@@ -13,6 +13,7 @@ import '../widgets/daily_streak_card_inline.dart';
 import '../widgets/todays_spending_section.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import '../../../../core/widgets/success_snackbar.dart';
+import '../../../../core/utils/bottom_nav_helper.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -64,8 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigation(
         currentIndex: _currentNavIndex,
         onTap: (index) {
+          final currentIndex = _currentNavIndex;
           setState(() => _currentNavIndex = index);
-          _navigateToScreen(index);
+          handleBottomNavTap(context, index, currentIndex);
         },
       ),
       body: SafeArea(
@@ -137,22 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
       isWarning: isWarning,
       icon: isWarning ? Icons.warning_amber_rounded : Icons.lightbulb_outline,
     );
-  }
-
-  void _navigateToScreen(int index) {
-    switch (index) {
-      case 0:
-        break;
-      case 1:
-        context.go(RouteNames.expenses);
-        break;
-      case 2:
-        context.go(RouteNames.summary);
-        break;
-      case 3:
-        context.go(RouteNames.settings);
-        break;
-    }
   }
 
 }

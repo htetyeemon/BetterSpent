@@ -58,7 +58,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(2020),
+      firstDate: DateTime(AppConstants.expenseStartYear),
       lastDate: DateTime.now(),
     );
     if (picked != null) {
@@ -74,24 +74,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(AppConstants.spacingMd),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => context.go(RouteNames.expenses),
-                    color: AppColors.textPrimary,
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: Text('Edit Expense', style: AppTextStyles.h2),
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
-              ),
-            ),
+            _buildHeader(context),
 
             Expanded(
               child: SingleChildScrollView(
@@ -99,54 +82,13 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AmountInputField(
-                      controller: _amountController,
-                      currencySymbol: currencySymbol,
-                    ),
+                    _buildAmountSection(currencySymbol),
                     const SizedBox(height: AppConstants.spacingLg),
-                    CategoryChipSelector(
-                      categories: _categories,
-                      selectedCategory: _selectedCategory,
-                      onCategorySelected: (s) =>
-                          setState(() => _selectedCategory = s),
-                    ),
+                    _buildCategorySection(),
                     const SizedBox(height: AppConstants.spacingLg),
-                    Text(
-                      'NOTE',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: AppConstants.spacingSm),
-                    CustomTextField(
-                      controller: _noteController,
-                      hintText: 'Add a note...',
-                    ),
+                    _buildNoteSection(),
                     const SizedBox(height: AppConstants.spacingLg),
-                    Text(
-                      'DATE',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: AppConstants.spacingSm),
-                    GestureDetector(
-                      onTap: () => _pickDate(context),
-                      child: Container(
-                        padding: const EdgeInsets.all(AppConstants.spacingMd),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(
-                            AppConstants.radiusLg,
-                          ),
-                          border: Border.all(color: AppColors.borderDark),
-                        ),
-                        child: Text(
-                          DateHelper.formatIsoDate(_selectedDate),
-                          style: AppTextStyles.bodyMedium,
-                        ),
-                      ),
-                    ),
+                    _buildDateSection(context),
                   ],
                 ),
               ),
@@ -179,6 +121,93 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppConstants.spacingMd),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go(RouteNames.expenses),
+            color: AppColors.textPrimary,
+          ),
+          const Expanded(
+            child: Center(
+              child: Text('Edit Expense', style: AppTextStyles.h2),
+            ),
+          ),
+          const SizedBox(width: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAmountSection(String currencySymbol) {
+    return AmountInputField(
+      controller: _amountController,
+      currencySymbol: currencySymbol,
+    );
+  }
+
+  Widget _buildCategorySection() {
+    return CategoryChipSelector(
+      categories: _categories,
+      selectedCategory: _selectedCategory,
+      onCategorySelected: (s) => setState(() => _selectedCategory = s),
+    );
+  }
+
+  Widget _buildNoteSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'NOTE',
+          style: AppTextStyles.labelSmall.copyWith(
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: AppConstants.spacingSm),
+        CustomTextField(
+          controller: _noteController,
+          hintText: 'Add a note...',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'DATE',
+          style: AppTextStyles.labelSmall.copyWith(
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: AppConstants.spacingSm),
+        GestureDetector(
+          onTap: () => _pickDate(context),
+          child: Container(
+            padding: const EdgeInsets.all(AppConstants.spacingMd),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(
+                AppConstants.radiusLg,
+              ),
+              border: Border.all(color: AppColors.borderDark),
+            ),
+            child: Text(
+              DateHelper.formatIsoDate(_selectedDate),
+              style: AppTextStyles.bodyMedium,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
