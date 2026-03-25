@@ -32,7 +32,9 @@ Future<void> _initializeImpl(AppProvider self) async {
 
       self._isInitialized = true;
       self._notify();
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('App initialization failed: $e');
+      debugPrintStack(stackTrace: st);
       self._error = e.toString();
       self._isInitialized = true;
       self._notify();
@@ -52,7 +54,11 @@ void _setupStreamsImpl(AppProvider self) {
         self._expenses = expenses;
         self._notify();
       },
-      onError: (e) {
+      onError: (e, st) {
+        debugPrint('Expense stream error: $e');
+        if (st != null) {
+          debugPrintStack(stackTrace: st);
+        }
         self._error = e.toString();
         self._notify();
       },

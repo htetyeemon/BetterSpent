@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import '../../../../domain/entities/expense.dart';
 import '../../../../presentation/providers/app_provider.dart';
@@ -42,13 +43,20 @@ class ExpenseScreenActions {
   }) async {
     try {
       if (!provider.isOnline) {
-        unawaited(provider.addExpense(expense).catchError((_) {}));
+        unawaited(
+          provider.addExpense(expense).catchError((e, st) {
+            debugPrint('Queued expense add failed: $e');
+            debugPrintStack(stackTrace: st);
+          }),
+        );
         return const ExpenseSaveResult.success(queuedOffline: true);
       }
 
       await provider.addExpense(expense);
       return const ExpenseSaveResult.success();
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Add expense failed: $e');
+      debugPrintStack(stackTrace: st);
       return ExpenseSaveResult.failure(e.toString());
     }
   }

@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 class AppLaunchService {
   static const String _boxName = 'app_launch_box';
@@ -14,7 +15,9 @@ class AppLaunchService {
     try {
       _box ??= await Hive.openBox<dynamic>(_boxName);
       _refreshOnboardingState(FirebaseAuth.instance.currentUser);
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('AppLaunchService.initialize failed: $e');
+      debugPrintStack(stackTrace: st);
       _shouldShowGetStarted = false;
     }
   }

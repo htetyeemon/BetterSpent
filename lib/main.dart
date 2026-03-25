@@ -19,15 +19,17 @@ void main() async {
   try {
     await dotenv.load(fileName: '.env');
     envLoaded = true;
-  } catch (e) {
+  } catch (e, st) {
     debugPrint('Could not load .env: $e');
+    debugPrintStack(stackTrace: st);
   }
   if (!envLoaded) {
     try {
       await dotenv.load(fileName: 'assets/.env');
       envLoaded = true;
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('Could not load assets/.env: $e');
+      debugPrintStack(stackTrace: st);
     }
   }
 
@@ -36,8 +38,9 @@ void main() async {
   await _activateAppCheck();
   try {
     await AppLaunchService.initialize();
-  } catch (e) {
+  } catch (e, st) {
     debugPrint('AppLaunchService init failed: $e');
+    debugPrintStack(stackTrace: st);
   }
 
   runApp(
@@ -58,8 +61,9 @@ Future<void> _activateAppCheck() async {
       androidProvider: AndroidProvider.playIntegrity,
       appleProvider: AppleProvider.appAttest,
     );
-  } catch (e) {
+  } catch (e, st) {
     debugPrint('Firebase App Check activate failed: $e');
+    debugPrintStack(stackTrace: st);
   }
 }
 

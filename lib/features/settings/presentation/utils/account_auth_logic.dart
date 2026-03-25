@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import '../screens/account_auth_validators.dart';
 import '../widgets/account_auth_form.dart';
@@ -65,7 +66,9 @@ class AccountAuthLogic {
         password: password,
       );
       return const AccountAuthResult.success('Signed in successfully');
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Account auth submit failed: $e');
+      debugPrintStack(stackTrace: st);
       return AccountAuthResult.failure(friendlyAuthError(e.toString()));
     }
   }
@@ -82,7 +85,9 @@ class AccountAuthLogic {
     try {
       await provider.sendPasswordResetEmail(email: email.trim());
       return const AccountAuthResult.success('ok');
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Password reset request failed: $e');
+      debugPrintStack(stackTrace: st);
       return AccountAuthResult.failure(friendlyAuthError(e.toString()));
     }
   }
@@ -93,7 +98,9 @@ class AccountAuthLogic {
     try {
       await provider.deleteAccount();
       return const AccountAuthResult.success('Account deleted successfully');
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Delete account request failed: $e');
+      debugPrintStack(stackTrace: st);
       return AccountAuthResult.failure(friendlyDeleteError(e.toString()));
     }
   }

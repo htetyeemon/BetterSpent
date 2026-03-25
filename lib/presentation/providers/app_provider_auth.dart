@@ -19,7 +19,9 @@ Future<void> _signInWithEmailAndPasswordImpl(
       }
       await AppLaunchService.refreshForCurrentUser();
       self._notify();
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Sign-in failed: $e');
+      debugPrintStack(stackTrace: st);
       self._error = e.toString();
       self._notify();
       rethrow;
@@ -56,7 +58,9 @@ Future<void> _createOrLinkWithEmailAndPasswordImpl(
       }
       await AppLaunchService.refreshForCurrentUser();
       self._notify();
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Create/link account failed: $e');
+      debugPrintStack(stackTrace: st);
       self._error = e.toString();
       self._notify();
       rethrow;
@@ -75,7 +79,9 @@ Future<void> _sendPasswordResetEmailImpl(
   self._notify();
     try {
       await self._authService.sendPasswordResetEmail(email: email);
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Password reset failed: $e');
+      debugPrintStack(stackTrace: st);
       self._error = e.toString();
       self._notify();
       rethrow;
@@ -149,7 +155,9 @@ Future<void> _deleteAccountImpl(AppProvider self) async {
 
       // Re-initialize with anonymous sign-in after account deletion.
       await self.initialize();
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Delete account failed: $e');
+      debugPrintStack(stackTrace: st);
       self._error = e.toString();
       self._notify();
       rethrow;

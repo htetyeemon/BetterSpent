@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -143,7 +144,9 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
             ? '1 expense added'
             : '${validated.length} expenses added',
       );
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('AI expense parse failed: $e');
+      debugPrintStack(stackTrace: st);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

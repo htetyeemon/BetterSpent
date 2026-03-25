@@ -1,4 +1,5 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 import '../../core/utils/category_helper.dart';
 import '../../core/utils/date_helper.dart';
 
@@ -88,7 +89,9 @@ class GeminiService {
     try {
       final parsed = DateTime.parse(value);
       return DateTime(parsed.year, parsed.month, parsed.day);
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('Failed to parse ISO date "$value": $e');
+      debugPrintStack(stackTrace: st);
       return null;
     }
   }
