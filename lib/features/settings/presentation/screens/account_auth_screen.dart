@@ -9,7 +9,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import '../widgets/account_auth_form.dart';
 import '../widgets/account_signed_in_view.dart';
-import 'account_auth_validators.dart';
+import '../utils/account_auth_logic.dart';
 
 class AccountAuthScreen extends StatefulWidget {
   const AccountAuthScreen({super.key});
@@ -108,59 +108,41 @@ class _AccountAuthScreenState extends State<AccountAuthScreen> {
   }
 
   Future<void> _handleSubmit(AppProvider provider) async {
-    final emailError = validateEmail(_emailController.text);
-    if (emailError != null) return _showError(emailError);
+    final validationError = AccountAuthLogic.validateForSubmit(
+      mode: _mode,
+      email: _emailController.text,
+      password: _passwordController.text,
+      username: _usernameController.text,
+      confirmPassword: _confirmPasswordController.text,
+    );
+    if (validationError != null) return _showError(validationError);
 
-    final passwordError = validatePassword(_passwordController.text);
-    if (passwordError != null) return _showError(passwordError);
-
-    if (_mode == AccountAuthMode.create) {
-      final usernameError = validateUsername(_usernameController.text);
-      if (usernameError != null) return _showError(usernameError);
-      if (_confirmPasswordController.text != _passwordController.text) {
-        return _showError('Passwords do not match');
-      }
-    }
-
-    try {
-      if (_mode == AccountAuthMode.create) {
-        await provider.createOrLinkWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-          displayName: _usernameController.text.trim(),
-        );
-        if (!mounted) return;
-        context.go(RouteNames.settings, extra: 'Account created and signed in successfully');
-      } else {
-        await provider.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
-        if (!mounted) return;
-        context.go(RouteNames.settings, extra: 'Signed in successfully');
-      }
-    } catch (e) {
-      _showError(friendlyAuthError(e.toString()));
-    }
+    final result = await AccountAuthLogic.submit(
+      provider: provider,
+      mode: _mode,
+      email: _emailController.text,
+      password: _passwordController.text,
+      username: _usernameController.text,
+    );
+    if (!mounted) return;
+    if (!result.ok) return _showError(result.error ?? 'Authentication failed');
+    context.go(RouteNames.settings, extra: result.message);
   }
 
   Future<void> _handleForgotPassword(AppProvider provider) async {
-    final emailError = validateEmail(_emailController.text);
-    if (emailError != null) return _showError(emailError);
-
-    try {
-      await provider.sendPasswordResetEmail(email: _emailController.text.trim());
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'If an account exists for this email, reset instructions were sent. Check Inbox and Spam folders.',
-          ),
+    final result = await AccountAuthLogic.sendPasswordReset(
+      provider: provider,
+      email: _emailController.text,
+    );
+    if (!mounted) return;
+    if (!result.ok) return _showError(result.error ?? 'Request failed');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'If an account exists for this email, reset instructions were sent. Check Inbox and Spam folders.',
         ),
-      );
-    } catch (e) {
-      _showError(friendlyAuthError(e.toString()));
-    }
+      ),
+    );
   }
 
   Future<void> _confirmDeleteAccount(AppProvider provider) async {
@@ -184,13 +166,10 @@ class _AccountAuthScreenState extends State<AccountAuthScreen> {
     );
 
     if (confirmed != true) return;
-    try {
-      await provider.deleteAccount();
-      if (!mounted) return;
-      context.go(RouteNames.settings, extra: 'Account deleted successfully');
-    } catch (e) {
-      _showError(friendlyDeleteError(e.toString()));
-    }
+    final result = await AccountAuthLogic.deleteAccount(provider: provider);
+    if (!mounted) return;
+    if (!result.ok) return _showError(result.error ?? 'Delete failed');
+    context.go(RouteNames.settings, extra: result.message);
   }
 
   void _showError(String message) {

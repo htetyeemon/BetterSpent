@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/router/route_names.dart';
@@ -12,7 +11,7 @@ import '../../../../core/utils/category_helper.dart';
 import '../../../../core/utils/date_helper.dart';
 import '../widgets/category_chip_selector.dart';
 import '../widgets/amount_input_field.dart';
-import '../../../../domain/entities/expense.dart';
+import '../utils/expense_screen_actions.dart';
 import '../../../../presentation/providers/app_provider.dart';
 
 class AddExpenseScreen extends StatefulWidget {
@@ -178,49 +177,34 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return PrimaryButton(
       text: 'ADD EXPENSE',
       onPressed: () async {
-        if (_amountController.text.trim().isEmpty) return;
-        final amount = double.tryParse(
-          _amountController.text.trim(),
-        );
-        if (amount == null) return;
-
-        final expense = Expense(
-          id: '',
-          amount: amount,
-          category: CategoryHelper.normalizeLabel(
-            _selectedCategory,
-          ),
+        final expense = ExpenseScreenActions.buildExpense(
+          amountText: _amountController.text,
+          category: CategoryHelper.normalizeLabel(_selectedCategory),
           date: _selectedDate,
-          note: _noteController.text.trim(),
+          note: _noteController.text,
         );
+        if (expense == null) return;
 
         final provider = context.read<AppProvider>();
-        try {
-          if (!provider.isOnline) {
-            unawaited(provider.addExpense(expense).catchError((_) {}));
-            if (!context.mounted) return;
-            context.go(
-              RouteNames.home,
-              extra: 'Expense added successfully',
-            );
-            return;
-          }
-
-          await provider.addExpense(expense);
-          if (!context.mounted) return;
-          context.go(
-            RouteNames.home,
-            extra: 'Expense added successfully',
-          );
-        } catch (e) {
-          if (!context.mounted) return;
+        final result = await ExpenseScreenActions.addExpense(
+          provider: provider,
+          expense: expense,
+        );
+        if (!context.mounted) return;
+        if (!result.ok) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to add expense: $e'),
+              content: Text('Failed to add expense: ${result.error}'),
               backgroundColor: AppColors.error,
             ),
           );
+          return;
         }
+
+        context.go(
+          RouteNames.home,
+          extra: 'Expense added successfully',
+        );
       },
     );
   }

@@ -14,6 +14,7 @@ import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../domain/entities/expense.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import '../../../../core/utils/amount_formatter.dart';
+import '../utils/expense_screen_actions.dart';
 
 class EditExpenseScreen extends StatefulWidget {
   const EditExpenseScreen({super.key});
@@ -113,7 +114,10 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
                   note: _noteController.text.trim(),
                 );
 
-                await context.read<AppProvider>().updateExpense(updated);
+                await ExpenseScreenActions.updateExpense(
+                  provider: context.read<AppProvider>(),
+                  expense: updated,
+                );
                 if (!context.mounted) return;
                 context.go(RouteNames.expenses);
               },

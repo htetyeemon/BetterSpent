@@ -13,6 +13,7 @@ import '../widgets/daily_streak_card_inline.dart';
 import '../widgets/todays_spending_section.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import '../../../../core/widgets/success_snackbar.dart';
+import '../utils/home_notification_helper.dart';
 import '../../../../core/utils/bottom_nav_helper.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -128,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildMessageCard(AppProvider provider) {
-    final notification = _NotificationHelper(provider).getNotification();
+    final notification = HomeNotificationHelper(provider).getNotification();
     if (notification.isEmpty) return const SizedBox.shrink();
     if (provider.dismissedNotification == notification) {
       return const SizedBox.shrink();
@@ -139,62 +140,5 @@ class _HomeScreenState extends State<HomeScreen> {
       isWarning: isWarning,
       icon: isWarning ? Icons.warning_amber_rounded : Icons.lightbulb_outline,
     );
-  }
-
-}
-
-class _NotificationHelper {
-  final AppProvider provider;
-  _NotificationHelper(this.provider);
-
-  String getNotification() {
-    final settings = provider.settings;
-    final profile = provider.profile;
-    final expenses = provider.expenses;
-    final maxSpendPerDay = provider.maxSpendPerDay;
-
-    if (profile.income == 0 && profile.monthlyBudget == 0) {
-      return '';
-    }
-
-    final now = DateTime.now();
-    final todaySpending = expenses
-        .where((e) =>
-            e.date.year == now.year &&
-            e.date.month == now.month &&
-            e.date.day == now.day)
-        .fold<double>(0.0, (sum, e) => sum + e.amount);
-
-    final totalMonthSpending = expenses
-        .where((e) => e.date.year == now.year && e.date.month == now.month)
-        .fold<double>(0.0, (sum, e) => sum + e.amount);
-
-    final totalSpending = expenses.fold<double>(0.0, (sum, e) => sum + e.amount);
-
-    final hasWarning = (maxSpendPerDay > 0 && todaySpending > maxSpendPerDay) ||
-        totalMonthSpending > profile.monthlyBudget ||
-        totalSpending > profile.income;
-
-    if (hasWarning && settings.budgetWarningEnabled) {
-      if (totalSpending > profile.income) {
-        return '⚠️ Your total spending has exceeded your income!';
-      } else if (totalMonthSpending > profile.monthlyBudget) {
-        return '⚠️ You\'ve exceeded your monthly budget!';
-      } else {
-        return '⚠️ You\'ve exceeded your daily spending limit!';
-      }
-    }
-
-    if (!hasWarning && settings.motivationalMessageEnabled) {
-      const messages = [
-        'You\'re doing great! Keep tracking your expenses daily.',
-        'Nice work! You\'re building a healthy financial habit.',
-        'Keep it up! Small savings add up to big results.',
-      ];
-      final daySeed = (now.year * 10000) + (now.month * 100) + now.day;
-      return messages[daySeed % messages.length];
-    }
-
-    return '';
   }
 }
