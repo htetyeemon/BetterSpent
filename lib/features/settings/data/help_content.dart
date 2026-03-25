@@ -79,8 +79,13 @@ What we do not collect
 • No government ID numbers.
 • No precise location tracking.
 
+Authentication
+• Sign-in is handled by Firebase Authentication.
+• We do not store passwords locally or log them.
+
 Data storage
 • Data is stored securely in Firebase services tied to your account.
+• We use Firebase Authentication, Cloud Firestore, and Cloud Functions.
 • You can delete your account and data from Settings.
 
 Contact
