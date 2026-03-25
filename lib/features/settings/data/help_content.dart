@@ -58,6 +58,34 @@ In the Summary tab, you can see:
 When internet returns, AI becomes available again.
 ''',
 
+    'Privacy policy': '''
+Privacy Policy
+
+We respect your privacy and collect only what is needed to run BetterSpent.
+
+What we collect
+• Account info (email) for sign-in and account recovery.
+• Expense data you enter (amount, category, date, note).
+• App settings (currency, AI input preferences).
+
+How we use it
+• To save, sync, and display your expenses.
+• To personalize your budget summaries and insights.
+• To improve app reliability and performance.
+
+What we do not collect
+• No payment card data.
+• No government ID numbers.
+• No precise location tracking.
+
+Data storage
+• Data is stored securely in Firebase services tied to your account.
+• You can delete your account and data from Settings.
+
+Contact
+If you have questions about privacy, contact the app owner.
+''',
+
     'About this app': '''
 About This App
 

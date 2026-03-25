@@ -57,8 +57,20 @@ class HelpInfoSection extends StatelessWidget {
               ),
               _buildHelpItem(
                 context,
+                'Privacy policy',
+                null,
+                Icons.arrow_forward_ios,
+                null,
+              ),
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColors.borderDark,
+              ),
+              _buildHelpItem(
+                context,
                 'About this app',
-                'VERSION 1.4.2',
+                'VERSION 1.0.0',
                 Icons.info_outline,
                 const BorderRadius.only(
                   bottomLeft: Radius.circular(16),
