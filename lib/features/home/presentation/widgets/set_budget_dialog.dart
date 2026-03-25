@@ -9,11 +9,13 @@ class SetBudgetDialog extends StatefulWidget {
   final String currencySymbol;
   final void Function(double) onSave;
   final double? currentBudget;
+  final double currentBalance;
 
   const SetBudgetDialog({
     super.key,
     required this.currencySymbol,
     required this.onSave,
+    required this.currentBalance,
     this.currentBudget,
   });
 
@@ -21,6 +23,7 @@ class SetBudgetDialog extends StatefulWidget {
     BuildContext context, {
     required String currencySymbol,
     required void Function(double) onSave,
+    required double currentBalance,
     double? currentBudget,
   }) {
     showDialog(
@@ -29,6 +32,7 @@ class SetBudgetDialog extends StatefulWidget {
       builder: (_) => SetBudgetDialog(
         currencySymbol: currencySymbol,
         onSave: onSave,
+        currentBalance: currentBalance,
         currentBudget: currentBudget,
       ),
     );
@@ -187,6 +191,9 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
                           }
                           if (amount <= 0) {
                             return 'Budget must be greater than 0';
+                          }
+                          if (amount > widget.currentBalance) {
+                            return 'Budget cannot exceed your current balance';
                           }
                           return null;
                         },

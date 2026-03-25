@@ -76,6 +76,7 @@ class HomeStatsCard extends StatelessWidget {
                 child: BudgetColumn(
                   currencySymbol: currencySymbol,
                   monthlyBudget: monthlyBudget,
+                  currentBalance: balance,
                   valueColor: AppColors.textPrimary,
                   onBudgetSaved: onBudgetSaved,
                 ),

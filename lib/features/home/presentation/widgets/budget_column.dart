@@ -8,6 +8,7 @@ import '../../../../core/widgets/expanded_tap_target.dart';
 class BudgetColumn extends StatelessWidget {
   final String currencySymbol;
   final double monthlyBudget;
+  final double currentBalance;
   final Color valueColor;
   final Function(double amount) onBudgetSaved;
 
@@ -15,6 +16,7 @@ class BudgetColumn extends StatelessWidget {
     super.key,
     required this.currencySymbol,
     required this.monthlyBudget,
+    required this.currentBalance,
     this.valueColor = AppColors.secondary,
     required this.onBudgetSaved,
   });
@@ -75,6 +77,7 @@ class BudgetColumn extends StatelessWidget {
       context,
       currencySymbol: currencySymbol,
       currentBudget: monthlyBudget,
+      currentBalance: currentBalance,
       onSave: onBudgetSaved,
     );
   }
