@@ -72,6 +72,7 @@ How we use it
 • To save, sync, and display your expenses.
 • To personalize your budget summaries and insights.
 • To improve app reliability and performance.
+• If AI input is enabled, your text is sent to a third-party model to parse expenses.
 
 What we do not collect
 • No payment card data.

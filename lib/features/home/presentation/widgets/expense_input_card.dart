@@ -35,6 +35,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
   String? _progressMessage;
   Expense? _pendingPreview;
   int _pendingCount = 0;
+  static const int _maxAiInputWords = 500;
 
   @override
   void dispose() {
@@ -77,6 +78,16 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
   Future<void> _handleAddExpense() async {
     final rawInput = _inputController.text.trim();
     if (rawInput.isEmpty) return;
+    final words = rawInput.split(RegExp(r'\s+'));
+    if (words.length > _maxAiInputWords) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please keep AI input under 500 words.'),
+        ),
+      );
+      return;
+    }
 
     setState(() => _isSubmitting = true);
     try {

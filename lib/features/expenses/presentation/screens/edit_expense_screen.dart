@@ -179,6 +179,13 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
           controller: _noteController,
           hintText: 'Add a note...',
         ),
+        const SizedBox(height: 6),
+        Text(
+          'Avoid sensitive details like account numbers or passwords.',
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
       ],
     );
   }
