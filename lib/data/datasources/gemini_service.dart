@@ -36,9 +36,9 @@ class GeminiService {
         'input': trimmed,
         'clientLocalDate': localDate,
       });
-      final data = result.data;
-      if (data is Map) {
-        payload = Map<String, dynamic>.from(data);
+      final responseData = result.data;
+      if (responseData is Map) {
+        payload = Map<String, dynamic>.from(responseData);
       } else {
         return const [];
       }

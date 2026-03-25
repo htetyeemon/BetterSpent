@@ -17,13 +17,13 @@ class UserSettingsFirestoreModel {
   factory UserSettingsFirestoreModel.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> doc,
   ) {
-    final data = doc.data()!;
+    final firestoreData = doc.data()!;
     return UserSettingsFirestoreModel(
-      currency: (data['currency'] as String?) ?? 'THB',
-      aiInputEnabled: (data['aiInputEnabled'] as bool?) ?? true,
-      budgetWarningEnabled: (data['budgetWarningEnabled'] as bool?) ?? true,
+      currency: (firestoreData['currency'] as String?) ?? 'THB',
+      aiInputEnabled: (firestoreData['aiInputEnabled'] as bool?) ?? true,
+      budgetWarningEnabled: (firestoreData['budgetWarningEnabled'] as bool?) ?? true,
       motivationalMessageEnabled:
-          (data['motivationalMessageEnabled'] as bool?) ?? true,
+          (firestoreData['motivationalMessageEnabled'] as bool?) ?? true,
     );
   }
 

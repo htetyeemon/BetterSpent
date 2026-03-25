@@ -15,11 +15,11 @@ class FinancialProfileFirestoreModel {
   factory FinancialProfileFirestoreModel.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> doc,
   ) {
-    final data = doc.data()!;
+    final firestoreData = doc.data()!;
     return FinancialProfileFirestoreModel(
-      income: (data['income'] as num?)?.toDouble() ?? 0.0,
-      monthlyBudget: (data['monthlyBudget'] as num?)?.toDouble() ?? 0.0,
-      incomeUpdatedAt: _parseDateTime(data['incomeUpdatedAt']),
+      income: (firestoreData['income'] as num?)?.toDouble() ?? 0.0,
+      monthlyBudget: (firestoreData['monthlyBudget'] as num?)?.toDouble() ?? 0.0,
+      incomeUpdatedAt: _parseDateTime(firestoreData['incomeUpdatedAt']),
     );
   }
 
