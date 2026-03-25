@@ -6,6 +6,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/category_helper.dart';
+import '../../../../core/utils/date_helper.dart';
 import '../widgets/edit_expense_actions.dart';
 import '../widgets/amount_input_field.dart';
 import '../widgets/category_chip_selector.dart';
@@ -141,7 +142,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
                           border: Border.all(color: AppColors.borderDark),
                         ),
                         child: Text(
-                          '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
+                          DateHelper.formatIsoDate(_selectedDate),
                           style: AppTextStyles.bodyMedium,
                         ),
                       ),

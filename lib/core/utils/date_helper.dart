@@ -31,6 +31,14 @@ class DateHelper {
     return DateFormat('MMM d, y').format(date).toUpperCase();
   }
 
+  // Format date to "YYYY-MM-DD"
+  static String formatIsoDate(DateTime date) {
+    final year = date.year.toString().padLeft(4, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+
   // Get start of week
   static DateTime getStartOfWeek(DateTime date) {
     return date.subtract(Duration(days: date.weekday - 1));
