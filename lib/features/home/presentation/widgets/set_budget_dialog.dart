@@ -45,6 +45,7 @@ class SetBudgetDialog extends StatefulWidget {
 class _SetBudgetDialogState extends State<SetBudgetDialog> {
   final _formKey = GlobalKey<FormState>();
   final _controller = TextEditingController();
+  String? _balanceError;
 
   @override
   void initState() {
@@ -64,7 +65,14 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      widget.onSave(double.parse(_controller.text));
+      final amount = double.parse(_controller.text);
+      if (amount > widget.currentBalance) {
+        setState(() {
+          _balanceError = 'Budget cannot exceed your current balance';
+        });
+        return;
+      }
+      widget.onSave(amount);
       _close();
     }
   }
@@ -171,6 +179,11 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
                             RegExp(r'^\d+\.?\d{0,2}'),
                           ),
                         ],
+                        onChanged: (_) {
+                          if (_balanceError != null) {
+                            setState(() => _balanceError = null);
+                          }
+                        },
                         style: AppTextStyles.h3,
                         decoration: const InputDecoration(
                           hintText: '',
@@ -192,9 +205,6 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
                           if (amount <= 0) {
                             return 'Budget must be greater than 0';
                           }
-                          if (amount > widget.currentBalance) {
-                            return 'Budget cannot exceed your current balance';
-                          }
                           return null;
                         },
                       ),
@@ -202,6 +212,16 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
                   ],
                 ),
               ),
+              if (_balanceError != null) ...[
+                const SizedBox(height: AppConstants.spacingSm),
+                Text(
+                  _balanceError!,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.error,
+                  ),
+                ),
+              ],
               const SizedBox(height: AppConstants.spacingXl),
               Row(
                 children: [
