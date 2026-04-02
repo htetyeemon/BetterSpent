@@ -26,6 +26,7 @@ Future<void> _initializeImpl(AppProvider self) async {
       await AppLaunchService.refreshForCurrentUser();
 
       if (self._uid != null) {
+        await self._loadDerivedCache();
         self._setupRepositories();
         self._setupStreams();
       }
@@ -127,6 +128,7 @@ Future<void> _clearAllDataImpl(AppProvider self) async {
     );
   self._settings = const UserSettings();
   self._dismissedNotification = null;
+  await self._clearDerivedCache();
   self._recomputeDerived();
   self._notify();
 }

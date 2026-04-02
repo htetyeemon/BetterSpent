@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:async';
+import 'package:hive/hive.dart';
 
 import '../../domain/entities/expense.dart';
 import '../../domain/entities/financial_profile.dart';
@@ -25,6 +26,9 @@ part 'app_provider_lifecycle.dart';
 
 class AppProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  static const String _derivedCacheBoxName = 'derived_cache_box';
+  static const bool _enableDerivedCache =
+      bool.fromEnvironment('DERIVED_CACHE_ENABLED', defaultValue: true);
 
   // State
   bool _isInitialized = false;
@@ -45,6 +49,8 @@ class AppProvider extends ChangeNotifier {
   double _balance = 0;
   double _maxSpendPerDay = 0;
   int _dailyStreak = 0;
+  bool _hasCachedDerived = false;
+  Box<dynamic>? _derivedCacheBox;
 
   // Repositories
   ExpenseRepository? _expenseRepo;
@@ -132,6 +138,59 @@ class AppProvider extends ChangeNotifier {
       _expenses,
     );
     _dailyStreak = _getDailyStreak.execute(_expenses);
+    unawaited(_persistDerivedCache());
+  }
+
+  String _derivedCacheKey(String uid) => 'derived:$uid';
+
+  Future<Box<dynamic>> _openDerivedCacheBox() async {
+    _derivedCacheBox ??= await Hive.openBox<dynamic>(_derivedCacheBoxName);
+    return _derivedCacheBox!;
+  }
+
+  Future<void> _loadDerivedCache() async {
+    if (!_enableDerivedCache) return;
+    final uid = _uid;
+    if (uid == null) return;
+
+    final box = await _openDerivedCacheBox();
+    final cached = box.get(_derivedCacheKey(uid));
+    if (cached is Map) {
+      final balance = cached['balance'];
+      final maxSpendPerDay = cached['maxSpendPerDay'];
+      final dailyStreak = cached['dailyStreak'];
+      if (balance is num && maxSpendPerDay is num && dailyStreak is int) {
+        _balance = balance.toDouble();
+        _maxSpendPerDay = maxSpendPerDay.toDouble();
+        _dailyStreak = dailyStreak;
+        _hasCachedDerived = true;
+      }
+    }
+  }
+
+  Future<void> _persistDerivedCache() async {
+    if (!_enableDerivedCache) return;
+    final uid = _uid;
+    if (uid == null) return;
+    if (_derivedCacheBox == null && !_hasCachedDerived) {
+      await _openDerivedCacheBox();
+    }
+    final box = _derivedCacheBox;
+    if (box == null) return;
+    await box.put(_derivedCacheKey(uid), {
+      'balance': _balance,
+      'maxSpendPerDay': _maxSpendPerDay,
+      'dailyStreak': _dailyStreak,
+      'updatedAt': DateTime.now().millisecondsSinceEpoch,
+    });
+  }
+
+  Future<void> _clearDerivedCache() async {
+    if (!_enableDerivedCache) return;
+    final uid = _uid;
+    if (uid == null) return;
+    final box = _derivedCacheBox ?? await _openDerivedCacheBox();
+    await box.delete(_derivedCacheKey(uid));
   }
 
   Future<void> initialize() => _initializeImpl(this);

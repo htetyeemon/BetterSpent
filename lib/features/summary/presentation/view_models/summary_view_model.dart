@@ -46,14 +46,17 @@ class SummaryViewModel {
     );
     final hasSpendingData = periodExpenses.isNotEmpty;
 
-    final weeklySummary = GetWeeklySummaryUseCase().execute(expenses);
-    final monthlySummary = GetMonthlySummaryUseCase().execute(expenses);
-    final totalSpent = selectedPeriod == 'This Week'
-        ? weeklySummary.totalWeeklySpending
-        : monthlySummary.totalMonthlySpending;
-    final avgPerDay = selectedPeriod == 'This Week'
-        ? weeklySummary.averagePerDay
-        : monthlySummary.averagePerDay;
+    late final double totalSpent;
+    late final double avgPerDay;
+    if (selectedPeriod == 'This Week') {
+      final weeklySummary = GetWeeklySummaryUseCase().execute(expenses);
+      totalSpent = weeklySummary.totalWeeklySpending;
+      avgPerDay = weeklySummary.averagePerDay;
+    } else {
+      final monthlySummary = GetMonthlySummaryUseCase().execute(expenses);
+      totalSpent = monthlySummary.totalMonthlySpending;
+      avgPerDay = monthlySummary.averagePerDay;
+    }
 
     final categorySpending = GetSpendingByCategoryUseCase().execute(
       periodExpenses,

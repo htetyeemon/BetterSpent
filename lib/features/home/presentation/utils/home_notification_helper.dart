@@ -16,18 +16,18 @@ class HomeNotificationHelper {
     }
 
     final now = DateTime.now();
-    final todaySpending = expenses
-        .where((e) =>
-            e.date.year == now.year &&
-            e.date.month == now.month &&
-            e.date.day == now.day)
-        .fold<double>(0.0, (sum, e) => sum + e.amount);
-
-    final totalMonthSpending = expenses
-        .where((e) => e.date.year == now.year && e.date.month == now.month)
-        .fold<double>(0.0, (sum, e) => sum + e.amount);
-
-    final totalSpending = expenses.fold<double>(0.0, (sum, e) => sum + e.amount);
+    double todaySpending = 0.0;
+    double totalMonthSpending = 0.0;
+    double totalSpending = 0.0;
+    for (final expense in expenses) {
+      totalSpending += expense.amount;
+      if (expense.date.year == now.year && expense.date.month == now.month) {
+        totalMonthSpending += expense.amount;
+        if (expense.date.day == now.day) {
+          todaySpending += expense.amount;
+        }
+      }
+    }
 
     final hasWarning = (maxSpendPerDay > 0 && todaySpending > maxSpendPerDay) ||
         totalMonthSpending > profile.monthlyBudget ||

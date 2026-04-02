@@ -14,16 +14,27 @@ import 'date_section_widget.dart';
 import 'expense_detail_dialog.dart';
 import 'delete_expense_dialog.dart';
 
-class ExpenseListContent extends StatelessWidget {
+class ExpenseListContent extends StatefulWidget {
   final String selectedFilter;
   static final DateFormat _dayFormatter = DateFormat('MMM d, yyyy');
   static final DateFormat _timeFormatter = DateFormat('MMM d, h:mm a');
 
   const ExpenseListContent({super.key, required this.selectedFilter});
 
-  List<Expense> _filterExpenses(List<Expense> expenses) {
+  @override
+  State<ExpenseListContent> createState() => _ExpenseListContentState();
+}
+
+class _ExpenseListContentState extends State<ExpenseListContent> {
+  List<Expense>? _cachedExpenses;
+  String? _cachedFilter;
+  List<Expense> _cachedFiltered = const [];
+  Map<String, List<Expense>> _cachedGrouped = const {};
+  List<String> _cachedDateKeys = const [];
+
+  List<Expense> _filterExpenses(List<Expense> expenses, String filter) {
     final now = DateTime.now();
-    switch (selectedFilter) {
+    switch (filter) {
       case 'Today':
         return expenses
             .where((e) =>
@@ -47,19 +58,33 @@ class ExpenseListContent extends StatelessWidget {
   Map<String, List<Expense>> _groupByDate(List<Expense> expenses) {
     final Map<String, List<Expense>> groups = {};
     for (final expense in expenses) {
-      final key = _dayFormatter.format(expense.date);
+      final key = ExpenseListContent._dayFormatter.format(expense.date);
       groups.putIfAbsent(key, () => []).add(expense);
     }
     return groups;
+  }
+
+  void _ensureCache(List<Expense> expenses) {
+    if (identical(expenses, _cachedExpenses) &&
+        _cachedFilter == widget.selectedFilter) {
+      return;
+    }
+
+    _cachedExpenses = expenses;
+    _cachedFilter = widget.selectedFilter;
+    _cachedFiltered = _filterExpenses(expenses, widget.selectedFilter);
+    _cachedGrouped = _groupByDate(_cachedFiltered);
+    _cachedDateKeys = _cachedGrouped.keys.toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final expenses = context.select((AppProvider p) => p.expenses);
     final currencySymbol = context.select((AppProvider p) => p.currencySymbol);
-    final filtered = _filterExpenses(expenses);
-    final grouped = _groupByDate(filtered);
-    final dateKeys = grouped.keys.toList();
+    _ensureCache(expenses);
+    final filtered = _cachedFiltered;
+    final grouped = _cachedGrouped;
+    final dateKeys = _cachedDateKeys;
 
     if (filtered.isEmpty) {
       return Center(
@@ -87,7 +112,7 @@ class ExpenseListContent extends StatelessWidget {
               name: expense.note.isNotEmpty ? expense.note : expense.category,
               category: expense.category,
               amount: expense.amount,
-              time: _dayFormatter.format(expense.date),
+              time: ExpenseListContent._dayFormatter.format(expense.date),
               currencySymbol: currencySymbol,
               onTap: () => _showExpenseDetail(context, expense),
             );
@@ -108,7 +133,7 @@ class ExpenseListContent extends StatelessWidget {
       category: CategoryHelper.normalizeLabel(expense.category).toUpperCase(),
       amount: expense.amount,
       currencySymbol: currencySymbol,
-      time: _timeFormatter.format(expense.date),
+      time: ExpenseListContent._timeFormatter.format(expense.date),
       note: expense.note,
       categoryIcon: CategoryIcon.iconForCategory(expense.category),
       iconColor: CategoryIcon.colorForCategory(expense.category),
