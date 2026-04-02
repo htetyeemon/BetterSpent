@@ -16,6 +16,8 @@ import 'delete_expense_dialog.dart';
 
 class ExpenseListContent extends StatelessWidget {
   final String selectedFilter;
+  static final DateFormat _dayFormatter = DateFormat('MMM d, yyyy');
+  static final DateFormat _timeFormatter = DateFormat('MMM d, h:mm a');
 
   const ExpenseListContent({super.key, required this.selectedFilter});
 
@@ -45,7 +47,7 @@ class ExpenseListContent extends StatelessWidget {
   Map<String, List<Expense>> _groupByDate(List<Expense> expenses) {
     final Map<String, List<Expense>> groups = {};
     for (final expense in expenses) {
-      final key = DateFormat('MMM d, yyyy').format(expense.date);
+      final key = _dayFormatter.format(expense.date);
       groups.putIfAbsent(key, () => []).add(expense);
     }
     return groups;
@@ -53,11 +55,11 @@ class ExpenseListContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<AppProvider>();
-    final filtered = _filterExpenses(provider.expenses);
+    final expenses = context.select((AppProvider p) => p.expenses);
+    final currencySymbol = context.select((AppProvider p) => p.currencySymbol);
+    final filtered = _filterExpenses(expenses);
     final grouped = _groupByDate(filtered);
     final dateKeys = grouped.keys.toList();
-    final currencySymbol = provider.currencySymbol;
 
     if (filtered.isEmpty) {
       return Center(
@@ -85,9 +87,9 @@ class ExpenseListContent extends StatelessWidget {
               name: expense.note.isNotEmpty ? expense.note : expense.category,
               category: expense.category,
               amount: expense.amount,
-              time: DateFormat('MMM d, yyyy').format(expense.date),
+              time: _dayFormatter.format(expense.date),
               currencySymbol: currencySymbol,
-              onTap: () => _showExpenseDetail(context, expense, provider),
+              onTap: () => _showExpenseDetail(context, expense),
             );
           }).toList(),
         );
@@ -98,14 +100,13 @@ class ExpenseListContent extends StatelessWidget {
   void _showExpenseDetail(
     BuildContext context,
     Expense expense,
-    AppProvider provider,
   ) {
     ExpenseDetailDialog.show(
       context,
       name: expense.note.isNotEmpty ? expense.note : expense.category,
       category: CategoryHelper.normalizeLabel(expense.category).toUpperCase(),
       amount: expense.amount,
-      time: DateFormat('MMM d, h:mm a').format(expense.date),
+      time: _timeFormatter.format(expense.date),
       note: expense.note,
       categoryIcon: CategoryIcon.iconForCategory(expense.category),
       iconColor: CategoryIcon.colorForCategory(expense.category),
@@ -113,7 +114,7 @@ class ExpenseListContent extends StatelessWidget {
       onDelete: () => DeleteExpenseDialog.show(
         context,
         onConfirm: () {
-          provider.deleteExpense(expense.id);
+          context.read<AppProvider>().deleteExpense(expense.id);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Expense deleted'),

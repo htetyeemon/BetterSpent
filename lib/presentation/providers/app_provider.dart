@@ -42,6 +42,10 @@ class AppProvider extends ChangeNotifier {
   UserSettings _settings = const UserSettings();
   String? _dismissedNotification;
 
+  double _balance = 0;
+  double _maxSpendPerDay = 0;
+  int _dailyStreak = 0;
+
   // Repositories
   ExpenseRepository? _expenseRepo;
   FinancialProfileRepository? _profileRepo;
@@ -85,10 +89,9 @@ class AppProvider extends ChangeNotifier {
   UserSettings get settings => _settings;
   String? get dismissedNotification => _dismissedNotification;
 
-  double get balance => _getBalance.execute(_profile.income, _expenses);
-  double get maxSpendPerDay =>
-      _getMaxSpendPerDay.execute(_profile.monthlyBudget, _expenses);
-  int get dailyStreak => _getDailyStreak.execute(_expenses);
+  double get balance => _balance;
+  double get maxSpendPerDay => _maxSpendPerDay;
+  int get dailyStreak => _dailyStreak;
 
   String get currencySymbol {
     switch (_settings.currency) {
@@ -122,6 +125,14 @@ class AppProvider extends ChangeNotifier {
   }
 
   void _notify() => notifyListeners();
+  void _recomputeDerived() {
+    _balance = _getBalance.execute(_profile.income, _expenses);
+    _maxSpendPerDay = _getMaxSpendPerDay.execute(
+      _profile.monthlyBudget,
+      _expenses,
+    );
+    _dailyStreak = _getDailyStreak.execute(_expenses);
+  }
 
   Future<void> initialize() => _initializeImpl(this);
 

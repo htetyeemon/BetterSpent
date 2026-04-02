@@ -16,59 +16,97 @@ class SummaryViewModel {
   final String insightMessage;
   final bool insightIsWarning;
 
-  SummaryViewModel({
-    required AppProvider provider,
-    required String selectedPeriod,
-  })  : currencySymbol = provider.currencySymbol,
-        hasSpendingData = _computeHasSpendingData(
-          provider: provider,
-          selectedPeriod: selectedPeriod,
-        ),
-        needsSetup = _computeNeedsSetup(provider: provider),
-        periodExpenses = _computePeriodExpenses(
-          provider: provider,
-          selectedPeriod: selectedPeriod,
-        ),
-        categorySpending = _computeCategorySpending(
-          provider: provider,
-          selectedPeriod: selectedPeriod,
-        ),
-        totalSpent = _computeTotalSpent(
-          provider: provider,
-          selectedPeriod: selectedPeriod,
-        ),
-        avgPerDay = _computeAvgPerDay(
-          provider: provider,
-          selectedPeriod: selectedPeriod,
-        ),
-        insightMessage = _computeInsightMessage(
-          provider: provider,
-          selectedPeriod: selectedPeriod,
-        ),
-        insightIsWarning = _computeInsightIsWarning(
-          provider: provider,
-          selectedPeriod: selectedPeriod,
-        );
-
-  static bool _computeHasSpendingData({
+  factory SummaryViewModel({
     required AppProvider provider,
     required String selectedPeriod,
   }) {
-    return _computePeriodExpenses(
-      provider: provider,
+    return SummaryViewModel.fromData(
+      expenses: provider.expenses,
+      currencySymbol: provider.currencySymbol,
+      monthlyBudget: provider.profile.monthlyBudget,
+      income: provider.profile.income,
+      maxSpendPerDay: provider.maxSpendPerDay,
       selectedPeriod: selectedPeriod,
-    ).isNotEmpty;
+    );
   }
 
-  static bool _computeNeedsSetup({required AppProvider provider}) {
-    return provider.profile.monthlyBudget <= 0 || provider.profile.income <= 0;
+  factory SummaryViewModel.fromData({
+    required List<Expense> expenses,
+    required String currencySymbol,
+    required double monthlyBudget,
+    required double income,
+    required double maxSpendPerDay,
+    required String selectedPeriod,
+  }) {
+    final needsSetup =
+        _computeNeedsSetup(monthlyBudget: monthlyBudget, income: income);
+    final periodExpenses = _computePeriodExpenses(
+      expenses: expenses,
+      selectedPeriod: selectedPeriod,
+    );
+    final hasSpendingData = periodExpenses.isNotEmpty;
+
+    final weeklySummary = GetWeeklySummaryUseCase().execute(expenses);
+    final monthlySummary = GetMonthlySummaryUseCase().execute(expenses);
+    final totalSpent = selectedPeriod == 'This Week'
+        ? weeklySummary.totalWeeklySpending
+        : monthlySummary.totalMonthlySpending;
+    final avgPerDay = selectedPeriod == 'This Week'
+        ? weeklySummary.averagePerDay
+        : monthlySummary.averagePerDay;
+
+    final categorySpending = GetSpendingByCategoryUseCase().execute(
+      periodExpenses,
+      monthlyBudget: monthlyBudget,
+    );
+
+    final insight = GetInsightsPredictionUseCase().execute(
+      avgPerDay,
+      maxSpendPerDay,
+      isMonthlyPeriod: selectedPeriod == 'This Month',
+    );
+
+    final insightMessage = needsSetup
+        ? 'Set both Income and Monthly Budget in Home to see accurate insights and summary predictions.'
+        : insight.message;
+    final insightIsWarning = needsSetup || insight.willExceedBudget;
+
+    return SummaryViewModel._(
+      totalSpent: totalSpent,
+      avgPerDay: avgPerDay,
+      periodExpenses: periodExpenses,
+      categorySpending: categorySpending,
+      currencySymbol: currencySymbol,
+      hasSpendingData: hasSpendingData,
+      needsSetup: needsSetup,
+      insightMessage: insightMessage,
+      insightIsWarning: insightIsWarning,
+    );
+  }
+
+  const SummaryViewModel._({
+    required this.totalSpent,
+    required this.avgPerDay,
+    required this.periodExpenses,
+    required this.categorySpending,
+    required this.currencySymbol,
+    required this.hasSpendingData,
+    required this.needsSetup,
+    required this.insightMessage,
+    required this.insightIsWarning,
+  });
+
+  static bool _computeNeedsSetup({
+    required double monthlyBudget,
+    required double income,
+  }) {
+    return monthlyBudget <= 0 || income <= 0;
   }
 
   static List<Expense> _computePeriodExpenses({
-    required AppProvider provider,
+    required List<Expense> expenses,
     required String selectedPeriod,
   }) {
-    final expenses = provider.expenses;
     final now = DateTime.now();
 
     if (selectedPeriod == 'This Week') {
@@ -85,77 +123,4 @@ class SummaryViewModel {
     }).toList();
   }
 
-  static List<CategorySpending> _computeCategorySpending({
-    required AppProvider provider,
-    required String selectedPeriod,
-  }) {
-    final expenses = _computePeriodExpenses(
-      provider: provider,
-      selectedPeriod: selectedPeriod,
-    );
-    final useCase = GetSpendingByCategoryUseCase();
-    return useCase.execute(
-      expenses,
-      monthlyBudget: provider.profile.monthlyBudget,
-    );
-  }
-
-  static double _computeTotalSpent({
-    required AppProvider provider,
-    required String selectedPeriod,
-  }) {
-    final weeklySummary = GetWeeklySummaryUseCase().execute(provider.expenses);
-    final monthlySummary =
-        GetMonthlySummaryUseCase().execute(provider.expenses);
-    return selectedPeriod == 'This Week'
-        ? weeklySummary.totalWeeklySpending
-        : monthlySummary.totalMonthlySpending;
-  }
-
-  static double _computeAvgPerDay({
-    required AppProvider provider,
-    required String selectedPeriod,
-  }) {
-    final weeklySummary = GetWeeklySummaryUseCase().execute(provider.expenses);
-    final monthlySummary =
-        GetMonthlySummaryUseCase().execute(provider.expenses);
-    return selectedPeriod == 'This Week'
-        ? weeklySummary.averagePerDay
-        : monthlySummary.averagePerDay;
-  }
-
-  static String _computeInsightMessage({
-    required AppProvider provider,
-    required String selectedPeriod,
-  }) {
-    final avgPerDay = _computeAvgPerDay(
-      provider: provider,
-      selectedPeriod: selectedPeriod,
-    );
-    final insight = GetInsightsPredictionUseCase().execute(
-      avgPerDay,
-      provider.maxSpendPerDay,
-      isMonthlyPeriod: selectedPeriod == 'This Month',
-    );
-    final needsSetup = _computeNeedsSetup(provider: provider);
-    return needsSetup
-        ? 'Set both Income and Monthly Budget in Home to see accurate insights and summary predictions.'
-        : insight.message;
-  }
-
-  static bool _computeInsightIsWarning({
-    required AppProvider provider,
-    required String selectedPeriod,
-  }) {
-    final avgPerDay = _computeAvgPerDay(
-      provider: provider,
-      selectedPeriod: selectedPeriod,
-    );
-    final insight = GetInsightsPredictionUseCase().execute(
-      avgPerDay,
-      provider.maxSpendPerDay,
-      isMonthlyPeriod: selectedPeriod == 'This Month',
-    );
-    return _computeNeedsSetup(provider: provider) || insight.willExceedBudget;
-  }
 }

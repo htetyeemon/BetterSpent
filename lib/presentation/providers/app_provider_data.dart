@@ -52,6 +52,7 @@ void _setupStreamsImpl(AppProvider self) {
   self._expenseSub = self._expenseRepo!.getExpenses().listen(
       (expenses) {
         self._expenses = expenses;
+        self._recomputeDerived();
         self._notify();
       },
       onError: (e, st) {
@@ -67,6 +68,7 @@ void _setupStreamsImpl(AppProvider self) {
   self._profileSub = self._profileRepo!.getProfile().listen((profile) {
       if (profile != null) {
         self._profile = profile;
+        self._recomputeDerived();
         self._notify();
       }
     });
@@ -125,5 +127,6 @@ Future<void> _clearAllDataImpl(AppProvider self) async {
     );
   self._settings = const UserSettings();
   self._dismissedNotification = null;
+  self._recomputeDerived();
   self._notify();
 }

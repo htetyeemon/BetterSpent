@@ -26,9 +26,20 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<AppProvider>();
-    final vm = SummaryViewModel(
-      provider: provider,
+    final expenses = context.select((AppProvider p) => p.expenses);
+    final currencySymbol = context.select((AppProvider p) => p.currencySymbol);
+    final monthlyBudget =
+        context.select((AppProvider p) => p.profile.monthlyBudget);
+    final income = context.select((AppProvider p) => p.profile.income);
+    final maxSpendPerDay =
+        context.select((AppProvider p) => p.maxSpendPerDay);
+
+    final vm = SummaryViewModel.fromData(
+      expenses: expenses,
+      currencySymbol: currencySymbol,
+      monthlyBudget: monthlyBudget,
+      income: income,
+      maxSpendPerDay: maxSpendPerDay,
       selectedPeriod: _selectedPeriod,
     );
 

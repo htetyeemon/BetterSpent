@@ -45,9 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<AppProvider>();
-
-    if (!provider.isInitialized) {
+    final isInitialized =
+        context.select((AppProvider p) => p.isInitialized);
+    if (!isInitialized) {
       return const Scaffold(
         backgroundColor: AppColors.background,
         body: Center(
@@ -56,10 +56,20 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    final currencySymbol = provider.currencySymbol;
-    final income = provider.profile.income;
-    final monthlyBudget = provider.profile.monthlyBudget;
-    final isOnline = provider.isOnline;
+    final currencySymbol =
+        context.select((AppProvider p) => p.currencySymbol);
+    final income = context.select((AppProvider p) => p.profile.income);
+    final monthlyBudget =
+        context.select((AppProvider p) => p.profile.monthlyBudget);
+    final isOnline = context.select((AppProvider p) => p.isOnline);
+    final aiInputEnabled =
+        context.select((AppProvider p) => p.settings.aiInputEnabled);
+    final dailyStreak = context.select((AppProvider p) => p.dailyStreak);
+    final dismissedNotification =
+        context.select((AppProvider p) => p.dismissedNotification);
+    final notification = context.select(
+      (AppProvider p) => HomeNotificationHelper(p).getNotification(),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -89,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       currencySymbol: currencySymbol,
                       income: income,
                       onIncomeSaved: (amount) {
+                        final provider = context.read<AppProvider>();
                         provider.updateProfile(
                           provider.profile.copyWith(
                             income: amount,
@@ -98,23 +109,27 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       monthlyBudget: monthlyBudget,
                       onBudgetSaved: (amount) {
+                        final provider = context.read<AppProvider>();
                         provider.updateProfile(
                           provider.profile.copyWith(monthlyBudget: amount),
                         );
                       },
                     ),
                     const SizedBox(height: AppConstants.spacingLg),
-                    _buildMessageCard(provider),
+                    _buildMessageCard(
+                      notification: notification,
+                      dismissedNotification: dismissedNotification,
+                    ),
                     const SizedBox(height: AppConstants.spacingLg),
                     ExpenseInputCard(
                       isOnline: isOnline,
-                      aiInputEnabled: provider.settings.aiInputEnabled,
+                      aiInputEnabled: aiInputEnabled,
                       onAddExpenseManually: () {
                         context.go(RouteNames.addExpense);
                       },
                     ),
                     const SizedBox(height: AppConstants.spacingLg),
-                    DailyStreakCardInline(streak: provider.dailyStreak),
+                    DailyStreakCardInline(streak: dailyStreak),
                     const SizedBox(height: AppConstants.spacingLg),
                     TodaysSpendingSection(isOnline: isOnline),
                     const SizedBox(height: AppConstants.spacingLg),
@@ -128,10 +143,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMessageCard(AppProvider provider) {
-    final notification = HomeNotificationHelper(provider).getNotification();
+  Widget _buildMessageCard({
+    required String notification,
+    required String? dismissedNotification,
+  }) {
     if (notification.isEmpty) return const SizedBox.shrink();
-    if (provider.dismissedNotification == notification) {
+    if (dismissedNotification == notification) {
       return const SizedBox.shrink();
     }
     final isWarning = notification.contains('⚠️');
