@@ -101,11 +101,13 @@ class ExpenseListContent extends StatelessWidget {
     BuildContext context,
     Expense expense,
   ) {
+    final currencySymbol = context.read<AppProvider>().currencySymbol;
     ExpenseDetailDialog.show(
       context,
       name: expense.note.isNotEmpty ? expense.note : expense.category,
       category: CategoryHelper.normalizeLabel(expense.category).toUpperCase(),
       amount: expense.amount,
+      currencySymbol: currencySymbol,
       time: _timeFormatter.format(expense.date),
       note: expense.note,
       categoryIcon: CategoryIcon.iconForCategory(expense.category),

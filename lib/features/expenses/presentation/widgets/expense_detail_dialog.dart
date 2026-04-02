@@ -8,6 +8,7 @@ class ExpenseDetailDialog extends StatelessWidget {
   final String name;
   final String category;
   final double amount;
+  final String currencySymbol;
   final String time;
   final String note;
   final IconData categoryIcon;
@@ -20,6 +21,7 @@ class ExpenseDetailDialog extends StatelessWidget {
     required this.name,
     required this.category,
     required this.amount,
+    required this.currencySymbol,
     required this.time,
     required this.note,
     required this.categoryIcon,
@@ -46,7 +48,7 @@ class ExpenseDetailDialog extends StatelessWidget {
             _buildDialogHeader(context),
             const SizedBox(height: AppConstants.spacingXl),
             Text(
-              '\$${formatAmount(amount)}',
+              '$currencySymbol${formatAmount(amount)}',
               style: const TextStyle(
                 fontSize: 48,
                 fontWeight: FontWeight.bold,
@@ -173,6 +175,7 @@ class ExpenseDetailDialog extends StatelessWidget {
     required String name,
     required String category,
     required double amount,
+    required String currencySymbol,
     required String time,
     required String note,
     required IconData categoryIcon,
@@ -187,6 +190,7 @@ class ExpenseDetailDialog extends StatelessWidget {
         name: name,
         category: category,
         amount: amount,
+        currencySymbol: currencySymbol,
         time: time,
         note: note,
         categoryIcon: categoryIcon,
