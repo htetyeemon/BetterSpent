@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -51,18 +50,18 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
             onAddExpenseManually: widget.onAddExpenseManually,
           )
         : (widget.isOnline
-            ? ExpenseInputOnlineBody(
-                controller: _inputController,
-                isSubmitting: _isSubmitting,
-                progressMessage: _progressMessage,
-                pendingPreview: _pendingPreview,
-                pendingCount: _pendingCount,
-                onSubmit: _handleAddExpense,
-              )
-            : ExpenseInputManualBody(
-                message: 'Smart input is unavailable offline',
-                onAddExpenseManually: widget.onAddExpenseManually,
-              ));
+              ? ExpenseInputOnlineBody(
+                  controller: _inputController,
+                  isSubmitting: _isSubmitting,
+                  progressMessage: _progressMessage,
+                  pendingPreview: _pendingPreview,
+                  pendingCount: _pendingCount,
+                  onSubmit: _handleAddExpense,
+                )
+              : ExpenseInputManualBody(
+                  message: 'Smart input is unavailable offline',
+                  onAddExpenseManually: widget.onAddExpenseManually,
+                ));
 
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingLg),
@@ -82,9 +81,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
     if (words.length > _maxAiInputWords) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please keep AI input under 500 words.'),
-        ),
+        const SnackBar(content: Text('Please keep AI input under 500 words.')),
       );
       return;
     }
@@ -118,7 +115,8 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
       );
 
       if (validated.isEmpty) {
-        final reason = ExpenseInputValidator.firstValidationError(
+        final reason =
+            ExpenseInputValidator.firstValidationError(
               expenses,
               rawInput,
               requireInputOverlap: false,
@@ -138,8 +136,9 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
       if (!mounted) return;
       final provider = context.read<AppProvider>();
       setState(() {
-        _progressMessage =
-            validated.length == 1 ? 'Adding expense...' : 'Adding expenses...';
+        _progressMessage = validated.length == 1
+            ? 'Adding expense...'
+            : 'Adding expenses...';
         _pendingPreview = validated.first;
         _pendingCount = validated.length;
       });
