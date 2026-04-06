@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../models/currency.dart';
+import 'currency_selector_widgets.dart';
 
 class CurrencySelectorSheet extends StatefulWidget {
   final String selectedCurrencyCode;
@@ -66,150 +67,22 @@ class _CurrencySelectorSheetState extends State<CurrencySelectorSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header with Search
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.borderDark)),
-            ),
-            child: Column(
-              children: [
-                // Title and Close Button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Select Currency',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      color: AppColors.textSecondary,
-                      onPressed: () => Navigator.pop(context),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Search Bar
-                TextField(
-                  onChanged: (value) {
-                    setState(() => _searchQuery = value);
-                  },
-                  style: const TextStyle(color: AppColors.textPrimary),
-                  decoration: InputDecoration(
-                    hintText: 'Search currencies...',
-                    hintStyle: TextStyle(color: AppColors.textSecondary),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: AppColors.textSecondary,
-                      size: 20,
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFF0A0A0A),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.borderDark),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.borderDark),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          CurrencySelectorHeader(
+            onSearchChanged: (value) {
+              setState(() => _searchQuery = value);
+            },
           ),
 
           // Currency List
           Flexible(
-            child: _filteredCurrencies.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Text(
-                      'No currencies found',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppColors.textSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                : ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: _filteredCurrencies.length,
-                    separatorBuilder: (context, index) => Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: AppColors.borderDark,
-                    ),
-                    itemBuilder: (context, index) {
-                      final currency = _filteredCurrencies[index];
-                      final isSelected =
-                          widget.selectedCurrencyCode == currency.code;
-
-                      return InkWell(
-                        onTap: () {
-                          widget.onCurrencySelected(currency.code);
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          color: isSelected
-                              ? AppColors.borderDark
-                              : Colors.transparent,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      currency.name,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      currency.code,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                currency.symbol,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+            child: CurrencyList(
+              currencies: _filteredCurrencies,
+              selectedCurrencyCode: widget.selectedCurrencyCode,
+              onSelected: (code) {
+                widget.onCurrencySelected(code);
+                Navigator.pop(context);
+              },
+            ),
           ),
         ],
       ),

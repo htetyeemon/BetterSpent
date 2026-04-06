@@ -23,6 +23,9 @@ import '../../core/services/app_launch_service.dart';
 part 'app_provider_data.dart';
 part 'app_provider_auth.dart';
 part 'app_provider_lifecycle.dart';
+part 'app_provider_getters.dart';
+part 'app_provider_notifications.dart';
+part 'app_provider_cache.dart';
 
 class AppProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -77,101 +80,12 @@ class AppProvider extends ChangeNotifier {
   StreamSubscription<UserSettings?>? _settingsSub;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
 
-  // Getters
-  bool get isInitialized => _isInitialized;
-  bool get isOnline => _isOnline;
-  String? get uid => _uid;
-  String? get error => _error;
-  bool get isAuthLoading => _isAuthLoading;
-  bool get isAnonymous => _authService.isAnonymous;
-  bool get isEmailUser => _authService.isEmailUser;
-  String? get accountEmail => _authService.currentUser?.email;
-  String get accountName {
-    final displayName = _authService.currentUser?.displayName?.trim();
-    if (displayName != null && displayName.isNotEmpty) return displayName;
-
-    final email = _authService.currentUser?.email;
-    if (email != null && email.contains('@')) {
-      return email.split('@').first;
-    }
-
-    return 'Account';
-  }
-
-  List<Expense> get expenses => _expenses;
-  FinancialProfile get profile => _profile;
-  UserSettings get settings => _settings;
-  String? get dismissedNotification => _dismissedNotification;
-
-  double get balance => _balance;
-  double get maxSpendPerDay => _maxSpendPerDay;
-  int get dailyStreak => _dailyStreak;
-  String get notification {
-    final todayKey = _currentDayKey(DateTime.now());
-    if (_notificationDayKey != todayKey) {
-      _recomputeNotification();
-    }
-    return _notification;
-  }
-
-  String get currencySymbol {
-    switch (_settings.currency) {
-      case 'EUR':
-        return '€';
-      case 'GBP':
-        return '£';
-      case 'JPY':
-      case 'CNY':
-        return '¥';
-      case 'CHF':
-        return 'Fr';
-      case 'INR':
-        return '₹';
-      case 'THB':
-        return '฿';
-      case 'KRW':
-        return '₩';
-      case 'SEK':
-      case 'NOK':
-        return 'kr';
-      case 'BRL':
-        return 'R\$';
-      case 'ZAR':
-        return 'R';
-      case 'RUB':
-        return '₽';
-      default:
-        return '\$';
-    }
-  }
-
   void _notify() => notifyListeners();
-  void _recomputeDerived() {
-    _balance = _getBalance.execute(_profile.income, _expenses);
-    _maxSpendPerDay = _getMaxSpendPerDay.execute(
-      _profile.monthlyBudget,
-      _expenses,
-    );
-    _dailyStreak = _getDailyStreak.execute(_expenses);
-    unawaited(_persistDerivedCache());
-  }
+  void _recomputeDerived() => _recomputeDerivedImpl(this);
 
-  int _currentDayKey(DateTime now) =>
-      (now.year * 10000) + (now.month * 100) + now.day;
+  int _currentDayKey(DateTime now) => _currentDayKeyImpl(now);
 
-  void _recomputeNotification() {
-    final now = DateTime.now();
-    _notification = _computeNotification(
-      now: now,
-      budgetWarningEnabled: _settings.budgetWarningEnabled,
-      motivationalMessageEnabled: _settings.motivationalMessageEnabled,
-      income: _profile.income,
-      monthlyBudget: _profile.monthlyBudget,
-      maxSpendPerDay: _maxSpendPerDay,
-      expenses: _expenses,
-    );
-    _notificationDayKey = _currentDayKey(now);
-  }
+  void _recomputeNotification() => _recomputeNotificationImpl(this);
 
   String _computeNotification({
     required DateTime now,
@@ -181,232 +95,50 @@ class AppProvider extends ChangeNotifier {
     required double monthlyBudget,
     required double maxSpendPerDay,
     required List<Expense> expenses,
-  }) {
-    if (income == 0 && monthlyBudget == 0) {
-      return '';
-    }
+  }) =>
+      _computeNotificationImpl(
+        now: now,
+        budgetWarningEnabled: budgetWarningEnabled,
+        motivationalMessageEnabled: motivationalMessageEnabled,
+        income: income,
+        monthlyBudget: monthlyBudget,
+        maxSpendPerDay: maxSpendPerDay,
+        expenses: expenses,
+      );
 
-    double todaySpending = 0.0;
-    double totalMonthSpending = 0.0;
-    double totalSpending = 0.0;
-    for (final expense in expenses) {
-      totalSpending += expense.amount;
-      if (expense.date.year == now.year && expense.date.month == now.month) {
-        totalMonthSpending += expense.amount;
-        if (expense.date.day == now.day) {
-          todaySpending += expense.amount;
-        }
-      }
-    }
+  String _derivedCacheKey(String uid) => _derivedCacheKeyImpl(uid);
+  String _settingsCacheKey(String uid) => _settingsCacheKeyImpl(uid);
+  String _profileCacheKey(String uid) => _profileCacheKeyImpl(uid);
 
-    final hasWarning = (maxSpendPerDay > 0 && todaySpending > maxSpendPerDay) ||
-        totalMonthSpending > monthlyBudget ||
-        totalSpending > income;
+  Future<Box<dynamic>> _openDerivedCacheBox() =>
+      _openDerivedCacheBoxImpl(this);
 
-    if (hasWarning && budgetWarningEnabled) {
-      if (totalSpending > income) {
-        return '⚠️ Your total spending has exceeded your income!';
-      } else if (totalMonthSpending > monthlyBudget) {
-        return '⚠️ You\'ve exceeded your monthly budget!';
-      } else {
-        return '⚠️ You\'ve exceeded your daily spending limit!';
-      }
-    }
+  Future<Box<dynamic>> _openSettingsCacheBox() =>
+      _openSettingsCacheBoxImpl(this);
 
-    if (!hasWarning && motivationalMessageEnabled) {
-      const messages = [
-        'You\'re doing great! Keep tracking your expenses daily.',
-        'Nice work! You\'re building a healthy financial habit.',
-        'Keep it up! Small savings add up to big results.',
-      ];
-      final daySeed = (now.year * 10000) + (now.month * 100) + now.day;
-      return messages[daySeed % messages.length];
-    }
+  Future<Box<dynamic>> _openProfileCacheBox() =>
+      _openProfileCacheBoxImpl(this);
 
-    return '';
-  }
+  _ExpenseSignature _computeExpenseSignature(List<Expense> expenses) =>
+      _computeExpenseSignatureImpl(expenses);
 
-  String _derivedCacheKey(String uid) => 'derived:$uid';
-  String _settingsCacheKey(String uid) => 'settings:$uid';
-  String _profileCacheKey(String uid) => 'profile:$uid';
+  Future<void> _loadDerivedCache() => _loadDerivedCacheImpl(this);
 
-  Future<Box<dynamic>> _openDerivedCacheBox() async {
-    _derivedCacheBox ??= await Hive.openBox<dynamic>(_derivedCacheBoxName);
-    return _derivedCacheBox!;
-  }
+  Future<void> _loadSettingsCache() => _loadSettingsCacheImpl(this);
 
-  Future<Box<dynamic>> _openSettingsCacheBox() async {
-    _settingsCacheBox ??= await Hive.openBox<dynamic>(_settingsCacheBoxName);
-    return _settingsCacheBox!;
-  }
+  Future<void> _loadProfileCache() => _loadProfileCacheImpl(this);
 
-  Future<Box<dynamic>> _openProfileCacheBox() async {
-    _profileCacheBox ??= await Hive.openBox<dynamic>(_profileCacheBoxName);
-    return _profileCacheBox!;
-  }
+  Future<void> _persistDerivedCache() => _persistDerivedCacheImpl(this);
 
-  _ExpenseSignature _computeExpenseSignature(List<Expense> expenses) {
-    int latestMillis = 0;
-    for (final expense in expenses) {
-      final millis = expense.date.millisecondsSinceEpoch;
-      if (millis > latestMillis) {
-        latestMillis = millis;
-      }
-    }
-    return _ExpenseSignature(
-      count: expenses.length,
-      latestMillis: latestMillis,
-    );
-  }
+  Future<void> _persistSettingsCache() => _persistSettingsCacheImpl(this);
 
-  Future<void> _loadDerivedCache() async {
-    if (!_enableDerivedCache) return;
-    final uid = _uid;
-    if (uid == null) return;
+  Future<void> _persistProfileCache() => _persistProfileCacheImpl(this);
 
-    final box = await _openDerivedCacheBox();
-    final cached = box.get(_derivedCacheKey(uid));
-    if (cached is Map) {
-      final balance = cached['balance'];
-      final maxSpendPerDay = cached['maxSpendPerDay'];
-      final dailyStreak = cached['dailyStreak'];
-      final expenseCount = cached['expenseCount'];
-      final expenseLatestMillis = cached['expenseLatestMillis'];
-      if (balance is num && maxSpendPerDay is num && dailyStreak is int) {
-        _balance = balance.toDouble();
-        _maxSpendPerDay = maxSpendPerDay.toDouble();
-        _dailyStreak = dailyStreak;
-        _hasCachedDerived = true;
-        if (expenseCount is int) {
-          _expenseSignatureCount = expenseCount;
-        }
-        if (expenseLatestMillis is int) {
-          _expenseSignatureLatestMillis = expenseLatestMillis;
-        }
-      }
-    }
-  }
+  Future<void> _clearDerivedCache() => _clearDerivedCacheImpl(this);
 
-  Future<void> _loadSettingsCache() async {
-    final uid = _uid;
-    if (uid == null) return;
+  Future<void> _clearSettingsCache() => _clearSettingsCacheImpl(this);
 
-    final box = await _openSettingsCacheBox();
-    final cached = box.get(_settingsCacheKey(uid));
-    if (cached is Map) {
-      final currency = cached['currency'];
-      final aiInputEnabled = cached['aiInputEnabled'];
-      final budgetWarningEnabled = cached['budgetWarningEnabled'];
-      final motivationalMessageEnabled = cached['motivationalMessageEnabled'];
-      if (currency is String &&
-          aiInputEnabled is bool &&
-          budgetWarningEnabled is bool &&
-          motivationalMessageEnabled is bool) {
-        _settings = UserSettings(
-          currency: currency,
-          aiInputEnabled: aiInputEnabled,
-          budgetWarningEnabled: budgetWarningEnabled,
-          motivationalMessageEnabled: motivationalMessageEnabled,
-        );
-      }
-    }
-  }
-
-  Future<void> _loadProfileCache() async {
-    final uid = _uid;
-    if (uid == null) return;
-
-    final box = await _openProfileCacheBox();
-    final cached = box.get(_profileCacheKey(uid));
-    if (cached is Map) {
-      final income = cached['income'];
-      final monthlyBudget = cached['monthlyBudget'];
-      final incomeUpdatedAt = cached['incomeUpdatedAt'];
-      if (income is num && monthlyBudget is num) {
-        _profile = FinancialProfile(
-          income: income.toDouble(),
-          monthlyBudget: monthlyBudget.toDouble(),
-          incomeUpdatedAt: incomeUpdatedAt is int
-              ? DateTime.fromMillisecondsSinceEpoch(incomeUpdatedAt)
-              : null,
-        );
-      }
-    }
-  }
-
-  Future<void> _persistDerivedCache() async {
-    if (!_enableDerivedCache) return;
-    final uid = _uid;
-    if (uid == null) return;
-    if (_derivedCacheBox == null && !_hasCachedDerived) {
-      await _openDerivedCacheBox();
-    }
-    final box = _derivedCacheBox;
-    if (box == null) return;
-    await box.put(_derivedCacheKey(uid), {
-      'balance': _balance,
-      'maxSpendPerDay': _maxSpendPerDay,
-      'dailyStreak': _dailyStreak,
-      'expenseCount': _expenseSignatureCount,
-      'expenseLatestMillis': _expenseSignatureLatestMillis,
-      'updatedAt': DateTime.now().millisecondsSinceEpoch,
-    });
-  }
-
-  Future<void> _persistSettingsCache() async {
-    final uid = _uid;
-    if (uid == null) return;
-    if (_settingsCacheBox == null) {
-      await _openSettingsCacheBox();
-    }
-    final box = _settingsCacheBox;
-    if (box == null) return;
-    await box.put(_settingsCacheKey(uid), {
-      'currency': _settings.currency,
-      'aiInputEnabled': _settings.aiInputEnabled,
-      'budgetWarningEnabled': _settings.budgetWarningEnabled,
-      'motivationalMessageEnabled': _settings.motivationalMessageEnabled,
-      'updatedAt': DateTime.now().millisecondsSinceEpoch,
-    });
-  }
-
-  Future<void> _persistProfileCache() async {
-    final uid = _uid;
-    if (uid == null) return;
-    if (_profileCacheBox == null) {
-      await _openProfileCacheBox();
-    }
-    final box = _profileCacheBox;
-    if (box == null) return;
-    await box.put(_profileCacheKey(uid), {
-      'income': _profile.income,
-      'monthlyBudget': _profile.monthlyBudget,
-      'incomeUpdatedAt': _profile.incomeUpdatedAt?.millisecondsSinceEpoch,
-      'updatedAt': DateTime.now().millisecondsSinceEpoch,
-    });
-  }
-
-  Future<void> _clearDerivedCache() async {
-    if (!_enableDerivedCache) return;
-    final uid = _uid;
-    if (uid == null) return;
-    final box = _derivedCacheBox ?? await _openDerivedCacheBox();
-    await box.delete(_derivedCacheKey(uid));
-  }
-
-  Future<void> _clearSettingsCache() async {
-    final uid = _uid;
-    if (uid == null) return;
-    final box = _settingsCacheBox ?? await _openSettingsCacheBox();
-    await box.delete(_settingsCacheKey(uid));
-  }
-
-  Future<void> _clearProfileCache() async {
-    final uid = _uid;
-    if (uid == null) return;
-    final box = _profileCacheBox ?? await _openProfileCacheBox();
-    await box.delete(_profileCacheKey(uid));
-  }
+  Future<void> _clearProfileCache() => _clearProfileCacheImpl(this);
 
   Future<void> initialize() => _initializeImpl(this);
 

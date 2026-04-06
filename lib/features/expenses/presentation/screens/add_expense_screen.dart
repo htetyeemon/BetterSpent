@@ -3,9 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/utils/category_helper.dart';
 import '../../../../core/utils/date_helper.dart';
@@ -13,6 +11,9 @@ import '../widgets/category_chip_selector.dart';
 import '../widgets/amount_input_field.dart';
 import '../utils/expense_screen_actions.dart';
 import '../../../../presentation/providers/app_provider.dart';
+import '../widgets/expense_screen_header.dart';
+import '../widgets/expense_note_section.dart';
+import '../widgets/expense_date_section.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
@@ -45,7 +46,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(context),
+            ExpenseScreenHeader(
+              title: 'Add Expense',
+              onBack: () => context.go(RouteNames.home),
+            ),
 
             Expanded(
               child: SingleChildScrollView(
@@ -57,9 +61,23 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     const SizedBox(height: AppConstants.spacingLg),
                     _buildCategorySection(),
                     const SizedBox(height: AppConstants.spacingLg),
-                    _buildNoteSection(),
+                    ExpenseNoteSection(controller: _noteController),
                     const SizedBox(height: AppConstants.spacingLg),
-                    _buildDateSection(context),
+                    ExpenseDateSection(
+                      dateLabel: DateHelper.formatIsoDate(_selectedDate),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: _selectedDate,
+                          firstDate: DateTime(AppConstants.expenseStartYear),
+                          lastDate: DateTime.now(),
+                        );
+
+                        if (picked != null) {
+                          setState(() => _selectedDate = picked);
+                        }
+                      },
+                    ),
                     const SizedBox(height: AppConstants.spacingXl),
                     const SizedBox(height: AppConstants.spacingXl),
                     _buildSaveButton(context),
@@ -69,27 +87,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(AppConstants.spacingMd),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go(RouteNames.home),
-            color: AppColors.textPrimary,
-          ),
-          const Expanded(
-            child: Center(
-              child: Text('Add Expense', style: AppTextStyles.h2),
-            ),
-          ),
-          const SizedBox(width: 48),
-        ],
       ),
     );
   }
@@ -108,75 +105,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       onCategorySelected: (category) {
         setState(() => _selectedCategory = category);
       },
-    );
-  }
-
-  Widget _buildNoteSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'NOTE',
-          style: AppTextStyles.labelSmall.copyWith(
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: AppConstants.spacingSm),
-        CustomTextField(
-          controller: _noteController,
-          hintText: 'Add a note...',
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Avoid sensitive details like account numbers or passwords.',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'DATE',
-          style: AppTextStyles.labelSmall.copyWith(
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: AppConstants.spacingSm),
-        GestureDetector(
-              onTap: () async {
-            final picked = await showDatePicker(
-              context: context,
-              initialDate: _selectedDate,
-              firstDate: DateTime(AppConstants.expenseStartYear),
-              lastDate: DateTime.now(),
-            );
-
-            if (picked != null) {
-              setState(() => _selectedDate = picked);
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.all(AppConstants.spacingMd),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(
-                AppConstants.radiusLg,
-              ),
-              border: Border.all(color: AppColors.borderDark),
-            ),
-            child: Text(
-              DateHelper.formatIsoDate(_selectedDate),
-              style: AppTextStyles.bodyMedium,
-            ),
-          ),
-        ),
-      ],
     );
   }
 

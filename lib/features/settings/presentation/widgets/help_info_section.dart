@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../data/help_content.dart';
+import 'help_info_dialog.dart';
 
 class HelpInfoSection extends StatelessWidget {
   const HelpInfoSection({super.key});
@@ -92,7 +92,7 @@ class HelpInfoSection extends StatelessWidget {
     BorderRadius? borderRadius,
   ) {
     return InkWell(
-      onTap: () => _showHelpDialog(context, title),
+      onTap: () => showHelpDialog(context, title),
       borderRadius: borderRadius,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -133,73 +133,6 @@ class HelpInfoSection extends StatelessWidget {
             const SizedBox(width: 16),
             Icon(icon, color: AppColors.textSecondary, size: 20),
           ],
-        ),
-      ),
-    );
-  }
-
-  void _showHelpDialog(BuildContext context, String title) {
-    final content = HelpContent.content[title] ?? '';
-
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: AppColors.surface,
-        child: Container(
-          constraints: const BoxConstraints(maxHeight: 600),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderDark),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      color: AppColors.textSecondary,
-                      onPressed: () => Navigator.pop(context),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: AppColors.borderDark,
-              ),
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(
-                    content,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textPrimary,
-                      height: 1.6,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

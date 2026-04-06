@@ -13,6 +13,8 @@ import '../../../../presentation/providers/app_provider.dart';
 import 'expense_card.dart';
 import 'expense_detail_dialog.dart';
 import 'delete_expense_dialog.dart';
+import 'expense_list_entry.dart';
+import 'expense_list_helpers.dart';
 
 class ExpenseListContent extends StatefulWidget {
   final String selectedFilter;
@@ -33,39 +35,15 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
   List<Expense> _cachedFiltered = const [];
   Map<String, List<Expense>> _cachedGrouped = const {};
   List<String> _cachedDateKeys = const [];
-  List<_ExpenseListEntry> _cachedEntries = const [];
+  List<ExpenseListEntry> _cachedEntries = const [];
   int _visibleCount = _pageSize;
 
   List<Expense> _filterExpenses(List<Expense> expenses, String filter) {
-    final now = DateTime.now();
-    switch (filter) {
-      case 'Today':
-        return expenses
-            .where((e) =>
-                e.date.year == now.year &&
-                e.date.month == now.month &&
-                e.date.day == now.day)
-            .toList();
-      case 'This Week':
-        final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-        final start = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
-        return expenses.where((e) => !e.date.isBefore(start)).toList();
-      case 'This Month':
-        return expenses
-            .where((e) => e.date.year == now.year && e.date.month == now.month)
-            .toList();
-      default:
-        return expenses;
-    }
+    return filterExpenses(expenses, filter);
   }
 
   Map<String, List<Expense>> _groupByDate(List<Expense> expenses) {
-    final Map<String, List<Expense>> groups = {};
-    for (final expense in expenses) {
-      final key = ExpenseListContent._dayFormatter.format(expense.date);
-      groups.putIfAbsent(key, () => []).add(expense);
-    }
-    return groups;
+    return groupByDate(expenses, ExpenseListContent._dayFormatter);
   }
 
   void _ensureCache(List<Expense> expenses) {
@@ -87,7 +65,7 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
         : _cachedFiltered;
     _cachedGrouped = _groupByDate(visibleFiltered);
     _cachedDateKeys = _cachedGrouped.keys.toList();
-    _cachedEntries = _buildEntries(
+    _cachedEntries = buildEntries(
       _cachedGrouped,
       _cachedDateKeys,
       hasMore: _cachedFiltered.length > _visibleCount,
@@ -121,7 +99,7 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
       separatorBuilder: (_, _) => const SizedBox(height: 0),
       itemBuilder: (context, index) {
         final entry = entries[index];
-        if (entry.type == _ExpenseListEntryType.header) {
+        if (entry.type == ExpenseListEntryType.header) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -133,10 +111,10 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
             ],
           );
         }
-        if (entry.type == _ExpenseListEntryType.sectionSpacer) {
+        if (entry.type == ExpenseListEntryType.sectionSpacer) {
           return const SizedBox(height: AppConstants.spacingLg);
         }
-        if (entry.type == _ExpenseListEntryType.loadMore) {
+        if (entry.type == ExpenseListEntryType.loadMore) {
           return Padding(
             padding: const EdgeInsets.only(
               top: AppConstants.spacingSm,
@@ -202,53 +180,9 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
     );
   }
 
-  List<_ExpenseListEntry> _buildEntries(
-    Map<String, List<Expense>> grouped,
-    List<String> dateKeys, {
-    required bool hasMore,
-  }) {
-    final entries = <_ExpenseListEntry>[];
-    for (final dateKey in dateKeys) {
-      entries.add(
-        _ExpenseListEntry.header(dateKey.toUpperCase()),
-      );
-      final dayExpenses = grouped[dateKey] ?? const [];
-      for (final expense in dayExpenses) {
-        entries.add(_ExpenseListEntry.expense(expense));
-      }
-      entries.add(_ExpenseListEntry.sectionSpacer());
-    }
-    if (hasMore) {
-      entries.add(_ExpenseListEntry.loadMore());
-    }
-    return entries;
-  }
-
   void _handleLoadMore() {
     setState(() {
       _visibleCount += _pageSize;
     });
   }
-}
-
-enum _ExpenseListEntryType { header, expense, sectionSpacer, loadMore }
-
-class _ExpenseListEntry {
-  final _ExpenseListEntryType type;
-  final String? header;
-  final Expense? expense;
-
-  const _ExpenseListEntry._(this.type, {this.header, this.expense});
-
-  factory _ExpenseListEntry.header(String header) =>
-      _ExpenseListEntry._(_ExpenseListEntryType.header, header: header);
-
-  factory _ExpenseListEntry.expense(Expense expense) =>
-      _ExpenseListEntry._(_ExpenseListEntryType.expense, expense: expense);
-
-  factory _ExpenseListEntry.sectionSpacer() =>
-      const _ExpenseListEntry._(_ExpenseListEntryType.sectionSpacer);
-
-  factory _ExpenseListEntry.loadMore() =>
-      const _ExpenseListEntry._(_ExpenseListEntryType.loadMore);
 }
