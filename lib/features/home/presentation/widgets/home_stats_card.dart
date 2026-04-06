@@ -6,6 +6,7 @@ import '../widgets/income_column.dart';
 import '../widgets/budget_column.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import '../../../../core/utils/amount_formatter.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class HomeStatsCard extends StatelessWidget {
   final String currencySymbol;
@@ -106,7 +107,7 @@ class HomeStatsCard extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             letterSpacing: 1.2,
@@ -122,7 +123,7 @@ class HomeStatsCard extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Text(
             value,
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 28,
               fontWeight: FontWeight.w600,
               color: valueColor,
@@ -133,3 +134,4 @@ class HomeStatsCard extends StatelessWidget {
     );
   }
 }
+

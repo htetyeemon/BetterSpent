@@ -42,7 +42,7 @@ class LandingCallToAction extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      child: const Text('Launch App'),
+                      child: Text('Launch App'),
                     ),
                   ],
                 )
@@ -67,7 +67,7 @@ class LandingCallToAction extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        child: const Text('Launch App'),
+                        child: Text('Launch App'),
                       ),
                     ),
                   ],
@@ -85,12 +85,12 @@ class LandingCallToActionText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text('Ready to take control?', style: AppTextStyles.h3),
-        SizedBox(height: AppConstants.spacingSm),
+      children: [
+        const Text('Ready to take control?', style: AppTextStyles.h3),
+        const SizedBox(height: AppConstants.spacingSm),
         Text(
           'Launch BetterSpent now and start tracking your money today.',
-          style: TextStyle(color: AppColors.textTertiary, height: 1.5),
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary, height: 1.5),
         ),
       ],
     );
@@ -108,24 +108,24 @@ class LandingFooter extends StatelessWidget {
         if (isNarrow) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              LandingLogo(),
-              SizedBox(height: AppConstants.spacingSm),
+            children: [
+              const LandingLogo(),
+              const SizedBox(height: AppConstants.spacingSm),
               Text(
                 'Built for focused spending.',
-                style: TextStyle(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
               ),
             ],
           );
         }
 
         return Row(
-          children: const [
-            LandingLogo(),
-            Spacer(),
+          children: [
+            const LandingLogo(),
+            const Spacer(),
             Text(
               'Built for focused spending.',
-              style: TextStyle(color: AppColors.textSecondary),
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
             ),
           ],
         );
@@ -133,3 +133,5 @@ class LandingFooter extends StatelessWidget {
     );
   }
 }
+
+

@@ -3,6 +3,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/category_icon.dart';
 import '../../../../core/utils/amount_formatter.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class ExpenseCard extends StatelessWidget {
   final String name;
@@ -54,7 +55,7 @@ class ExpenseCard extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
@@ -65,7 +66,7 @@ class ExpenseCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     category,
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
@@ -75,7 +76,7 @@ class ExpenseCard extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     time,
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
@@ -91,7 +92,7 @@ class ExpenseCard extends StatelessWidget {
             Flexible(
               child: Text(
                 '-$currencySymbol${formatAmount(amount)}',
-                style: const TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
@@ -105,3 +106,4 @@ class ExpenseCard extends StatelessWidget {
     );
   }
 }
+

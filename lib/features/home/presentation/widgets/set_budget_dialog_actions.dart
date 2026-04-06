@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class SetBudgetDialogActions extends StatelessWidget {
   final VoidCallback onClose;
@@ -32,9 +33,9 @@ class SetBudgetDialogActions extends StatelessWidget {
               ),
               shape: shape,
             ),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -54,11 +55,12 @@ class SetBudgetDialogActions extends StatelessWidget {
               ),
               shape: shape,
             ),
-            child: const Text(
+            child: Text(
               'Save',
-              style: TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
+                color: Colors.black,
               ),
             ),
           ),
@@ -67,3 +69,5 @@ class SetBudgetDialogActions extends StatelessWidget {
     );
   }
 }
+
+

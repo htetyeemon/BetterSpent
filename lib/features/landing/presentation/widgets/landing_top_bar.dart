@@ -25,7 +25,7 @@ class LandingTopBar extends StatelessWidget {
           fontWeight: FontWeight.w700,
         ),
       ),
-      child: const Text('Launch App'),
+      child: Text('Launch App'),
     );
 
     return Row(
@@ -67,3 +67,4 @@ class LandingLogo extends StatelessWidget {
     );
   }
 }
+

@@ -123,7 +123,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Settings',
                     style: AppTextStyles.h2,
                   ),
@@ -208,3 +208,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
 }
+

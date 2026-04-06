@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../domain/usecases/get_spending_by_category_use_case.dart';
 import 'category_spending_card.dart';
 
@@ -22,7 +23,9 @@ class SummaryCategoryList extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Text(
           'No spending data yet',
-          style: TextStyle(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
       );
     }

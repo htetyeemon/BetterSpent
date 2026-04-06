@@ -78,7 +78,7 @@ class AccountAuthForm extends StatelessWidget {
           TextField(
             controller: usernameController,
             enabled: !isLoading,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
             decoration: _inputDecoration('Username'),
           ),
           const SizedBox(height: 8),
@@ -92,7 +92,7 @@ class AccountAuthForm extends StatelessWidget {
           controller: emailController,
           keyboardType: TextInputType.emailAddress,
           enabled: !isLoading,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
           decoration: _inputDecoration('Email'),
         ),
         const SizedBox(height: AppConstants.spacingMd),
@@ -100,7 +100,7 @@ class AccountAuthForm extends StatelessWidget {
           controller: passwordController,
           obscureText: true,
           enabled: !isLoading,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
           decoration: _inputDecoration('Password'),
         ),
         const SizedBox(height: 8),
@@ -114,7 +114,7 @@ class AccountAuthForm extends StatelessWidget {
             controller: confirmPasswordController,
             obscureText: true,
             enabled: !isLoading,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
             decoration: _inputDecoration('Confirm password'),
           ),
         ],
@@ -124,7 +124,7 @@ class AccountAuthForm extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: TextButton(
               onPressed: isLoading ? null : onForgotPassword,
-              child: const Text('Forgot password?'),
+              child: Text('Forgot password?'),
             ),
           ),
         ],
@@ -158,7 +158,7 @@ class AccountAuthForm extends StatelessWidget {
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: AppColors.textSecondary),
+      labelStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
       filled: true,
       fillColor: const Color(0xFF0F0F0F),
       border: OutlineInputBorder(
@@ -176,3 +176,5 @@ class AccountAuthForm extends StatelessWidget {
     );
   }
 }
+
+

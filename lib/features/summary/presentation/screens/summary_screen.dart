@@ -93,7 +93,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                   ],
 
                   // Spending by Category
-                  const Text('Spending by category', style: AppTextStyles.h3),
+                  Text('Spending by category', style: AppTextStyles.h3),
                   const SizedBox(height: AppConstants.spacingMd),
 
                   SummaryCategoryList(
@@ -122,3 +122,4 @@ class _SummaryScreenState extends State<SummaryScreen> {
   }
 
 }
+

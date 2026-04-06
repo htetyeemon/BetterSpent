@@ -150,16 +150,16 @@ class _AccountAuthScreenState extends State<AccountAuthScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Delete account?', style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text(
+        title: Text('Delete account?', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary)),
+        content: Text(
           'This will permanently delete your account and all data. This action cannot be undone.',
-          style: TextStyle(color: AppColors.textSecondary),
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('Cancel')),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+            child: Text('Delete', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error)),
           ),
         ],
       ),
@@ -179,3 +179,5 @@ class _AccountAuthScreenState extends State<AccountAuthScreen> {
     );
   }
 }
+
+

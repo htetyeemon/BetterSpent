@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class DailyStreakCardInline extends StatelessWidget {
   final int streak;
@@ -19,15 +20,15 @@ class DailyStreakCardInline extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Text('🔥', style: TextStyle(fontSize: 28)),
+          Text('🔥', style: AppTextStyles.bodyMedium.copyWith(fontSize: 28)),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Daily Streak',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -36,7 +37,7 @@ class DailyStreakCardInline extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '$days days of smart spending!',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 14,
                     color: AppColors.textSecondary,
                   ),
@@ -46,7 +47,7 @@ class DailyStreakCardInline extends StatelessWidget {
           ),
           Text(
             '$days',
-            style: const TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 48,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
@@ -57,3 +58,5 @@ class DailyStreakCardInline extends StatelessWidget {
     );
   }
 }
+
+

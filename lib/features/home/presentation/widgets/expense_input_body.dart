@@ -30,7 +30,7 @@ class ExpenseInputOnlineBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Enter expenses', style: AppTextStyles.h3),
+        Text('Enter expenses', style: AppTextStyles.h3),
         const SizedBox(height: AppConstants.spacingMd),
         TextField(
           controller: controller,
@@ -38,7 +38,7 @@ class ExpenseInputOnlineBody extends StatelessWidget {
           style: AppTextStyles.bodyMedium,
           decoration: InputDecoration(
             hintText: 'Type naturally (e.g. coffee 8, lunch 25, taxi 12)',
-            hintStyle: TextStyle(
+            hintStyle: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textSecondary.withValues(alpha: 0.5),
             ),
             filled: true,
@@ -145,3 +145,5 @@ class ExpenseInputManualBody extends StatelessWidget {
     );
   }
 }
+
+

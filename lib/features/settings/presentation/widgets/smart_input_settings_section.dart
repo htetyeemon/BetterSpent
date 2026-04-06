@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../widgets/toggle_switch.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class SmartInputSettingsSection extends StatelessWidget {
   final bool aiInputEnabled;
@@ -19,7 +20,7 @@ class SmartInputSettingsSection extends StatelessWidget {
       children: [
         Text(
           'SMART INPUT SETTINGS',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: AppColors.textSecondary,
@@ -40,9 +41,9 @@ class SmartInputSettingsSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'AI expense input',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: AppColors.textPrimary,
@@ -51,7 +52,7 @@ class SmartInputSettingsSection extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Use natural language to add expenses',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 14,
                         color: AppColors.textSecondary,
                       ),
@@ -68,3 +69,5 @@ class SmartInputSettingsSection extends StatelessWidget {
     );
   }
 }
+
+

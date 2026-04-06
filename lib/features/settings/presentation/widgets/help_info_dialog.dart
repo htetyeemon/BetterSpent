@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../data/help_content.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 void showHelpDialog(BuildContext context, String title) {
   final content = HelpContent.content[title] ?? '';
@@ -27,7 +28,7 @@ void showHelpDialog(BuildContext context, String title) {
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
@@ -54,7 +55,7 @@ void showHelpDialog(BuildContext context, String title) {
                 padding: const EdgeInsets.all(20),
                 child: Text(
                   content,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 14,
                     color: AppColors.textPrimary,
                     height: 1.6,
@@ -68,3 +69,4 @@ void showHelpDialog(BuildContext context, String title) {
     ),
   );
 }
+

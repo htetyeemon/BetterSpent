@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../presentation/providers/app_provider.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class AccountSection extends StatelessWidget {
   const AccountSection({super.key});
@@ -18,9 +19,9 @@ class AccountSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'ACCOUNT',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: AppColors.textSecondary,
@@ -46,7 +47,7 @@ class AccountSection extends StatelessWidget {
                         isSignedIn
                             ? 'Signed in with Email'
                             : 'Sign in / Log in for Backup',
-                        style: const TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: AppColors.textPrimary,
@@ -54,9 +55,9 @@ class AccountSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       if (!isSignedIn)
-                        const Text(
+                        Text(
                           'Use email and password to back up your data.',
-                          style: TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 14,
                             color: AppColors.textSecondary,
                           ),
@@ -67,7 +68,7 @@ class AccountSection extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           accountName,
-                          style: const TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 13,
                             color: AppColors.textSecondary,
                           ),
@@ -77,7 +78,7 @@ class AccountSection extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           accountEmail,
-                          style: const TextStyle(
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontSize: 13,
                             color: AppColors.textSecondary,
                           ),
@@ -102,7 +103,7 @@ class AccountSection extends StatelessWidget {
                   ),
                   child: Text(
                     isSignedIn ? 'Manage' : 'Sign in',
-                    style: TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: isSignedIn ? AppColors.error : AppColors.primary,
                       fontSize: 14,
                     ),
@@ -116,3 +117,5 @@ class AccountSection extends StatelessWidget {
     );
   }
 }
+
+

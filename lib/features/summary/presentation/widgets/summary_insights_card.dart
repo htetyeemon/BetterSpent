@@ -36,7 +36,7 @@ class SummaryInsightsCard extends StatelessWidget {
                 size: 20,
               ),
               const SizedBox(width: AppConstants.spacingSm),
-              const Text('Insights', style: AppTextStyles.h4),
+              Text('Insights', style: AppTextStyles.h4),
             ],
           ),
           const SizedBox(height: AppConstants.spacingMd),
@@ -52,3 +52,4 @@ class SummaryInsightsCard extends StatelessWidget {
     );
   }
 }
+

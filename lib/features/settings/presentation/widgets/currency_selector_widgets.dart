@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../models/currency.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class CurrencySelectorHeader extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
@@ -22,9 +23,9 @@ class CurrencySelectorHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Select Currency',
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
@@ -42,10 +43,10 @@ class CurrencySelectorHeader extends StatelessWidget {
           const SizedBox(height: 16),
           TextField(
             onChanged: onSearchChanged,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
             decoration: InputDecoration(
               hintText: 'Search currencies...',
-              hintStyle: TextStyle(color: AppColors.textSecondary),
+              hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
               prefixIcon: Icon(
                 Icons.search,
                 color: AppColors.textSecondary,
@@ -92,11 +93,11 @@ class CurrencyList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (currencies.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(32),
+      return Padding(
+        padding: const EdgeInsets.all(32),
         child: Text(
           'No currencies found',
-          style: TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             fontSize: 16,
             color: AppColors.textSecondary,
           ),
@@ -130,7 +131,7 @@ class CurrencyList extends StatelessWidget {
                     children: [
                       Text(
                         currency.name,
-                        style: const TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: AppColors.textPrimary,
@@ -139,7 +140,7 @@ class CurrencyList extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         currency.code,
-                        style: TextStyle(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 14,
                           color: AppColors.textSecondary,
                         ),
@@ -149,7 +150,7 @@ class CurrencyList extends StatelessWidget {
                 ),
                 Text(
                   currency.symbol,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 24,
                     color: AppColors.textPrimary,
                   ),
@@ -162,3 +163,5 @@ class CurrencyList extends StatelessWidget {
     );
   }
 }
+
+

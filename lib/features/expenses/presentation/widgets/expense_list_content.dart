@@ -87,7 +87,9 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
           padding: const EdgeInsets.all(40),
           child: Text(
             'No expenses found',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
         ),
       );
@@ -127,7 +129,7 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
                   foregroundColor: AppColors.textPrimary,
                   side: const BorderSide(color: AppColors.borderDark),
                 ),
-                child: const Text('Load more'),
+                child: Text('Load more'),
               ),
             ),
           );
@@ -186,3 +188,4 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
     });
   }
 }
+

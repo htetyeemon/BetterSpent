@@ -7,6 +7,7 @@ import '../../../../core/widgets/category_icon.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import '../../../../core/utils/amount_formatter.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class TodaysSpendingSection extends StatelessWidget {
   final bool isOnline;
@@ -37,9 +38,9 @@ class TodaysSpendingSection extends StatelessWidget {
               children: [
                 Icon(Icons.trending_up, size: 20, color: AppColors.textPrimary),
                 const SizedBox(width: 8),
-                const Text(
+                Text(
                   'Today\'s Spending',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -58,7 +59,7 @@ class TodaysSpendingSection extends StatelessWidget {
               ),
               child: Text(
                 'View all',
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: AppColors.primary,
@@ -74,7 +75,7 @@ class TodaysSpendingSection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Text(
               'No expenses today',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary, fontSize: 14),
             ),
           )
         else
@@ -117,7 +118,7 @@ class TodaysSpendingSection extends StatelessWidget {
               children: [
                 Text(
                   expense.note.isNotEmpty ? expense.note : expense.category,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -128,7 +129,7 @@ class TodaysSpendingSection extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   expense.category,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 14,
                     color: AppColors.textSecondary,
                   ),
@@ -138,7 +139,7 @@ class TodaysSpendingSection extends StatelessWidget {
           ),
           Text(
             '-$currencySymbol${formatAmount(expense.amount)}',
-            style: const TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
@@ -149,4 +150,6 @@ class TodaysSpendingSection extends StatelessWidget {
     );
   }
 }
+
+
 

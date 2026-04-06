@@ -3,6 +3,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import 'set_budget_dialog_actions.dart';
 import 'set_budget_dialog_sections.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class SetBudgetDialogContent extends StatelessWidget {
   final GlobalKey<FormState> formKey;
@@ -50,7 +51,7 @@ class SetBudgetDialogContent extends StatelessWidget {
               const SizedBox(height: AppConstants.spacingSm),
               Text(
                 balanceError!,
-                style: const TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 12,
                   color: AppColors.error,
                 ),
@@ -67,3 +68,4 @@ class SetBudgetDialogContent extends StatelessWidget {
     );
   }
 }
+

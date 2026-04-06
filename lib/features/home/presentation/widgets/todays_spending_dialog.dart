@@ -7,6 +7,7 @@ import '../../../../domain/entities/expense.dart';
 import '../../../../core/widgets/category_icon.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import '../../../../core/utils/amount_formatter.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class TodaysSpendingDialog extends StatelessWidget {
   final bool isOnline;
@@ -72,9 +73,9 @@ class TodaysSpendingDialog extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
+          Text(
             'Today\'s Spending',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
@@ -103,9 +104,9 @@ class TodaysSpendingDialog extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
+          Text(
             'Total',
-            style: TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
@@ -113,7 +114,7 @@ class TodaysSpendingDialog extends StatelessWidget {
           ),
           Text(
             '-$currencySymbol${formatAmount(total)}',
-            style: const TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppColors.accent,
@@ -151,7 +152,7 @@ class TodaysSpendingDialog extends StatelessWidget {
               children: [
                 Text(
                   displayName,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -162,7 +163,7 @@ class TodaysSpendingDialog extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   expense.category,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 14,
                     color: AppColors.textSecondary,
                   ),
@@ -172,7 +173,7 @@ class TodaysSpendingDialog extends StatelessWidget {
           ),
           Text(
             '-$currencySymbol${formatAmount(expense.amount)}',
-            style: const TextStyle(
+            style: AppTextStyles.bodyMedium.copyWith(
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
@@ -191,3 +192,5 @@ class TodaysSpendingDialog extends StatelessWidget {
     );
   }
 }
+
+

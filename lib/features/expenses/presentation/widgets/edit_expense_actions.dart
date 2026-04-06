@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../../../core/constants/app_text_styles.dart';
 
 class EditExpenseActions extends StatelessWidget {
   final VoidCallback onCancel;
@@ -33,9 +34,9 @@ class EditExpenseActions extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppConstants.radiusLg),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: AppTextStyles.bodyMedium.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -48,3 +49,5 @@ class EditExpenseActions extends StatelessWidget {
     );
   }
 }
+
+

@@ -23,7 +23,7 @@ class AccountSignedInView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Signed in with Email', style: AppTextStyles.h3),
+        Text('Signed in with Email', style: AppTextStyles.h3),
         const SizedBox(height: AppConstants.spacingMd),
         Text(accountName, style: AppTextStyles.bodyMedium),
         const SizedBox(height: 4),
@@ -41,9 +41,9 @@ class AccountSignedInView extends StatelessWidget {
                   side: const BorderSide(color: AppColors.error),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: const Text(
+                child: Text(
                   'Sign Out',
-                  style: TextStyle(color: AppColors.error),
+                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error),
                 ),
               ),
             ),
@@ -56,9 +56,9 @@ class AccountSignedInView extends StatelessWidget {
                   backgroundColor: const Color(0x22FF4444),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: const Text(
+                child: Text(
                   'Delete Account',
-                  style: TextStyle(color: AppColors.error),
+                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.error),
                 ),
               ),
             ),
@@ -68,3 +68,5 @@ class AccountSignedInView extends StatelessWidget {
     );
   }
 }
+
+

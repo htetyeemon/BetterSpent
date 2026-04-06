@@ -49,7 +49,7 @@ class ExpenseDetailDialog extends StatelessWidget {
             const SizedBox(height: AppConstants.spacingXl),
             Text(
               '$currencySymbol${formatAmount(amount)}',
-              style: const TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 48,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
@@ -124,9 +124,9 @@ class ExpenseDetailDialog extends StatelessWidget {
               onEdit();
             },
             icon: const Icon(Icons.edit_outlined, size: 20),
-            label: const Text(
+            label: Text(
               'Edit',
-              style: TextStyle(fontWeight: FontWeight.w500),
+              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w500),
             ),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.textPrimary,
@@ -149,9 +149,9 @@ class ExpenseDetailDialog extends StatelessWidget {
               onDelete();
             },
             icon: const Icon(Icons.delete_outline, size: 20),
-            label: const Text(
+            label: Text(
               'Delete',
-              style: TextStyle(fontWeight: FontWeight.w500),
+              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w500),
             ),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.error,
@@ -201,3 +201,5 @@ class ExpenseDetailDialog extends StatelessWidget {
     );
   }
 }
+
+

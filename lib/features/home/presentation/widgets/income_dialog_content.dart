@@ -72,7 +72,7 @@ class IncomeDialogContent extends StatelessWidget {
             const SizedBox(height: AppConstants.spacingXl),
 
             /// LABEL
-            const Text('AMOUNT', style: AppTextStyles.labelSmall),
+            Text('AMOUNT', style: AppTextStyles.labelSmall),
             const SizedBox(height: AppConstants.spacingSm),
 
             /// FIELD
@@ -140,3 +140,4 @@ class IncomeDialogContent extends StatelessWidget {
     );
   }
 }
+

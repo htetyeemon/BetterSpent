@@ -30,13 +30,13 @@ class LandingHeroSection extends StatelessWidget {
         RichText(
           text: TextSpan(
             style: titleStyle,
-            children: const [
-              TextSpan(text: 'Better '),
+            children: [
+              const TextSpan(text: 'Better '),
               TextSpan(
                 text: 'spending',
-                style: TextStyle(color: AppColors.primary),
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary),
               ),
-              TextSpan(text: ', smarter habits.'),
+              const TextSpan(text: ', smarter habits.'),
             ],
           ),
         ),
@@ -66,7 +66,7 @@ class LandingHeroSection extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              child: const Text('Launch the App'),
+              child: Text('Launch the App'),
             ),
             OutlinedButton(
               onPressed: onViewFeatures,
@@ -78,7 +78,7 @@ class LandingHeroSection extends StatelessWidget {
                   vertical: AppConstants.spacingMd,
                 ),
               ),
-              child: const Text('View Features'),
+              child: Text('View Features'),
             ),
           ],
         ),
@@ -87,3 +87,5 @@ class LandingHeroSection extends StatelessWidget {
     );
   }
 }
+
+

@@ -11,7 +11,7 @@ class ClearDataDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: AppColors.surface,
-      title: const Text('Clear all data?', style: AppTextStyles.h3),
+      title: Text('Clear all data?', style: AppTextStyles.h3),
       content: Text(
         'This will permanently delete all your expenses. This action cannot be undone.',
         style: AppTextStyles.bodyMedium.copyWith(
@@ -52,3 +52,4 @@ class ClearDataDialog extends StatelessWidget {
     );
   }
 }
+

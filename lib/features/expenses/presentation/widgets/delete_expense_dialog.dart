@@ -39,7 +39,7 @@ class DeleteExpenseDialog extends StatelessWidget {
             const SizedBox(height: AppConstants.spacingLg),
 
             // Title
-            const Text(
+            Text(
               'Delete Expense?',
               style: AppTextStyles.h2,
               textAlign: TextAlign.center,
@@ -80,9 +80,9 @@ class DeleteExpenseDialog extends StatelessWidget {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Delete',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -109,9 +109,9 @@ class DeleteExpenseDialog extends StatelessWidget {
                         ),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Cancel',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -134,3 +134,5 @@ class DeleteExpenseDialog extends StatelessWidget {
     );
   }
 }
+
+

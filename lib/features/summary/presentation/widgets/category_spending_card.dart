@@ -59,7 +59,7 @@ class CategorySpendingCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   category,
-                  style: AppTextStyles.bodyLarge.copyWith(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
                 ),

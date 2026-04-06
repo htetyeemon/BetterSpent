@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import 'help_info_dialog.dart';
 
 class HelpInfoSection extends StatelessWidget {
@@ -10,10 +11,9 @@ class HelpInfoSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'HELP & INFO',
-          style: TextStyle(
-            fontSize: 12,
+          style: AppTextStyles.labelSmall.copyWith(
             fontWeight: FontWeight.w600,
             color: AppColors.textSecondary,
             letterSpacing: 1.2,
@@ -105,8 +105,7 @@ class HelpInfoSection extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: const TextStyle(
-                            fontSize: 16,
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontWeight: FontWeight.w500,
                             color: AppColors.textPrimary,
                           ),
@@ -114,8 +113,7 @@ class HelpInfoSection extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           subtitle,
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: AppTextStyles.bodySmall.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -123,8 +121,7 @@ class HelpInfoSection extends StatelessWidget {
                     )
                   : Text(
                       title,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontWeight: FontWeight.w500,
                         color: AppColors.textPrimary,
                       ),

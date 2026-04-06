@@ -77,7 +77,7 @@ class SetBudgetAmountField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'MONTHLY BUDGET AMOUNT',
           style: AppTextStyles.labelSmall,
         ),
@@ -116,9 +116,9 @@ class SetBudgetAmountField extends StatelessWidget {
                   ],
                   onChanged: onChanged,
                   style: AppTextStyles.h3,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: '',
-                    hintStyle: TextStyle(color: AppColors.textSecondary),
+                    hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: AppConstants.spacingMd,
@@ -147,3 +147,5 @@ class SetBudgetAmountField extends StatelessWidget {
     );
   }
 }
+
+
