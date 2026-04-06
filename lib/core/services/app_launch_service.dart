@@ -8,23 +8,32 @@ class AppLaunchService {
   static const String _pendingSeenAnonymousKey = 'pending_seen_anonymous';
   static bool _shouldShowGetStarted = false;
   static Box<dynamic>? _box;
+  static final ValueNotifier<int> _refreshSignal = ValueNotifier<int>(0);
 
   static bool get shouldShowGetStarted => _shouldShowGetStarted;
+  static ValueListenable<int> get refreshListenable => _refreshSignal;
+
+  static void _notifyRefresh() {
+    _refreshSignal.value++;
+  }
 
   static Future<void> initialize() async {
     try {
       _box ??= await Hive.openBox<dynamic>(_boxName);
       _refreshOnboardingState(FirebaseAuth.instance.currentUser);
+      _notifyRefresh();
     } catch (e, st) {
       debugPrint('AppLaunchService.initialize failed: $e');
       debugPrintStack(stackTrace: st);
       _shouldShowGetStarted = false;
+      _notifyRefresh();
     }
   }
 
   static Future<void> refreshForCurrentUser() async {
     _box ??= await Hive.openBox<dynamic>(_boxName);
     _refreshOnboardingState(FirebaseAuth.instance.currentUser);
+    _notifyRefresh();
   }
 
   static void _refreshOnboardingState(User? user) {
@@ -63,5 +72,6 @@ class AppLaunchService {
       await _box!.put(_pendingSeenAnonymousKey, true);
     }
     _shouldShowGetStarted = false;
+    _notifyRefresh();
   }
 }

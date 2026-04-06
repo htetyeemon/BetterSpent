@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -17,13 +18,6 @@ void main() async {
 
   // ✅ Initialize Firebase with generated options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await _activateAppCheck();
-  try {
-    await AppLaunchService.initialize();
-  } catch (e, st) {
-    debugPrint('AppLaunchService init failed: $e');
-    debugPrintStack(stackTrace: st);
-  }
 
   runApp(
     ChangeNotifierProvider(
@@ -31,6 +25,16 @@ void main() async {
       child: const BetterSpentApp(),
     ),
   );
+
+  unawaited(_activateAppCheck());
+  unawaited(() async {
+    try {
+      await AppLaunchService.initialize();
+    } catch (e, st) {
+      debugPrint('AppLaunchService init failed: $e');
+      debugPrintStack(stackTrace: st);
+    }
+  }());
 }
 
 Future<void> _activateAppCheck() async {

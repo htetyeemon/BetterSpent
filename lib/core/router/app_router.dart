@@ -17,6 +17,7 @@ import '../../features/onboarding/presentation/screens/get_started_screen.dart';
 class AppRouter {
   static final GoRouter appRouter = GoRouter(
     initialLocation: RouteNames.home,
+    refreshListenable: AppLaunchService.refreshListenable,
     redirect: (context, state) {
       final shouldShowGetStarted = AppLaunchService.shouldShowGetStarted;
       final onGetStarted = state.matchedLocation == RouteNames.getStarted;

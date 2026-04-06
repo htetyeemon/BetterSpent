@@ -26,6 +26,8 @@ Future<void> _initializeImpl(AppProvider self) async {
       await AppLaunchService.refreshForCurrentUser();
 
       if (self._uid != null) {
+        await self._loadSettingsCache();
+        await self._loadProfileCache();
         await self._loadDerivedCache();
         self._setupRepositories();
         self._setupStreams();
@@ -53,7 +55,16 @@ void _setupStreamsImpl(AppProvider self) {
   self._expenseSub = self._expenseRepo!.getExpenses().listen(
       (expenses) {
         self._expenses = expenses;
-        self._recomputeDerived();
+        final signature = self._computeExpenseSignature(expenses);
+        final matchesCache = self._hasCachedDerived &&
+            signature.count == self._expenseSignatureCount &&
+            signature.latestMillis == self._expenseSignatureLatestMillis;
+        if (!matchesCache) {
+          self._expenseSignatureCount = signature.count;
+          self._expenseSignatureLatestMillis = signature.latestMillis;
+          self._recomputeDerived();
+        }
+        self._recomputeNotification();
         self._notify();
       },
       onError: (e, st) {
@@ -70,14 +81,18 @@ void _setupStreamsImpl(AppProvider self) {
       if (profile != null) {
         self._profile = profile;
         self._recomputeDerived();
+        self._recomputeNotification();
         self._notify();
+        unawaited(self._persistProfileCache());
       }
     });
 
   self._settingsSub = self._settingsRepo!.getSettings().listen((settings) {
       if (settings != null) {
         self._settings = settings;
+        self._recomputeNotification();
         self._notify();
+        unawaited(self._persistSettingsCache());
       }
     });
 }
@@ -99,6 +114,7 @@ Future<void> _updateProfileImpl(
   FinancialProfile profile,
 ) async {
   await self._profileRepo?.updateProfile(profile);
+  unawaited(self._persistProfileCache());
 }
 
 Future<void> _updateSettingsImpl(
@@ -106,7 +122,9 @@ Future<void> _updateSettingsImpl(
   UserSettings settings,
 ) async {
   self._settings = settings;
+  self._recomputeNotification();
   self._notify();
+  unawaited(self._persistSettingsCache());
   await self._settingsRepo?.updateSettings(settings);
 }
 
@@ -128,7 +146,13 @@ Future<void> _clearAllDataImpl(AppProvider self) async {
     );
   self._settings = const UserSettings();
   self._dismissedNotification = null;
+  self._notification = '';
+  self._notificationDayKey = 0;
+  self._expenseSignatureCount = 0;
+  self._expenseSignatureLatestMillis = 0;
   await self._clearDerivedCache();
+  await self._clearSettingsCache();
+  await self._clearProfileCache();
   self._recomputeDerived();
   self._notify();
 }

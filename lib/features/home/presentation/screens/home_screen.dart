@@ -13,7 +13,6 @@ import '../widgets/daily_streak_card_inline.dart';
 import '../widgets/todays_spending_section.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import '../../../../core/widgets/success_snackbar.dart';
-import '../utils/home_notification_helper.dart';
 import '../../../../core/utils/bottom_nav_helper.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -47,15 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final isInitialized =
         context.select((AppProvider p) => p.isInitialized);
-    if (!isInitialized) {
-      return const Scaffold(
-        backgroundColor: AppColors.background,
-        body: Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
-    }
-
     final currencySymbol =
         context.select((AppProvider p) => p.currencySymbol);
     final income = context.select((AppProvider p) => p.profile.income);
@@ -67,9 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final dailyStreak = context.select((AppProvider p) => p.dailyStreak);
     final dismissedNotification =
         context.select((AppProvider p) => p.dismissedNotification);
-    final notification = context.select(
-      (AppProvider p) => HomeNotificationHelper(p).getNotification(),
-    );
+    final notification =
+        context.select((AppProvider p) => p.notification);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -84,6 +73,12 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            if (!isInitialized)
+              const LinearProgressIndicator(
+                minHeight: 2,
+                color: AppColors.primary,
+                backgroundColor: AppColors.background,
+              ),
             HomeHeader(
               isOnline: isOnline,
             ),

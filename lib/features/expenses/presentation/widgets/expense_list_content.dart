@@ -4,13 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/widgets/category_icon.dart';
 import '../../../../core/utils/category_helper.dart';
 import '../../../../domain/entities/expense.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import 'expense_card.dart';
-import 'date_section_widget.dart';
 import 'expense_detail_dialog.dart';
 import 'delete_expense_dialog.dart';
 
@@ -26,11 +26,15 @@ class ExpenseListContent extends StatefulWidget {
 }
 
 class _ExpenseListContentState extends State<ExpenseListContent> {
+  static const int _pageSize = 50;
   List<Expense>? _cachedExpenses;
   String? _cachedFilter;
+  int _cachedVisibleCount = 0;
   List<Expense> _cachedFiltered = const [];
   Map<String, List<Expense>> _cachedGrouped = const {};
   List<String> _cachedDateKeys = const [];
+  List<_ExpenseListEntry> _cachedEntries = const [];
+  int _visibleCount = _pageSize;
 
   List<Expense> _filterExpenses(List<Expense> expenses, String filter) {
     final now = DateTime.now();
@@ -65,16 +69,30 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
   }
 
   void _ensureCache(List<Expense> expenses) {
+    final filterChanged = _cachedFilter != widget.selectedFilter;
+    if (filterChanged) {
+      _visibleCount = _pageSize;
+    }
     if (identical(expenses, _cachedExpenses) &&
-        _cachedFilter == widget.selectedFilter) {
+        !filterChanged &&
+        _cachedVisibleCount == _visibleCount) {
       return;
     }
 
     _cachedExpenses = expenses;
     _cachedFilter = widget.selectedFilter;
     _cachedFiltered = _filterExpenses(expenses, widget.selectedFilter);
-    _cachedGrouped = _groupByDate(_cachedFiltered);
+    final visibleFiltered = _cachedFiltered.length > _visibleCount
+        ? _cachedFiltered.sublist(0, _visibleCount)
+        : _cachedFiltered;
+    _cachedGrouped = _groupByDate(visibleFiltered);
     _cachedDateKeys = _cachedGrouped.keys.toList();
+    _cachedEntries = _buildEntries(
+      _cachedGrouped,
+      _cachedDateKeys,
+      hasMore: _cachedFiltered.length > _visibleCount,
+    );
+    _cachedVisibleCount = _visibleCount;
   }
 
   @override
@@ -83,8 +101,7 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
     final currencySymbol = context.select((AppProvider p) => p.currencySymbol);
     _ensureCache(expenses);
     final filtered = _cachedFiltered;
-    final grouped = _cachedGrouped;
-    final dateKeys = _cachedDateKeys;
+    final entries = _cachedEntries;
 
     if (filtered.isEmpty) {
       return Center(
@@ -100,23 +117,55 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
 
     return ListView.separated(
       padding: EdgeInsets.symmetric(horizontal: AppConstants.spacingMd),
-      itemCount: dateKeys.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AppConstants.spacingLg),
+      itemCount: entries.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 0),
       itemBuilder: (context, index) {
-        final dateKey = dateKeys[index];
-        final dayExpenses = grouped[dateKey]!;
-        return DateSectionWidget(
-          date: dateKey,
-          expenses: dayExpenses.map((expense) {
-            return ExpenseCard(
-              name: expense.note.isNotEmpty ? expense.note : expense.category,
-              category: expense.category,
-              amount: expense.amount,
-              time: ExpenseListContent._dayFormatter.format(expense.date),
-              currencySymbol: currencySymbol,
-              onTap: () => _showExpenseDetail(context, expense),
-            );
-          }).toList(),
+        final entry = entries[index];
+        if (entry.type == _ExpenseListEntryType.header) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                entry.header!,
+                style: AppTextStyles.labelSmall.copyWith(letterSpacing: 1.5),
+              ),
+              const SizedBox(height: AppConstants.spacingMd),
+            ],
+          );
+        }
+        if (entry.type == _ExpenseListEntryType.sectionSpacer) {
+          return const SizedBox(height: AppConstants.spacingLg);
+        }
+        if (entry.type == _ExpenseListEntryType.loadMore) {
+          return Padding(
+            padding: const EdgeInsets.only(
+              top: AppConstants.spacingSm,
+              bottom: AppConstants.spacingLg,
+            ),
+            child: Center(
+              child: OutlinedButton(
+                onPressed: _handleLoadMore,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.textPrimary,
+                  side: const BorderSide(color: AppColors.borderDark),
+                ),
+                child: const Text('Load more'),
+              ),
+            ),
+          );
+        }
+
+        final expense = entry.expense!;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppConstants.spacingMd),
+          child: ExpenseCard(
+            name: expense.note.isNotEmpty ? expense.note : expense.category,
+            category: expense.category,
+            amount: expense.amount,
+            time: ExpenseListContent._dayFormatter.format(expense.date),
+            currencySymbol: currencySymbol,
+            onTap: () => _showExpenseDetail(context, expense),
+          ),
         );
       },
     );
@@ -152,4 +201,54 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
       ),
     );
   }
+
+  List<_ExpenseListEntry> _buildEntries(
+    Map<String, List<Expense>> grouped,
+    List<String> dateKeys, {
+    required bool hasMore,
+  }) {
+    final entries = <_ExpenseListEntry>[];
+    for (final dateKey in dateKeys) {
+      entries.add(
+        _ExpenseListEntry.header(dateKey.toUpperCase()),
+      );
+      final dayExpenses = grouped[dateKey] ?? const [];
+      for (final expense in dayExpenses) {
+        entries.add(_ExpenseListEntry.expense(expense));
+      }
+      entries.add(_ExpenseListEntry.sectionSpacer());
+    }
+    if (hasMore) {
+      entries.add(_ExpenseListEntry.loadMore());
+    }
+    return entries;
+  }
+
+  void _handleLoadMore() {
+    setState(() {
+      _visibleCount += _pageSize;
+    });
+  }
+}
+
+enum _ExpenseListEntryType { header, expense, sectionSpacer, loadMore }
+
+class _ExpenseListEntry {
+  final _ExpenseListEntryType type;
+  final String? header;
+  final Expense? expense;
+
+  const _ExpenseListEntry._(this.type, {this.header, this.expense});
+
+  factory _ExpenseListEntry.header(String header) =>
+      _ExpenseListEntry._(_ExpenseListEntryType.header, header: header);
+
+  factory _ExpenseListEntry.expense(Expense expense) =>
+      _ExpenseListEntry._(_ExpenseListEntryType.expense, expense: expense);
+
+  factory _ExpenseListEntry.sectionSpacer() =>
+      const _ExpenseListEntry._(_ExpenseListEntryType.sectionSpacer);
+
+  factory _ExpenseListEntry.loadMore() =>
+      const _ExpenseListEntry._(_ExpenseListEntryType.loadMore);
 }

@@ -27,6 +27,8 @@ part 'app_provider_lifecycle.dart';
 class AppProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
   static const String _derivedCacheBoxName = 'derived_cache_box';
+  static const String _settingsCacheBoxName = 'settings_cache_box';
+  static const String _profileCacheBoxName = 'profile_cache_box';
   static const bool _enableDerivedCache =
       bool.fromEnvironment('DERIVED_CACHE_ENABLED', defaultValue: true);
 
@@ -51,6 +53,12 @@ class AppProvider extends ChangeNotifier {
   int _dailyStreak = 0;
   bool _hasCachedDerived = false;
   Box<dynamic>? _derivedCacheBox;
+  Box<dynamic>? _settingsCacheBox;
+  Box<dynamic>? _profileCacheBox;
+  String _notification = '';
+  int _notificationDayKey = 0;
+  int _expenseSignatureCount = 0;
+  int _expenseSignatureLatestMillis = 0;
 
   // Repositories
   ExpenseRepository? _expenseRepo;
@@ -98,6 +106,13 @@ class AppProvider extends ChangeNotifier {
   double get balance => _balance;
   double get maxSpendPerDay => _maxSpendPerDay;
   int get dailyStreak => _dailyStreak;
+  String get notification {
+    final todayKey = _currentDayKey(DateTime.now());
+    if (_notificationDayKey != todayKey) {
+      _recomputeNotification();
+    }
+    return _notification;
+  }
 
   String get currencySymbol {
     switch (_settings.currency) {
@@ -141,11 +156,107 @@ class AppProvider extends ChangeNotifier {
     unawaited(_persistDerivedCache());
   }
 
+  int _currentDayKey(DateTime now) =>
+      (now.year * 10000) + (now.month * 100) + now.day;
+
+  void _recomputeNotification() {
+    final now = DateTime.now();
+    _notification = _computeNotification(
+      now: now,
+      budgetWarningEnabled: _settings.budgetWarningEnabled,
+      motivationalMessageEnabled: _settings.motivationalMessageEnabled,
+      income: _profile.income,
+      monthlyBudget: _profile.monthlyBudget,
+      maxSpendPerDay: _maxSpendPerDay,
+      expenses: _expenses,
+    );
+    _notificationDayKey = _currentDayKey(now);
+  }
+
+  String _computeNotification({
+    required DateTime now,
+    required bool budgetWarningEnabled,
+    required bool motivationalMessageEnabled,
+    required double income,
+    required double monthlyBudget,
+    required double maxSpendPerDay,
+    required List<Expense> expenses,
+  }) {
+    if (income == 0 && monthlyBudget == 0) {
+      return '';
+    }
+
+    double todaySpending = 0.0;
+    double totalMonthSpending = 0.0;
+    double totalSpending = 0.0;
+    for (final expense in expenses) {
+      totalSpending += expense.amount;
+      if (expense.date.year == now.year && expense.date.month == now.month) {
+        totalMonthSpending += expense.amount;
+        if (expense.date.day == now.day) {
+          todaySpending += expense.amount;
+        }
+      }
+    }
+
+    final hasWarning = (maxSpendPerDay > 0 && todaySpending > maxSpendPerDay) ||
+        totalMonthSpending > monthlyBudget ||
+        totalSpending > income;
+
+    if (hasWarning && budgetWarningEnabled) {
+      if (totalSpending > income) {
+        return '⚠️ Your total spending has exceeded your income!';
+      } else if (totalMonthSpending > monthlyBudget) {
+        return '⚠️ You\'ve exceeded your monthly budget!';
+      } else {
+        return '⚠️ You\'ve exceeded your daily spending limit!';
+      }
+    }
+
+    if (!hasWarning && motivationalMessageEnabled) {
+      const messages = [
+        'You\'re doing great! Keep tracking your expenses daily.',
+        'Nice work! You\'re building a healthy financial habit.',
+        'Keep it up! Small savings add up to big results.',
+      ];
+      final daySeed = (now.year * 10000) + (now.month * 100) + now.day;
+      return messages[daySeed % messages.length];
+    }
+
+    return '';
+  }
+
   String _derivedCacheKey(String uid) => 'derived:$uid';
+  String _settingsCacheKey(String uid) => 'settings:$uid';
+  String _profileCacheKey(String uid) => 'profile:$uid';
 
   Future<Box<dynamic>> _openDerivedCacheBox() async {
     _derivedCacheBox ??= await Hive.openBox<dynamic>(_derivedCacheBoxName);
     return _derivedCacheBox!;
+  }
+
+  Future<Box<dynamic>> _openSettingsCacheBox() async {
+    _settingsCacheBox ??= await Hive.openBox<dynamic>(_settingsCacheBoxName);
+    return _settingsCacheBox!;
+  }
+
+  Future<Box<dynamic>> _openProfileCacheBox() async {
+    _profileCacheBox ??= await Hive.openBox<dynamic>(_profileCacheBoxName);
+    return _profileCacheBox!;
+  }
+
+  _ExpenseSignature _computeExpenseSignature(List<Expense> expenses) {
+    int latestMillis = 0;
+    for (final expense in expenses) {
+      final millis = expense.date.millisecondsSinceEpoch;
+      if (millis > latestMillis) {
+        latestMillis = millis;
+      }
+    }
+    return _ExpenseSignature(
+      count: expenses.length,
+      latestMillis: latestMillis,
+    );
   }
 
   Future<void> _loadDerivedCache() async {
@@ -159,11 +270,66 @@ class AppProvider extends ChangeNotifier {
       final balance = cached['balance'];
       final maxSpendPerDay = cached['maxSpendPerDay'];
       final dailyStreak = cached['dailyStreak'];
+      final expenseCount = cached['expenseCount'];
+      final expenseLatestMillis = cached['expenseLatestMillis'];
       if (balance is num && maxSpendPerDay is num && dailyStreak is int) {
         _balance = balance.toDouble();
         _maxSpendPerDay = maxSpendPerDay.toDouble();
         _dailyStreak = dailyStreak;
         _hasCachedDerived = true;
+        if (expenseCount is int) {
+          _expenseSignatureCount = expenseCount;
+        }
+        if (expenseLatestMillis is int) {
+          _expenseSignatureLatestMillis = expenseLatestMillis;
+        }
+      }
+    }
+  }
+
+  Future<void> _loadSettingsCache() async {
+    final uid = _uid;
+    if (uid == null) return;
+
+    final box = await _openSettingsCacheBox();
+    final cached = box.get(_settingsCacheKey(uid));
+    if (cached is Map) {
+      final currency = cached['currency'];
+      final aiInputEnabled = cached['aiInputEnabled'];
+      final budgetWarningEnabled = cached['budgetWarningEnabled'];
+      final motivationalMessageEnabled = cached['motivationalMessageEnabled'];
+      if (currency is String &&
+          aiInputEnabled is bool &&
+          budgetWarningEnabled is bool &&
+          motivationalMessageEnabled is bool) {
+        _settings = UserSettings(
+          currency: currency,
+          aiInputEnabled: aiInputEnabled,
+          budgetWarningEnabled: budgetWarningEnabled,
+          motivationalMessageEnabled: motivationalMessageEnabled,
+        );
+      }
+    }
+  }
+
+  Future<void> _loadProfileCache() async {
+    final uid = _uid;
+    if (uid == null) return;
+
+    final box = await _openProfileCacheBox();
+    final cached = box.get(_profileCacheKey(uid));
+    if (cached is Map) {
+      final income = cached['income'];
+      final monthlyBudget = cached['monthlyBudget'];
+      final incomeUpdatedAt = cached['incomeUpdatedAt'];
+      if (income is num && monthlyBudget is num) {
+        _profile = FinancialProfile(
+          income: income.toDouble(),
+          monthlyBudget: monthlyBudget.toDouble(),
+          incomeUpdatedAt: incomeUpdatedAt is int
+              ? DateTime.fromMillisecondsSinceEpoch(incomeUpdatedAt)
+              : null,
+        );
       }
     }
   }
@@ -181,6 +347,41 @@ class AppProvider extends ChangeNotifier {
       'balance': _balance,
       'maxSpendPerDay': _maxSpendPerDay,
       'dailyStreak': _dailyStreak,
+      'expenseCount': _expenseSignatureCount,
+      'expenseLatestMillis': _expenseSignatureLatestMillis,
+      'updatedAt': DateTime.now().millisecondsSinceEpoch,
+    });
+  }
+
+  Future<void> _persistSettingsCache() async {
+    final uid = _uid;
+    if (uid == null) return;
+    if (_settingsCacheBox == null) {
+      await _openSettingsCacheBox();
+    }
+    final box = _settingsCacheBox;
+    if (box == null) return;
+    await box.put(_settingsCacheKey(uid), {
+      'currency': _settings.currency,
+      'aiInputEnabled': _settings.aiInputEnabled,
+      'budgetWarningEnabled': _settings.budgetWarningEnabled,
+      'motivationalMessageEnabled': _settings.motivationalMessageEnabled,
+      'updatedAt': DateTime.now().millisecondsSinceEpoch,
+    });
+  }
+
+  Future<void> _persistProfileCache() async {
+    final uid = _uid;
+    if (uid == null) return;
+    if (_profileCacheBox == null) {
+      await _openProfileCacheBox();
+    }
+    final box = _profileCacheBox;
+    if (box == null) return;
+    await box.put(_profileCacheKey(uid), {
+      'income': _profile.income,
+      'monthlyBudget': _profile.monthlyBudget,
+      'incomeUpdatedAt': _profile.incomeUpdatedAt?.millisecondsSinceEpoch,
       'updatedAt': DateTime.now().millisecondsSinceEpoch,
     });
   }
@@ -191,6 +392,20 @@ class AppProvider extends ChangeNotifier {
     if (uid == null) return;
     final box = _derivedCacheBox ?? await _openDerivedCacheBox();
     await box.delete(_derivedCacheKey(uid));
+  }
+
+  Future<void> _clearSettingsCache() async {
+    final uid = _uid;
+    if (uid == null) return;
+    final box = _settingsCacheBox ?? await _openSettingsCacheBox();
+    await box.delete(_settingsCacheKey(uid));
+  }
+
+  Future<void> _clearProfileCache() async {
+    final uid = _uid;
+    if (uid == null) return;
+    final box = _profileCacheBox ?? await _openProfileCacheBox();
+    await box.delete(_profileCacheKey(uid));
   }
 
   Future<void> initialize() => _initializeImpl(this);
@@ -250,4 +465,14 @@ class AppProvider extends ChangeNotifier {
     _disposeImpl(this);
     super.dispose();
   }
+}
+
+class _ExpenseSignature {
+  final int count;
+  final int latestMillis;
+
+  const _ExpenseSignature({
+    required this.count,
+    required this.latestMillis,
+  });
 }
