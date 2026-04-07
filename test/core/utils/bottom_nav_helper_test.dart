@@ -19,7 +19,8 @@ class NavActionScreen extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: TextButton(
-          onPressed: () => handleBottomNavTap(context, targetIndex, currentIndex),
+          onPressed: () =>
+              handleBottomNavTap(context, targetIndex, currentIndex),
           child: const Text('Go'),
         ),
       ),
@@ -34,16 +35,31 @@ GoRouter buildRouter({
 }) {
   Widget builder(String path) {
     location.value = path;
-    return NavActionScreen(targetIndex: targetIndex, currentIndex: currentIndex);
+    return NavActionScreen(
+      targetIndex: targetIndex,
+      currentIndex: currentIndex,
+    );
   }
 
   return GoRouter(
     initialLocation: RouteNames.home,
     routes: [
-      GoRoute(path: RouteNames.home, builder: (_, __) => builder(RouteNames.home)),
-      GoRoute(path: RouteNames.expenses, builder: (_, __) => builder(RouteNames.expenses)),
-      GoRoute(path: RouteNames.summary, builder: (_, __) => builder(RouteNames.summary)),
-      GoRoute(path: RouteNames.settings, builder: (_, __) => builder(RouteNames.settings)),
+      GoRoute(
+        path: RouteNames.home,
+        builder: (_, _) => builder(RouteNames.home),
+      ),
+      GoRoute(
+        path: RouteNames.expenses,
+        builder: (_, _) => builder(RouteNames.expenses),
+      ),
+      GoRoute(
+        path: RouteNames.summary,
+        builder: (_, _) => builder(RouteNames.summary),
+      ),
+      GoRoute(
+        path: RouteNames.settings,
+        builder: (_, _) => builder(RouteNames.settings),
+      ),
     ],
   );
 }
@@ -64,7 +80,9 @@ void main() {
     expect(location.value, RouteNames.expenses);
   });
 
-  testWidgets('handleBottomNavTap ignores tap on current index', (tester) async {
+  testWidgets('handleBottomNavTap ignores tap on current index', (
+    tester,
+  ) async {
     final location = ValueNotifier<String>(RouteNames.home);
     final router = buildRouter(
       location: location,

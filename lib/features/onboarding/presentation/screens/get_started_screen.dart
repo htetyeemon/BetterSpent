@@ -40,8 +40,15 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
             children: [
               const Spacer(),
 
-              /// Emoji / Visual
-              Center(child: Text('💰', style: AppTextStyles.bodyMedium.copyWith(fontSize: 80))),
+              /// Logo / Visual
+              Center(
+                child: Image.asset(
+                  'assets/images/logo.jpg',
+                  width: 96,
+                  height: 96,
+                  fit: BoxFit.contain,
+                ),
+              ),
 
               const SizedBox(height: AppConstants.spacingLg),
 
