@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/amount_formatter.dart';
 import 'set_budget_dialog_content.dart';
 
