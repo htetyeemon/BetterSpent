@@ -58,6 +58,10 @@ void _setupRepositoriesImpl(AppProvider self) {
 void _setupStreamsImpl(AppProvider self) {
   self._expenseSub = self._expenseRepo!.getExpenses().listen(
       (expenses) {
+        if (!self._isOnline && expenses.isEmpty && self._expenses.isNotEmpty) {
+          // Keep cached expenses visible when offline and Firestore returns empty.
+          return;
+        }
         self._expenses = expenses;
         final signature = self._computeExpenseSignature(expenses);
         final matchesCache = self._hasCachedDerived &&
