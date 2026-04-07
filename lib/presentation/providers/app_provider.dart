@@ -32,6 +32,7 @@ class AppProvider extends ChangeNotifier {
   static const String _derivedCacheBoxName = 'derived_cache_box';
   static const String _settingsCacheBoxName = 'settings_cache_box';
   static const String _profileCacheBoxName = 'profile_cache_box';
+  static const String _expensesCacheBoxName = 'expenses_cache_box';
   static const bool _enableDerivedCache =
       bool.fromEnvironment('DERIVED_CACHE_ENABLED', defaultValue: true);
 
@@ -58,6 +59,7 @@ class AppProvider extends ChangeNotifier {
   Box<dynamic>? _derivedCacheBox;
   Box<dynamic>? _settingsCacheBox;
   Box<dynamic>? _profileCacheBox;
+  Box<dynamic>? _expensesCacheBox;
   String _notification = '';
   int _notificationDayKey = 0;
   int _expenseSignatureCount = 0;
@@ -109,6 +111,7 @@ class AppProvider extends ChangeNotifier {
   String _derivedCacheKey(String uid) => _derivedCacheKeyImpl(uid);
   String _settingsCacheKey(String uid) => _settingsCacheKeyImpl(uid);
   String _profileCacheKey(String uid) => _profileCacheKeyImpl(uid);
+  String _expensesCacheKey(String uid) => _expensesCacheKeyImpl(uid);
 
   Future<Box<dynamic>> _openDerivedCacheBox() =>
       _openDerivedCacheBoxImpl(this);
@@ -118,6 +121,8 @@ class AppProvider extends ChangeNotifier {
 
   Future<Box<dynamic>> _openProfileCacheBox() =>
       _openProfileCacheBoxImpl(this);
+  Future<Box<dynamic>> _openExpensesCacheBox() =>
+      _openExpensesCacheBoxImpl(this);
 
   _ExpenseSignature _computeExpenseSignature(List<Expense> expenses) =>
       _computeExpenseSignatureImpl(expenses);
@@ -127,18 +132,21 @@ class AppProvider extends ChangeNotifier {
   Future<void> _loadSettingsCache() => _loadSettingsCacheImpl(this);
 
   Future<void> _loadProfileCache() => _loadProfileCacheImpl(this);
+  Future<void> _loadExpensesCache() => _loadExpensesCacheImpl(this);
 
   Future<void> _persistDerivedCache() => _persistDerivedCacheImpl(this);
 
   Future<void> _persistSettingsCache() => _persistSettingsCacheImpl(this);
 
   Future<void> _persistProfileCache() => _persistProfileCacheImpl(this);
+  Future<void> _persistExpensesCache() => _persistExpensesCacheImpl(this);
 
   Future<void> _clearDerivedCache() => _clearDerivedCacheImpl(this);
 
   Future<void> _clearSettingsCache() => _clearSettingsCacheImpl(this);
 
   Future<void> _clearProfileCache() => _clearProfileCacheImpl(this);
+  Future<void> _clearExpensesCache() => _clearExpensesCacheImpl(this);
 
   Future<void> initialize() => _initializeImpl(this);
 

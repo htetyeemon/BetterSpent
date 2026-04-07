@@ -29,6 +29,10 @@ Future<void> _initializeImpl(AppProvider self) async {
         await self._loadSettingsCache();
         await self._loadProfileCache();
         await self._loadDerivedCache();
+        await self._loadExpensesCache();
+        self._recomputeDerived();
+        self._recomputeNotification();
+        self._notify();
         self._setupRepositories();
         self._setupStreams();
       }
@@ -66,6 +70,7 @@ void _setupStreamsImpl(AppProvider self) {
         }
         self._recomputeNotification();
         self._notify();
+        unawaited(self._persistExpensesCache());
       },
       onError: (e, st) {
         debugPrint('Expense stream error: $e');
@@ -153,6 +158,7 @@ Future<void> _clearAllDataImpl(AppProvider self) async {
   await self._clearDerivedCache();
   await self._clearSettingsCache();
   await self._clearProfileCache();
+  await self._clearExpensesCache();
   self._recomputeDerived();
   self._notify();
 }

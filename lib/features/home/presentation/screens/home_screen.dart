@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/bottom_navigation.dart';
 import '../../../../core/router/route_names.dart';
 import '../widgets/message_card.dart';
@@ -60,6 +61,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final notification =
         context.select((AppProvider p) => p.notification);
 
+    if (!isInitialized) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: _buildLoadingState(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       bottomNavigationBar: BottomNavigation(
@@ -73,12 +83,6 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            if (!isInitialized)
-              const LinearProgressIndicator(
-                minHeight: 2,
-                color: AppColors.primary,
-                backgroundColor: AppColors.background,
-              ),
             HomeHeader(
               isOnline: isOnline,
             ),
@@ -151,6 +155,68 @@ class _HomeScreenState extends State<HomeScreen> {
       message: notification,
       isWarning: isWarning,
       icon: isWarning ? Icons.warning_amber_rounded : Icons.lightbulb_outline,
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.spacingLg,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildLoadingLogo(),
+            const SizedBox(height: AppConstants.spacingLg),
+            Text(
+              'Getting your dashboard ready',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: AppConstants.spacingSm),
+            Text(
+              'Syncing your latest expenses and insights.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textTertiary,
+              ),
+            ),
+            const SizedBox(height: AppConstants.spacingLg),
+            const LinearProgressIndicator(
+              minHeight: 4,
+              color: AppColors.primary,
+              backgroundColor: AppColors.surface,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingLogo() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: AppConstants.iconLg,
+          height: AppConstants.iconLg,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+          ),
+          child: const Icon(
+            Icons.check,
+            color: Colors.black,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: AppConstants.spacingSm),
+        Text(
+          'BetterSpent',
+          style: AppTextStyles.h4.copyWith(fontWeight: FontWeight.w600),
+        ),
+      ],
     );
   }
 }

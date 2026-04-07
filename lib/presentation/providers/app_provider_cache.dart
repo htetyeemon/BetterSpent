@@ -3,6 +3,7 @@ part of 'app_provider.dart';
 String _derivedCacheKeyImpl(String uid) => 'derived:$uid';
 String _settingsCacheKeyImpl(String uid) => 'settings:$uid';
 String _profileCacheKeyImpl(String uid) => 'profile:$uid';
+String _expensesCacheKeyImpl(String uid) => 'expenses:$uid';
 
 Future<Box<dynamic>> _openDerivedCacheBoxImpl(AppProvider self) async {
   self._derivedCacheBox ??=
@@ -20,6 +21,12 @@ Future<Box<dynamic>> _openProfileCacheBoxImpl(AppProvider self) async {
   self._profileCacheBox ??=
       await Hive.openBox<dynamic>(AppProvider._profileCacheBoxName);
   return self._profileCacheBox!;
+}
+
+Future<Box<dynamic>> _openExpensesCacheBoxImpl(AppProvider self) async {
+  self._expensesCacheBox ??=
+      await Hive.openBox<dynamic>(AppProvider._expensesCacheBoxName);
+  return self._expensesCacheBox!;
 }
 
 _ExpenseSignature _computeExpenseSignatureImpl(List<Expense> expenses) {
@@ -111,6 +118,47 @@ Future<void> _loadProfileCacheImpl(AppProvider self) async {
   }
 }
 
+Future<void> _loadExpensesCacheImpl(AppProvider self) async {
+  final uid = self._uid;
+  if (uid == null) return;
+
+  final box = await self._openExpensesCacheBox();
+  final cached = box.get(self._expensesCacheKey(uid));
+  if (cached is List) {
+    final expenses = <Expense>[];
+    for (final item in cached) {
+      if (item is Map) {
+        final id = item['id'];
+        final amount = item['amount'];
+        final category = item['category'];
+        final dateMillis = item['dateMillis'];
+        final note = item['note'];
+        if (id is String &&
+            amount is num &&
+            category is String &&
+            dateMillis is int &&
+            note is String) {
+          expenses.add(
+            Expense(
+              id: id,
+              amount: amount.toDouble(),
+              category: category,
+              date: DateTime.fromMillisecondsSinceEpoch(dateMillis),
+              note: note,
+            ),
+          );
+        }
+      }
+    }
+    if (expenses.isNotEmpty) {
+      self._expenses = expenses;
+      final signature = self._computeExpenseSignature(expenses);
+      self._expenseSignatureCount = signature.count;
+      self._expenseSignatureLatestMillis = signature.latestMillis;
+    }
+  }
+}
+
 Future<void> _persistDerivedCacheImpl(AppProvider self) async {
   if (!AppProvider._enableDerivedCache) return;
   final uid = self._uid;
@@ -163,6 +211,26 @@ Future<void> _persistProfileCacheImpl(AppProvider self) async {
   });
 }
 
+Future<void> _persistExpensesCacheImpl(AppProvider self) async {
+  final uid = self._uid;
+  if (uid == null) return;
+  if (self._expensesCacheBox == null) {
+    await self._openExpensesCacheBox();
+  }
+  final box = self._expensesCacheBox;
+  if (box == null) return;
+  final encoded = self._expenses
+      .map((e) => {
+            'id': e.id,
+            'amount': e.amount,
+            'category': e.category,
+            'dateMillis': e.date.millisecondsSinceEpoch,
+            'note': e.note,
+          })
+      .toList(growable: false);
+  await box.put(self._expensesCacheKey(uid), encoded);
+}
+
 Future<void> _clearDerivedCacheImpl(AppProvider self) async {
   if (!AppProvider._enableDerivedCache) return;
   final uid = self._uid;
@@ -183,4 +251,11 @@ Future<void> _clearProfileCacheImpl(AppProvider self) async {
   if (uid == null) return;
   final box = self._profileCacheBox ?? await self._openProfileCacheBox();
   await box.delete(self._profileCacheKey(uid));
+}
+
+Future<void> _clearExpensesCacheImpl(AppProvider self) async {
+  final uid = self._uid;
+  if (uid == null) return;
+  final box = self._expensesCacheBox ?? await self._openExpensesCacheBox();
+  await box.delete(self._expensesCacheKey(uid));
 }
