@@ -9,6 +9,8 @@ class AppLaunchService {
   static bool _shouldShowGetStarted = false;
   static Box<dynamic>? _box;
   static final ValueNotifier<int> _refreshSignal = ValueNotifier<int>(0);
+  static User? _testUserOverride;
+  static bool _disableFirebaseForTest = false;
 
   static bool get shouldShowGetStarted => _shouldShowGetStarted;
   static ValueListenable<int> get refreshListenable => _refreshSignal;
@@ -17,10 +19,30 @@ class AppLaunchService {
     _refreshSignal.value++;
   }
 
+  static User? _currentUser() {
+    if (_disableFirebaseForTest) return _testUserOverride;
+    return _testUserOverride ?? FirebaseAuth.instance.currentUser;
+  }
+
+  @visibleForTesting
+  static void setTestUser(User? user, {bool disableFirebase = false}) {
+    _testUserOverride = user;
+    _disableFirebaseForTest = disableFirebase;
+  }
+
+  @visibleForTesting
+  static void resetForTest() {
+    _box = null;
+    _testUserOverride = null;
+    _disableFirebaseForTest = false;
+    _shouldShowGetStarted = false;
+    _refreshSignal.value = 0;
+  }
+
   static Future<void> initialize() async {
     try {
       _box ??= await Hive.openBox<dynamic>(_boxName);
-      _refreshOnboardingState(FirebaseAuth.instance.currentUser);
+      _refreshOnboardingState(_currentUser());
       _notifyRefresh();
     } catch (e, st) {
       debugPrint('AppLaunchService.initialize failed: $e');
@@ -32,7 +54,7 @@ class AppLaunchService {
 
   static Future<void> refreshForCurrentUser() async {
     _box ??= await Hive.openBox<dynamic>(_boxName);
-    _refreshOnboardingState(FirebaseAuth.instance.currentUser);
+    _refreshOnboardingState(_currentUser());
     _notifyRefresh();
   }
 
@@ -64,7 +86,7 @@ class AppLaunchService {
 
   static Future<void> markGetStartedSeen() async {
     _box ??= await Hive.openBox<dynamic>(_boxName);
-    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    final currentUid = _currentUser()?.uid;
     if (currentUid != null) {
       await _box!.put(_seenAnonymousUidKey, currentUid);
       await _box!.put(_pendingSeenAnonymousKey, false);
