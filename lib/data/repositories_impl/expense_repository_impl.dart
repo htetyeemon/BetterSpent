@@ -24,12 +24,11 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<void> addExpense(Expense expense) async {
-    final model = ExpenseFirestoreModel.fromEntity(expense);
-    if (expense.id.isEmpty) {
-      await _expensesRef.add(model.toFirestore());
-    } else {
-      await _expensesRef.doc(expense.id).set(model.toFirestore());
-    }
+    final expenseId =
+        expense.id.isEmpty ? _expensesRef.doc().id : expense.id;
+    final model =
+        ExpenseFirestoreModel.fromEntity(expense.copyWith(id: expenseId));
+    await _expensesRef.doc(expenseId).set(model.toFirestore());
   }
 
   @override

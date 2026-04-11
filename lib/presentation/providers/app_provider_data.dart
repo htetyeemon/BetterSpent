@@ -11,6 +11,9 @@ Future<void> _initializeImpl(AppProvider self) async {
         final online = results.any((r) => r != ConnectivityResult.none);
         if (self._isOnline != online) {
           self._isOnline = online;
+          if (online) {
+            self._suppressRemoteWhileOffline = false;
+          }
           self._notify();
         }
       });
@@ -58,12 +61,19 @@ void _setupRepositoriesImpl(AppProvider self) {
 void _setupStreamsImpl(AppProvider self) {
   self._expenseSub = self._expenseRepo!.getExpenses().listen(
       (expenses) {
+        if (!self._isOnline && self._suppressRemoteWhileOffline) {
+          return;
+        }
         if (!self._isOnline && expenses.isEmpty && self._expenses.isNotEmpty) {
           // Keep cached expenses visible when offline and Firestore returns empty.
           return;
         }
-        self._expenses = expenses;
-        final signature = self._computeExpenseSignature(expenses);
+        var nextExpenses = expenses;
+        if (!self._isOnline) {
+          nextExpenses = _mergeOfflineExpenses(self._expenses, expenses);
+        }
+        self._expenses = nextExpenses;
+        final signature = self._computeExpenseSignature(nextExpenses);
         final matchesCache = self._hasCachedDerived &&
             signature.count == self._expenseSignatureCount &&
             signature.latestMillis == self._expenseSignatureLatestMillis;
@@ -87,6 +97,9 @@ void _setupStreamsImpl(AppProvider self) {
     );
 
   self._profileSub = self._profileRepo!.getProfile().listen((profile) {
+      if (!self._isOnline && self._suppressRemoteWhileOffline) {
+        return;
+      }
       if (profile != null) {
         self._profile = profile;
         self._recomputeDerived();
@@ -97,6 +110,9 @@ void _setupStreamsImpl(AppProvider self) {
     });
 
   self._settingsSub = self._settingsRepo!.getSettings().listen((settings) {
+      if (!self._isOnline && self._suppressRemoteWhileOffline) {
+        return;
+      }
       if (settings != null) {
         self._settings = settings;
         self._recomputeNotification();
@@ -107,14 +123,54 @@ void _setupStreamsImpl(AppProvider self) {
 }
 
 Future<void> _addExpenseImpl(AppProvider self, Expense expense) async {
-  await self._expenseRepo?.addExpense(expense);
+  var nextExpense = expense;
+  if (nextExpense.id.isEmpty && self._uid != null) {
+    final id = FirebaseFirestore.instance
+        .collection('users')
+        .doc(self._uid)
+        .collection('expenses')
+        .doc()
+        .id;
+    nextExpense = nextExpense.copyWith(id: id);
+  }
+  if (!self._isOnline) {
+    self._expenses = _mergeOfflineExpenses(self._expenses, [nextExpense]);
+    final signature = self._computeExpenseSignature(self._expenses);
+    self._expenseSignatureCount = signature.count;
+    self._expenseSignatureLatestMillis = signature.latestMillis;
+    self._recomputeDerived();
+    self._recomputeNotification();
+    self._notify();
+    unawaited(self._persistExpensesCache());
+  }
+  await self._expenseRepo?.addExpense(nextExpense);
 }
 
 Future<void> _updateExpenseImpl(AppProvider self, Expense expense) async {
+  if (!self._isOnline) {
+    self._expenses = _mergeOfflineExpenses(self._expenses, [expense]);
+    final signature = self._computeExpenseSignature(self._expenses);
+    self._expenseSignatureCount = signature.count;
+    self._expenseSignatureLatestMillis = signature.latestMillis;
+    self._recomputeDerived();
+    self._recomputeNotification();
+    self._notify();
+    unawaited(self._persistExpensesCache());
+  }
   await self._expenseRepo?.updateExpense(expense);
 }
 
 Future<void> _deleteExpenseImpl(AppProvider self, String id) async {
+  if (!self._isOnline) {
+    self._expenses = self._expenses.where((e) => e.id != id).toList();
+    final signature = self._computeExpenseSignature(self._expenses);
+    self._expenseSignatureCount = signature.count;
+    self._expenseSignatureLatestMillis = signature.latestMillis;
+    self._recomputeDerived();
+    self._recomputeNotification();
+    self._notify();
+    unawaited(self._persistExpensesCache());
+  }
   await self._expenseRepo?.deleteExpense(id);
 }
 
@@ -144,9 +200,10 @@ void _dismissNotificationImpl(AppProvider self, String notification) {
 }
 
 Future<void> _clearAllDataImpl(AppProvider self) async {
-  await self._expenseRepo?.deleteAllExpenses();
-  await self._profileRepo?.deleteProfile();
-  await self._settingsRepo?.deleteSettings();
+  final wasOnline = self._isOnline;
+  if (!wasOnline) {
+    self._suppressRemoteWhileOffline = true;
+  }
   self._expenses = [];
   self._profile = const FinancialProfile(
       income: 0,
@@ -165,4 +222,44 @@ Future<void> _clearAllDataImpl(AppProvider self) async {
   await self._clearExpensesCache();
   self._recomputeDerived();
   self._notify();
+  if (wasOnline) {
+    await self._expenseRepo?.deleteAllExpenses();
+    await self._profileRepo?.deleteProfile();
+    await self._settingsRepo?.deleteSettings();
+  } else {
+    unawaited(self._expenseRepo?.deleteAllExpenses());
+    unawaited(self._profileRepo?.deleteProfile());
+    unawaited(self._settingsRepo?.deleteSettings());
+  }
+}
+
+String _offlineExpenseKey(Expense expense) {
+  if (expense.id.isNotEmpty) {
+    return 'id:${expense.id}';
+  }
+  return 'sig:${expense.date.millisecondsSinceEpoch}'
+      '|${expense.amount}'
+      '|${expense.category}'
+      '|${expense.note}';
+}
+
+List<Expense> _mergeOfflineExpenses(
+  List<Expense> current,
+  List<Expense> incoming,
+) {
+  if (current.isEmpty) {
+    final merged = List<Expense>.from(incoming);
+    merged.sort((a, b) => b.date.compareTo(a.date));
+    return merged;
+  }
+  final Map<String, Expense> merged = {};
+  for (final expense in current) {
+    merged[_offlineExpenseKey(expense)] = expense;
+  }
+  for (final expense in incoming) {
+    merged[_offlineExpenseKey(expense)] = expense;
+  }
+  final list = merged.values.toList();
+  list.sort((a, b) => b.date.compareTo(a.date));
+  return list;
 }

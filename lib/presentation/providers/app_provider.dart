@@ -39,6 +39,7 @@ class AppProvider extends ChangeNotifier {
   // State
   bool _isInitialized = false;
   bool _isOnline = true;
+  bool _suppressRemoteWhileOffline = false;
   String? _uid;
   String? _error;
   bool _isAuthLoading = false;
