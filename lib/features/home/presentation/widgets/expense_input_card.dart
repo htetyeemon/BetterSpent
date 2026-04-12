@@ -29,6 +29,7 @@ class ExpenseInputCard extends StatefulWidget {
 
 class _ExpenseInputCardState extends State<ExpenseInputCard> {
   final TextEditingController _inputController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   final GeminiService _geminiService = GeminiService();
   bool _isSubmitting = false;
   String? _progressMessage;
@@ -39,6 +40,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
   @override
   void dispose() {
     _inputController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -52,6 +54,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
         : (widget.isOnline
               ? ExpenseInputOnlineBody(
                   controller: _inputController,
+                  focusNode: _focusNode,
                   isSubmitting: _isSubmitting,
                   progressMessage: _progressMessage,
                   pendingPreview: _pendingPreview,
@@ -149,6 +152,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
       if (!mounted) return;
 
       _inputController.clear();
+      _focusNode.unfocus();
       showSuccessSnackBar(
         context,
         validated.length == 1

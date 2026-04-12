@@ -9,6 +9,7 @@ import 'pending_expense_card.dart';
 
 class ExpenseInputOnlineBody extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode focusNode;
   final bool isSubmitting;
   final String? progressMessage;
   final Expense? pendingPreview;
@@ -18,6 +19,7 @@ class ExpenseInputOnlineBody extends StatelessWidget {
   const ExpenseInputOnlineBody({
     super.key,
     required this.controller,
+    required this.focusNode,
     required this.isSubmitting,
     this.progressMessage,
     this.pendingPreview,
@@ -34,6 +36,7 @@ class ExpenseInputOnlineBody extends StatelessWidget {
         const SizedBox(height: AppConstants.spacingMd),
         TextField(
           controller: controller,
+          focusNode: focusNode,
           maxLines: 3,
           style: AppTextStyles.bodyMedium,
           decoration: InputDecoration(
@@ -60,7 +63,9 @@ class ExpenseInputOnlineBody extends StatelessWidget {
         const SizedBox(height: AppConstants.spacingSm),
         Text(
           '"Coffee 5.50" or "Dinner 42"',
-          style: AppTextStyles.bodySmall.copyWith(color: const Color(0xFF505050)),
+          style: AppTextStyles.bodySmall.copyWith(
+            color: const Color(0xFF505050),
+          ),
         ),
         const SizedBox(height: AppConstants.spacingMd),
         PrimaryButton(
@@ -145,5 +150,3 @@ class ExpenseInputManualBody extends StatelessWidget {
     );
   }
 }
-
-
