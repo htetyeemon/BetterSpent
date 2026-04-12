@@ -11,6 +11,7 @@ import '../../../../core/widgets/success_snackbar.dart';
 import '../../../../presentation/providers/app_provider.dart';
 import '../../../../core/utils/bottom_nav_helper.dart';
 
+import '../../data/currency_catalog.dart';
 import '../widgets/smart_input_settings_section.dart';
 import '../widgets/currency_settings_tile.dart';
 import '../widgets/notifications_section.dart';
@@ -28,55 +29,6 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   int _currentNavIndex = 3;
   bool _hasShownRouteMessage = false;
-
-  static const Map<String, String> _currencyNames = {
-    'USD': 'US Dollar',
-    'EUR': 'Euro',
-    'GBP': 'British Pound',
-    'JPY': 'Japanese Yen',
-    'CNY': 'Chinese Yuan',
-    'AUD': 'Australian Dollar',
-    'CAD': 'Canadian Dollar',
-    'CHF': 'Swiss Franc',
-    'INR': 'Indian Rupee',
-    'SGD': 'Singapore Dollar',
-    'THB': 'Baht',
-    'KRW': 'South Korean Won',
-    'HKD': 'Hong Kong Dollar',
-    'NZD': 'New Zealand Dollar',
-    'SEK': 'Swedish Krona',
-    'NOK': 'Norwegian Krone',
-    'MXN': 'Mexican Peso',
-    'BRL': 'Brazilian Real',
-    'ZAR': 'South African Rand',
-    'RUB': 'Russian Ruble',
-  };
-
-  static const Map<String, String> _currencySymbols = {
-    'USD': '\$',
-    'EUR': '€',
-    'GBP': '£',
-    'JPY': '¥',
-    'CNY': '¥',
-    'AUD': '\$',
-    'CAD': '\$',
-    'CHF': 'Fr',
-    'INR': '₹',
-    'SGD': '\$',
-    'THB': '฿',
-    'KRW': '₩',
-    'HKD': '\$',
-    'NZD': '\$',
-    'SEK': 'kr',
-    'NOK': 'kr',
-    'MXN': '\$',
-    'BRL': 'R\$',
-    'ZAR': 'R',
-    'RUB': '₽',
-  };
-
-  String _getCurrencyName(String code) => _currencyNames[code] ?? 'US Dollar';
-  String _getCurrencySymbol(String code) => _currencySymbols[code] ?? '\$';
 
   @override
   void didChangeDependencies() {
@@ -123,10 +75,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  Text(
-                    'Settings',
-                    style: AppTextStyles.h2,
-                  ),
+                  Text('Settings', style: AppTextStyles.h2),
                 ],
               ),
             ),
@@ -153,8 +102,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   CurrencySettingsTile(
                     selectedCurrencyCode: settings.currency,
-                    selectedCurrencyName: _getCurrencyName(settings.currency),
-                    selectedCurrencySymbol: _getCurrencySymbol(settings.currency),
+                    selectedCurrencyName: CurrencyCatalog.nameForCode(
+                      settings.currency,
+                    ),
+                    selectedCurrencySymbol: CurrencyCatalog.symbolForCode(
+                      settings.currency,
+                    ),
                     onCurrencySelected: (code) {
                       provider.updateSettings(
                         settings.copyWith(currency: code),
@@ -206,6 +159,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
 }
-

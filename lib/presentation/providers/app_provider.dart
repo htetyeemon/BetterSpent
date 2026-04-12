@@ -19,6 +19,8 @@ import '../../data/repositories_impl/financial_profile_repository_impl.dart';
 import '../../data/repositories_impl/user_settings_repository_impl.dart';
 import '../../data/datasources/auth_service.dart';
 import '../../core/services/app_launch_service.dart';
+import '../../features/expenses/presentation/utils/expense_screen_actions.dart';
+import '../../features/settings/data/currency_catalog.dart';
 
 part 'app_provider_data.dart';
 part 'app_provider_auth.dart';
@@ -27,14 +29,16 @@ part 'app_provider_getters.dart';
 part 'app_provider_notifications.dart';
 part 'app_provider_cache.dart';
 
-class AppProvider extends ChangeNotifier {
+class AppProvider extends ChangeNotifier implements ExpenseActionProvider {
   final AuthService _authService = AuthService();
   static const String _derivedCacheBoxName = 'derived_cache_box';
   static const String _settingsCacheBoxName = 'settings_cache_box';
   static const String _profileCacheBoxName = 'profile_cache_box';
   static const String _expensesCacheBoxName = 'expenses_cache_box';
-  static const bool _enableDerivedCache =
-      bool.fromEnvironment('DERIVED_CACHE_ENABLED', defaultValue: true);
+  static const bool _enableDerivedCache = bool.fromEnvironment(
+    'DERIVED_CACHE_ENABLED',
+    defaultValue: true,
+  );
 
   // State
   bool _isInitialized = false;
@@ -83,6 +87,9 @@ class AppProvider extends ChangeNotifier {
   StreamSubscription<UserSettings?>? _settingsSub;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
 
+  @override
+  bool get isOnline => _isOnline;
+
   void _notify() => notifyListeners();
   void _recomputeDerived() => _recomputeDerivedImpl(this);
 
@@ -98,30 +105,27 @@ class AppProvider extends ChangeNotifier {
     required double monthlyBudget,
     required double maxSpendPerDay,
     required List<Expense> expenses,
-  }) =>
-      _computeNotificationImpl(
-        now: now,
-        budgetWarningEnabled: budgetWarningEnabled,
-        motivationalMessageEnabled: motivationalMessageEnabled,
-        income: income,
-        monthlyBudget: monthlyBudget,
-        maxSpendPerDay: maxSpendPerDay,
-        expenses: expenses,
-      );
+  }) => _computeNotificationImpl(
+    now: now,
+    budgetWarningEnabled: budgetWarningEnabled,
+    motivationalMessageEnabled: motivationalMessageEnabled,
+    income: income,
+    monthlyBudget: monthlyBudget,
+    maxSpendPerDay: maxSpendPerDay,
+    expenses: expenses,
+  );
 
   String _derivedCacheKey(String uid) => _derivedCacheKeyImpl(uid);
   String _settingsCacheKey(String uid) => _settingsCacheKeyImpl(uid);
   String _profileCacheKey(String uid) => _profileCacheKeyImpl(uid);
   String _expensesCacheKey(String uid) => _expensesCacheKeyImpl(uid);
 
-  Future<Box<dynamic>> _openDerivedCacheBox() =>
-      _openDerivedCacheBoxImpl(this);
+  Future<Box<dynamic>> _openDerivedCacheBox() => _openDerivedCacheBoxImpl(this);
 
   Future<Box<dynamic>> _openSettingsCacheBox() =>
       _openSettingsCacheBoxImpl(this);
 
-  Future<Box<dynamic>> _openProfileCacheBox() =>
-      _openProfileCacheBoxImpl(this);
+  Future<Box<dynamic>> _openProfileCacheBox() => _openProfileCacheBoxImpl(this);
   Future<Box<dynamic>> _openExpensesCacheBox() =>
       _openExpensesCacheBoxImpl(this);
 
@@ -176,20 +180,18 @@ class AppProvider extends ChangeNotifier {
   Future<void> signInWithEmailAndPassword({
     required String email,
     required String password,
-  }) =>
-      _signInWithEmailAndPasswordImpl(this, email: email, password: password);
+  }) => _signInWithEmailAndPasswordImpl(this, email: email, password: password);
 
   Future<void> createOrLinkWithEmailAndPassword({
     required String email,
     required String password,
     String? displayName,
-  }) =>
-      _createOrLinkWithEmailAndPasswordImpl(
-        this,
-        email: email,
-        password: password,
-        displayName: displayName,
-      );
+  }) => _createOrLinkWithEmailAndPasswordImpl(
+    this,
+    email: email,
+    password: password,
+    displayName: displayName,
+  );
 
   Future<void> sendPasswordResetEmail({required String email}) =>
       _sendPasswordResetEmailImpl(this, email: email);
@@ -212,8 +214,5 @@ class _ExpenseSignature {
   final int count;
   final int latestMillis;
 
-  const _ExpenseSignature({
-    required this.count,
-    required this.latestMillis,
-  });
+  const _ExpenseSignature({required this.count, required this.latestMillis});
 }

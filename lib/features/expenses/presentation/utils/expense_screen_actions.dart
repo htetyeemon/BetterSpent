@@ -2,7 +2,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../../domain/entities/expense.dart';
-import '../../../../presentation/providers/app_provider.dart';
+
+abstract class ExpenseActionProvider {
+  bool get isOnline;
+  Future<void> addExpense(Expense expense);
+  Future<void> updateExpense(Expense expense);
+}
 
 class ExpenseSaveResult {
   final bool ok;
@@ -12,10 +17,9 @@ class ExpenseSaveResult {
   const ExpenseSaveResult._(this.ok, {this.error, this.queuedOffline = false});
 
   const ExpenseSaveResult.success({bool queuedOffline = false})
-      : this._(true, queuedOffline: queuedOffline);
+    : this._(true, queuedOffline: queuedOffline);
 
-  const ExpenseSaveResult.failure(String error)
-      : this._(false, error: error);
+  const ExpenseSaveResult.failure(String error) : this._(false, error: error);
 }
 
 class ExpenseScreenActions {
@@ -46,7 +50,7 @@ class ExpenseScreenActions {
   }
 
   static Future<ExpenseSaveResult> addExpense({
-    required AppProvider provider,
+    required ExpenseActionProvider provider,
     required Expense expense,
   }) async {
     try {
@@ -70,9 +74,19 @@ class ExpenseScreenActions {
   }
 
   static Future<void> updateExpense({
-    required AppProvider provider,
+    required ExpenseActionProvider provider,
     required Expense expense,
   }) async {
+    if (!provider.isOnline) {
+      unawaited(
+        provider.updateExpense(expense).catchError((e, st) {
+          debugPrint('Queued expense update failed: $e');
+          debugPrintStack(stackTrace: st);
+        }),
+      );
+      return;
+    }
+
     await provider.updateExpense(expense);
   }
 }

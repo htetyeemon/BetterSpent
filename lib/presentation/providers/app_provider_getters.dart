@@ -38,33 +38,6 @@ extension AppProviderGetters on AppProvider {
   }
 
   String get currencySymbol {
-    switch (_settings.currency) {
-      case 'EUR':
-        return '€';
-      case 'GBP':
-        return '£';
-      case 'JPY':
-      case 'CNY':
-        return '¥';
-      case 'CHF':
-        return 'Fr';
-      case 'INR':
-        return '₹';
-      case 'THB':
-        return '฿';
-      case 'KRW':
-        return '₩';
-      case 'SEK':
-      case 'NOK':
-        return 'kr';
-      case 'BRL':
-        return 'R\$';
-      case 'ZAR':
-        return 'R';
-      case 'RUB':
-        return '₽';
-      default:
-        return '\$';
-    }
+    return CurrencyCatalog.symbolForCode(_settings.currency);
   }
 }
