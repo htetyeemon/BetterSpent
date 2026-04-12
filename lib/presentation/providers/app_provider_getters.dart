@@ -2,7 +2,6 @@ part of 'app_provider.dart';
 
 extension AppProviderGetters on AppProvider {
   bool get isInitialized => _isInitialized;
-  bool get isOnline => _isOnline;
   String? get uid => _uid;
   String? get error => _error;
   bool get isAuthLoading => _isAuthLoading;

@@ -23,11 +23,19 @@ void main() {
     if (Hive.isBoxOpen('app_launch_box')) {
       await Hive.box('app_launch_box').close();
     }
+    if (Hive.isBoxOpen('app_state_box')) {
+      await Hive.box('app_state_box').close();
+    }
   });
 
   tearDown(() async {
     if (Hive.isBoxOpen('app_launch_box')) {
       final box = Hive.box('app_launch_box');
+      await box.clear();
+      await box.close();
+    }
+    if (Hive.isBoxOpen('app_state_box')) {
+      final box = Hive.box('app_state_box');
       await box.clear();
       await box.close();
     }
@@ -102,4 +110,17 @@ void main() {
     expect(box.get('seen_anonymous_uid'), 'anon-2');
     expect(box.get('pending_seen_anonymous'), isFalse);
   });
+
+  test(
+    'does not show get started when no user exists but cached uid exists',
+    () async {
+      AppLaunchService.setTestUser(null, disableFirebase: true);
+      final appStateBox = await Hive.openBox('app_state_box');
+      await appStateBox.put('last_known_uid', 'cached-user-1');
+
+      await AppLaunchService.initialize();
+
+      expect(AppLaunchService.shouldShowGetStarted, isFalse);
+    },
+  );
 }

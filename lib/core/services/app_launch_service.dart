@@ -4,10 +4,13 @@ import 'package:flutter/foundation.dart';
 
 class AppLaunchService {
   static const String _boxName = 'app_launch_box';
+  static const String _appStateBoxName = 'app_state_box';
   static const String _seenAnonymousUidKey = 'seen_anonymous_uid';
   static const String _pendingSeenAnonymousKey = 'pending_seen_anonymous';
+  static const String _lastKnownUidKey = 'last_known_uid';
   static bool _shouldShowGetStarted = false;
   static Box<dynamic>? _box;
+  static Box<dynamic>? _appStateBox;
   static final ValueNotifier<int> _refreshSignal = ValueNotifier<int>(0);
   static User? _testUserOverride;
   static bool _disableFirebaseForTest = false;
@@ -33,6 +36,7 @@ class AppLaunchService {
   @visibleForTesting
   static void resetForTest() {
     _box = null;
+    _appStateBox = null;
     _testUserOverride = null;
     _disableFirebaseForTest = false;
     _shouldShowGetStarted = false;
@@ -42,6 +46,7 @@ class AppLaunchService {
   static Future<void> initialize() async {
     try {
       _box ??= await Hive.openBox<dynamic>(_boxName);
+      _appStateBox ??= await Hive.openBox<dynamic>(_appStateBoxName);
       _refreshOnboardingState(_currentUser());
       _notifyRefresh();
     } catch (e, st) {
@@ -54,14 +59,15 @@ class AppLaunchService {
 
   static Future<void> refreshForCurrentUser() async {
     _box ??= await Hive.openBox<dynamic>(_boxName);
+    _appStateBox ??= await Hive.openBox<dynamic>(_appStateBoxName);
     _refreshOnboardingState(_currentUser());
     _notifyRefresh();
   }
 
   static void _refreshOnboardingState(User? user) {
     if (user == null) {
-      // A new anonymous session will be created shortly.
-      _shouldShowGetStarted = true;
+      final lastKnownUid = _appStateBox?.get(_lastKnownUidKey);
+      _shouldShowGetStarted = lastKnownUid is! String || lastKnownUid.isEmpty;
       return;
     }
 

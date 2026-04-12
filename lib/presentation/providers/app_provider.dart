@@ -31,6 +31,7 @@ part 'app_provider_cache.dart';
 
 class AppProvider extends ChangeNotifier implements ExpenseActionProvider {
   final AuthService _authService = AuthService();
+  static const String _appStateBoxName = 'app_state_box';
   static const String _derivedCacheBoxName = 'derived_cache_box';
   static const String _settingsCacheBoxName = 'settings_cache_box';
   static const String _profileCacheBoxName = 'profile_cache_box';
@@ -61,6 +62,7 @@ class AppProvider extends ChangeNotifier implements ExpenseActionProvider {
   double _maxSpendPerDay = 0;
   int _dailyStreak = 0;
   bool _hasCachedDerived = false;
+  Box<dynamic>? _appStateBox;
   Box<dynamic>? _derivedCacheBox;
   Box<dynamic>? _settingsCacheBox;
   Box<dynamic>? _profileCacheBox;
@@ -120,6 +122,7 @@ class AppProvider extends ChangeNotifier implements ExpenseActionProvider {
   String _profileCacheKey(String uid) => _profileCacheKeyImpl(uid);
   String _expensesCacheKey(String uid) => _expensesCacheKeyImpl(uid);
 
+  Future<Box<dynamic>> _openAppStateBox() => _openAppStateBoxImpl(this);
   Future<Box<dynamic>> _openDerivedCacheBox() => _openDerivedCacheBoxImpl(this);
 
   Future<Box<dynamic>> _openSettingsCacheBox() =>
@@ -134,6 +137,7 @@ class AppProvider extends ChangeNotifier implements ExpenseActionProvider {
 
   Future<void> _loadDerivedCache() => _loadDerivedCacheImpl(this);
 
+  Future<String?> _loadLastKnownUid() => _loadLastKnownUidImpl(this);
   Future<void> _loadSettingsCache() => _loadSettingsCacheImpl(this);
 
   Future<void> _loadProfileCache() => _loadProfileCacheImpl(this);
@@ -141,6 +145,8 @@ class AppProvider extends ChangeNotifier implements ExpenseActionProvider {
 
   Future<void> _persistDerivedCache() => _persistDerivedCacheImpl(this);
 
+  Future<void> _persistLastKnownUid(String uid) =>
+      _persistLastKnownUidImpl(this, uid);
   Future<void> _persistSettingsCache() => _persistSettingsCacheImpl(this);
 
   Future<void> _persistProfileCache() => _persistProfileCacheImpl(this);
@@ -148,12 +154,16 @@ class AppProvider extends ChangeNotifier implements ExpenseActionProvider {
 
   Future<void> _clearDerivedCache() => _clearDerivedCacheImpl(this);
 
+  Future<void> _clearLastKnownUid() => _clearLastKnownUidImpl(this);
   Future<void> _clearSettingsCache() => _clearSettingsCacheImpl(this);
 
   Future<void> _clearProfileCache() => _clearProfileCacheImpl(this);
   Future<void> _clearExpensesCache() => _clearExpensesCacheImpl(this);
 
   Future<void> initialize() => _initializeImpl(this);
+  Future<void> _hydrateCachedStateForUid(String uid) =>
+      _hydrateCachedStateForUidImpl(this, uid);
+  Future<void> _ensureRemoteSession() => _ensureRemoteSessionImpl(this);
 
   void _setupRepositories() => _setupRepositoriesImpl(this);
 

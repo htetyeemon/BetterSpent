@@ -1,57 +1,100 @@
 part of 'app_provider.dart';
 
 Future<void> _initializeImpl(AppProvider self) async {
-    try {
-      await self._authService.ensurePersistence();
+  try {
+    await self._authService.ensurePersistence();
 
-      // Setup connectivity listener
-      self._connectivitySub = Connectivity().onConnectivityChanged.listen((
-        List<ConnectivityResult> results,
-      ) {
-        final online = results.any((r) => r != ConnectivityResult.none);
-        if (self._isOnline != online) {
-          self._isOnline = online;
-          if (online) {
-            self._suppressRemoteWhileOffline = false;
-          }
-          self._notify();
-        }
-      });
+    self._connectivitySub = Connectivity().onConnectivityChanged.listen((
+      List<ConnectivityResult> results,
+    ) {
+      final online = results.any((r) => r != ConnectivityResult.none);
+      if (self._isOnline == online) return;
 
-      // Check initial connectivity
-      final connectivity = await Connectivity().checkConnectivity();
-      self._isOnline = connectivity.any((r) => r != ConnectivityResult.none);
-
-      // Sign in anonymously if not already authenticated
-      User? user = self._authService.currentUser;
-      user ??= await self._authService.signInAnonymously();
-      self._uid = user?.uid;
-      await AppLaunchService.refreshForCurrentUser();
-
-      if (self._uid != null) {
-        await self._loadSettingsCache();
-        await self._loadProfileCache();
-        await self._loadDerivedCache();
-        await self._loadExpensesCache();
-        self._recomputeDerived();
-        self._recomputeNotification();
-        self._notify();
-        self._setupRepositories();
-        self._setupStreams();
+      self._isOnline = online;
+      if (online) {
+        self._suppressRemoteWhileOffline = false;
+        unawaited(self._ensureRemoteSession());
       }
-
-      self._isInitialized = true;
       self._notify();
-    } catch (e, st) {
-      debugPrint('App initialization failed: $e');
-      debugPrintStack(stackTrace: st);
-      self._error = e.toString();
-      self._isInitialized = true;
+    });
+
+    final connectivity = await Connectivity().checkConnectivity();
+    self._isOnline = connectivity.any((r) => r != ConnectivityResult.none);
+
+    final cachedUid = await self._loadLastKnownUid();
+    if (cachedUid != null) {
+      await self._hydrateCachedStateForUid(cachedUid);
       self._notify();
     }
+
+    User? user = self._authService.currentUser;
+    if (user == null && self._isOnline) {
+      try {
+        user = await self._authService.signInAnonymously();
+      } catch (e, st) {
+        debugPrint('Anonymous sign-in skipped during initialization: $e');
+        debugPrintStack(stackTrace: st);
+      }
+    }
+
+    final liveUid = user?.uid;
+    if (liveUid != null) {
+      await self._persistLastKnownUid(liveUid);
+      await self._hydrateCachedStateForUid(liveUid);
+      self._notify();
+      self._setupRepositories();
+      if (self._isOnline) {
+        self._setupStreams();
+      }
+    }
+
+    await AppLaunchService.refreshForCurrentUser();
+    self._error = null;
+    self._isInitialized = true;
+    self._notify();
+  } catch (e, st) {
+    debugPrint('App initialization failed: $e');
+    debugPrintStack(stackTrace: st);
+    self._error = e.toString();
+    self._isInitialized = true;
+    self._notify();
+  }
+}
+
+Future<void> _ensureRemoteSessionImpl(AppProvider self) async {
+  if (!self._isOnline) return;
+
+  try {
+    User? user = self._authService.currentUser;
+    user ??= await self._authService.signInAnonymously();
+    final uid = user?.uid;
+    if (uid == null) return;
+
+    await self._persistLastKnownUid(uid);
+
+    final needsContextSwitch = self._uid != uid;
+    if (needsContextSwitch) {
+      await self._switchUserDataContext(uid);
+    } else {
+      self._setupRepositories();
+      if (self._expenseSub == null &&
+          self._profileSub == null &&
+          self._settingsSub == null) {
+        self._setupStreams();
+      }
+    }
+
+    await AppLaunchService.refreshForCurrentUser();
+    self._error = null;
+    self._notify();
+  } catch (e, st) {
+    debugPrint('Remote session restore failed: $e');
+    debugPrintStack(stackTrace: st);
+  }
 }
 
 void _setupRepositoriesImpl(AppProvider self) {
+  if (self._uid == null) return;
   final firestore = FirebaseFirestore.instance;
   self._expenseRepo = ExpenseRepositoryImpl(firestore, self._uid!);
   self._profileRepo = FinancialProfileRepositoryImpl(firestore, self._uid!);
@@ -59,67 +102,74 @@ void _setupRepositoriesImpl(AppProvider self) {
 }
 
 void _setupStreamsImpl(AppProvider self) {
+  if (!self._isOnline ||
+      self._expenseRepo == null ||
+      self._profileRepo == null ||
+      self._settingsRepo == null) {
+    return;
+  }
   self._expenseSub = self._expenseRepo!.getExpenses().listen(
-      (expenses) {
-        if (!self._isOnline && self._suppressRemoteWhileOffline) {
-          return;
-        }
-        if (!self._isOnline && expenses.isEmpty && self._expenses.isNotEmpty) {
-          // Keep cached expenses visible when offline and Firestore returns empty.
-          return;
-        }
-        var nextExpenses = expenses;
-        if (!self._isOnline) {
-          nextExpenses = _mergeOfflineExpenses(self._expenses, expenses);
-        }
-        self._expenses = nextExpenses;
-        final signature = self._computeExpenseSignature(nextExpenses);
-        final matchesCache = self._hasCachedDerived &&
-            signature.count == self._expenseSignatureCount &&
-            signature.latestMillis == self._expenseSignatureLatestMillis;
-        if (!matchesCache) {
-          self._expenseSignatureCount = signature.count;
-          self._expenseSignatureLatestMillis = signature.latestMillis;
-          self._recomputeDerived();
-        }
-        self._recomputeNotification();
-        self._notify();
-        unawaited(self._persistExpensesCache());
-      },
-      onError: (e, st) {
-        debugPrint('Expense stream error: $e');
-        if (st != null) {
-          debugPrintStack(stackTrace: st);
-        }
-        self._error = e.toString();
-        self._notify();
-      },
-    );
+    (expenses) {
+      if (!self._isOnline && self._suppressRemoteWhileOffline) {
+        return;
+      }
+      if (!self._isOnline && expenses.isEmpty && self._expenses.isNotEmpty) {
+        // Keep cached expenses visible when offline and Firestore returns empty.
+        return;
+      }
+      var nextExpenses = expenses;
+      if (!self._isOnline) {
+        nextExpenses = _mergeOfflineExpenses(self._expenses, expenses);
+      }
+      self._expenses = nextExpenses;
+      final signature = self._computeExpenseSignature(nextExpenses);
+      final matchesCache =
+          self._hasCachedDerived &&
+          signature.count == self._expenseSignatureCount &&
+          signature.latestMillis == self._expenseSignatureLatestMillis;
+      if (!matchesCache) {
+        self._expenseSignatureCount = signature.count;
+        self._expenseSignatureLatestMillis = signature.latestMillis;
+        self._recomputeDerived();
+      }
+      self._recomputeNotification();
+      self._notify();
+      unawaited(self._persistExpensesCache());
+    },
+    onError: (e, st) {
+      debugPrint('Expense stream error: $e');
+      if (st != null) {
+        debugPrintStack(stackTrace: st);
+      }
+      self._error = e.toString();
+      self._notify();
+    },
+  );
 
   self._profileSub = self._profileRepo!.getProfile().listen((profile) {
-      if (!self._isOnline && self._suppressRemoteWhileOffline) {
-        return;
-      }
-      if (profile != null) {
-        self._profile = profile;
-        self._recomputeDerived();
-        self._recomputeNotification();
-        self._notify();
-        unawaited(self._persistProfileCache());
-      }
-    });
+    if (!self._isOnline && self._suppressRemoteWhileOffline) {
+      return;
+    }
+    if (profile != null) {
+      self._profile = profile;
+      self._recomputeDerived();
+      self._recomputeNotification();
+      self._notify();
+      unawaited(self._persistProfileCache());
+    }
+  });
 
   self._settingsSub = self._settingsRepo!.getSettings().listen((settings) {
-      if (!self._isOnline && self._suppressRemoteWhileOffline) {
-        return;
-      }
-      if (settings != null) {
-        self._settings = settings;
-        self._recomputeNotification();
-        self._notify();
-        unawaited(self._persistSettingsCache());
-      }
-    });
+    if (!self._isOnline && self._suppressRemoteWhileOffline) {
+      return;
+    }
+    if (settings != null) {
+      self._settings = settings;
+      self._recomputeNotification();
+      self._notify();
+      unawaited(self._persistSettingsCache());
+    }
+  });
 }
 
 Future<void> _addExpenseImpl(AppProvider self, Expense expense) async {
@@ -206,10 +256,10 @@ Future<void> _clearAllDataImpl(AppProvider self) async {
   }
   self._expenses = [];
   self._profile = const FinancialProfile(
-      income: 0,
-      monthlyBudget: 0,
-      incomeUpdatedAt: null,
-    );
+    income: 0,
+    monthlyBudget: 0,
+    incomeUpdatedAt: null,
+  );
   self._settings = const UserSettings();
   self._dismissedNotification = null;
   self._notification = '';
