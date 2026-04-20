@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCVy0SNInmidYgr7Ke7uSDTQp0ApuTmSU0',
-    appId: '1:269364737307:android:26faa8e74621f483000fbe',
+    appId: '1:269364737307:android:e672b115361733aa000fbe',
     messagingSenderId: '269364737307',
     projectId: 'betterspent-2568',
     storageBucket: 'betterspent-2568.firebasestorage.app',
@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '269364737307',
     projectId: 'betterspent-2568',
     storageBucket: 'betterspent-2568.firebasestorage.app',
+    iosClientId: '269364737307-b7bn2392vadb7moi65ee6u99get3fd96.apps.googleusercontent.com',
     iosBundleId: 'com.example.betterSpent',
   );
 

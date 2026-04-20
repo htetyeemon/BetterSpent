@@ -8,14 +8,15 @@ void main() {
   late FakeFirebaseFirestore firestore;
   const uid = 'user-123';
 
-  UserSettingsRepositoryImpl buildRepo() => UserSettingsRepositoryImpl(firestore, uid);
+  UserSettingsRepositoryImpl buildRepo() =>
+      UserSettingsRepositoryImpl(firestore, uid);
 
-  CollectionReference<Map<String, dynamic>> _dataRef() {
+  CollectionReference<Map<String, dynamic>> dataRef() {
     return firestore.collection('users').doc(uid).collection('data');
   }
 
-  DocumentReference<Map<String, dynamic>> _settingsDoc() {
-    return _dataRef().doc('settings');
+  DocumentReference<Map<String, dynamic>> settingsDoc() {
+    return dataRef().doc('settings');
   }
 
   setUp(() {
@@ -30,7 +31,7 @@ void main() {
   });
 
   test('getSettings maps document to entity', () async {
-    await _settingsDoc().set({
+    await settingsDoc().set({
       'currency': 'USD',
       'aiInputEnabled': false,
       'budgetWarningEnabled': true,
@@ -57,13 +58,13 @@ void main() {
 
     await repo.updateSettings(settings);
 
-    final snapshot = await _settingsDoc().get();
+    final snapshot = await settingsDoc().get();
     expect(snapshot.exists, isTrue);
     expect(snapshot.data()!['currency'], 'EUR');
   });
 
   test('deleteSettings deletes document', () async {
-    await _settingsDoc().set({
+    await settingsDoc().set({
       'currency': 'THB',
       'aiInputEnabled': true,
       'budgetWarningEnabled': true,
@@ -73,7 +74,7 @@ void main() {
     final repo = buildRepo();
     await repo.deleteSettings();
 
-    final snapshot = await _settingsDoc().get();
+    final snapshot = await settingsDoc().get();
     expect(snapshot.exists, isFalse);
   });
 }

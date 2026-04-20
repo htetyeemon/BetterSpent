@@ -130,7 +130,7 @@ void main() {
       });
 
       test('should handle very long description in multiple', () {
-        final longText = ('a' * 500) + ' 50';
+        final longText = '${'a' * 500} 50';
         final result = ExpenseInputParser.parseMultiple(longText);
         expect(result, isNotEmpty);
       });

@@ -14,12 +14,12 @@ void main() {
     firestore = FakeFirebaseFirestore();
   });
 
-  Future<CollectionReference<Map<String, dynamic>>> _expensesRef() async {
+  Future<CollectionReference<Map<String, dynamic>>> expensesRef() async {
     return firestore.collection('users').doc(uid).collection('expenses');
   }
 
   test('getExpenses maps firestore docs to entities', () async {
-    final ref = await _expensesRef();
+    final ref = await expensesRef();
     await ref.add({
       'amount': 12.5,
       'category': 'food and drink',
@@ -47,13 +47,13 @@ void main() {
 
     await repo.addExpense(expense);
 
-    final snapshot = await (await _expensesRef()).get();
+    final snapshot = await (await expensesRef()).get();
     expect(snapshot.docs.length, 1);
     expect(snapshot.docs.first.data()['amount'], 20);
   });
 
   test('updateExpense updates existing document', () async {
-    final ref = await _expensesRef();
+    final ref = await expensesRef();
     final doc = await ref.add({
       'amount': 10,
       'category': 'Transport',
@@ -77,7 +77,7 @@ void main() {
   });
 
   test('deleteExpense deletes document', () async {
-    final ref = await _expensesRef();
+    final ref = await expensesRef();
     final doc = await ref.add({
       'amount': 10,
       'category': 'Transport',
@@ -93,7 +93,7 @@ void main() {
   });
 
   test('deleteAllExpenses deletes all docs', () async {
-    final ref = await _expensesRef();
+    final ref = await expensesRef();
     await ref.add({
       'amount': 5,
       'category': 'Food',

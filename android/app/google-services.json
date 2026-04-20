@@ -12,7 +12,12 @@
           "package_name": "com.example.better_spent"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "269364737307-clvvgcrups44ntmi488n07i08coi29m3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCVy0SNInmidYgr7Ke7uSDTQp0ApuTmSU0"
@@ -20,7 +25,55 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "269364737307-clvvgcrups44ntmi488n07i08coi29m3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "269364737307-b7bn2392vadb7moi65ee6u99get3fd96.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.betterSpent"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269364737307:android:e672b115361733aa000fbe",
+        "android_client_info": {
+          "package_name": "com.mad.better_spent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "269364737307-clvvgcrups44ntmi488n07i08coi29m3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVy0SNInmidYgr7Ke7uSDTQp0ApuTmSU0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "269364737307-clvvgcrups44ntmi488n07i08coi29m3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "269364737307-b7bn2392vadb7moi65ee6u99get3fd96.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.betterSpent"
+              }
+            }
+          ]
         }
       }
     }

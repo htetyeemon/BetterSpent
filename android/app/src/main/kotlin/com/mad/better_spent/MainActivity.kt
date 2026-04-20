@@ -1,4 +1,4 @@
-package com.example.better_spent
+package com.mad.better_spent
 
 import io.flutter.embedding.android.FlutterActivity
 

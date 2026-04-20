@@ -11,12 +11,12 @@ void main() {
   FinancialProfileRepositoryImpl buildRepo() =>
       FinancialProfileRepositoryImpl(firestore, uid);
 
-  CollectionReference<Map<String, dynamic>> _dataRef() {
+  CollectionReference<Map<String, dynamic>> dataRef() {
     return firestore.collection('users').doc(uid).collection('data');
   }
 
-  DocumentReference<Map<String, dynamic>> _profileDoc() {
-    return _dataRef().doc('financial_profile');
+  DocumentReference<Map<String, dynamic>> profileDoc() {
+    return dataRef().doc('financial_profile');
   }
 
   setUp(() {
@@ -31,7 +31,7 @@ void main() {
   });
 
   test('getProfile maps document to entity when present', () async {
-    await _profileDoc().set({
+    await profileDoc().set({
       'income': 1200,
       'monthlyBudget': 800,
       'incomeUpdatedAt': '2026-04-01T10:00:00.000',
@@ -55,22 +55,19 @@ void main() {
 
     await repo.updateProfile(profile);
 
-    final snapshot = await _profileDoc().get();
+    final snapshot = await profileDoc().get();
     expect(snapshot.exists, isTrue);
     expect(snapshot.data()!['income'], 1000);
     expect(snapshot.data()!['monthlyBudget'], 700);
   });
 
   test('deleteProfile deletes document', () async {
-    await _profileDoc().set({
-      'income': 1000,
-      'monthlyBudget': 700,
-    });
+    await profileDoc().set({'income': 1000, 'monthlyBudget': 700});
 
     final repo = buildRepo();
     await repo.deleteProfile();
 
-    final snapshot = await _profileDoc().get();
+    final snapshot = await profileDoc().get();
     expect(snapshot.exists, isFalse);
   });
 }

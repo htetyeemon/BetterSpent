@@ -169,8 +169,10 @@ class AppProvider extends ChangeNotifier implements ExpenseActionProvider {
 
   void _setupStreams() => _setupStreamsImpl(this);
 
+  @override
   Future<void> addExpense(Expense expense) => _addExpenseImpl(this, expense);
 
+  @override
   Future<void> updateExpense(Expense expense) =>
       _updateExpenseImpl(this, expense);
 
