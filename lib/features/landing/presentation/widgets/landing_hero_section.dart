@@ -34,7 +34,7 @@ class LandingHeroSection extends StatelessWidget {
               const TextSpan(text: 'Better '),
               TextSpan(
                 text: 'spending',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary),
+                style: titleStyle.copyWith(color: AppColors.primary),
               ),
               const TextSpan(text: ', smarter habits.'),
             ],
@@ -87,5 +87,3 @@ class LandingHeroSection extends StatelessWidget {
     );
   }
 }
-
-

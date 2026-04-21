@@ -28,13 +28,7 @@ class LandingTopBar extends StatelessWidget {
       child: Text('Launch App'),
     );
 
-    return Row(
-      children: [
-        const LandingLogo(),
-        const Spacer(),
-        launchButton,
-      ],
-    );
+    return Row(children: [const LandingLogo(), const Spacer(), launchButton]);
   }
 }
 
@@ -49,13 +43,14 @@ class LandingLogo extends StatelessWidget {
           width: AppConstants.iconLg,
           height: AppConstants.iconLg,
           decoration: BoxDecoration(
-            color: AppColors.primary,
             borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+            border: Border.all(color: AppColors.borderLight),
           ),
-          child: const Icon(
-            Icons.check,
-            color: Colors.black,
-            size: 20,
+          clipBehavior: Clip.antiAlias,
+          child: Image.asset(
+            'assets/images/logo.jpg',
+            fit: BoxFit.cover,
+            semanticLabel: 'BetterSpent logo',
           ),
         ),
         const SizedBox(width: AppConstants.spacingSm),
@@ -67,4 +62,3 @@ class LandingLogo extends StatelessWidget {
     );
   }
 }
-
