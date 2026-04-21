@@ -7,6 +7,7 @@ import 'package:better_spent/domain/usecases/get_max_spend_per_day_use_case.dart
 import 'package:better_spent/domain/usecases/get_monthly_summary_use_case.dart';
 import 'package:better_spent/domain/usecases/get_spending_by_category_use_case.dart';
 import 'package:better_spent/domain/usecases/get_weekly_summary_use_case.dart';
+import 'package:better_spent/features/summary/presentation/view_models/summary_view_model.dart';
 
 Expense _expense({
   required String id,
@@ -38,7 +39,11 @@ void main() {
     final useCase = GetWeeklySummaryUseCase();
     final now = DateTime.now();
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final start = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
+    final start = DateTime(
+      startOfWeek.year,
+      startOfWeek.month,
+      startOfWeek.day,
+    );
 
     final expenses = [
       _expense(id: '1', amount: 10, category: 'Food', date: start),
@@ -74,45 +79,71 @@ void main() {
     expect(result.averagePerDay, closeTo(40 / totalDaysInMonth, 0.0001));
   });
 
-  test('GetDailyStreakUseCase counts consecutive days from today', () {
+  test('GetDailyStreakUseCase counts consecutive days up to last expense', () {
     final useCase = GetDailyStreakUseCase();
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final referenceNow = DateTime(2026, 1, 4, 22, 0);
+    final day1 = DateTime(2026, 1, 1, 9, 0);
+    final day2 = DateTime(2026, 1, 2, 9, 0);
+    final day3 = DateTime(2026, 1, 3, 23, 0);
 
     final expenses = [
-      _expense(id: '1', amount: 5, category: 'Food', date: today),
-      _expense(
-        id: '2',
-        amount: 5,
-        category: 'Food',
-        date: today.subtract(const Duration(days: 1)),
-      ),
-      _expense(
-        id: '3',
-        amount: 5,
-        category: 'Food',
-        date: today.subtract(const Duration(days: 2)),
-      ),
+      _expense(id: '1', amount: 5, category: 'Food', date: day1),
+      _expense(id: '2', amount: 5, category: 'Food', date: day2),
+      _expense(id: '3', amount: 5, category: 'Food', date: day3),
     ];
 
-    expect(useCase.execute(expenses), 3);
+    // On the next day, streak stays visible until 24 hours after the last entry.
+    expect(useCase.execute(expenses, now: referenceNow), 3);
   });
 
-  test('GetDailyStreakUseCase returns 0 when no expense today', () {
+  test('GetDailyStreakUseCase returns 0 when last expense is over 24h ago', () {
     final useCase = GetDailyStreakUseCase();
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final referenceNow = DateTime(2026, 1, 4, 10, 0);
 
     final expenses = [
       _expense(
         id: '1',
         amount: 5,
         category: 'Food',
-        date: today.subtract(const Duration(days: 1)),
+        date: DateTime(2026, 1, 3, 9, 0), // 25 hours ago
       ),
     ];
 
-    expect(useCase.execute(expenses), 0);
+    expect(useCase.execute(expenses, now: referenceNow), 0);
+  });
+
+  test('GetDailyStreakUseCase counts including today when expense exists', () {
+    final useCase = GetDailyStreakUseCase();
+    final referenceNow = DateTime(2026, 1, 4, 10, 0);
+
+    final expenses = [
+      _expense(
+        id: '1',
+        amount: 5,
+        category: 'Food',
+        date: DateTime(2026, 1, 1, 9, 0),
+      ),
+      _expense(
+        id: '2',
+        amount: 5,
+        category: 'Food',
+        date: DateTime(2026, 1, 2, 9, 0),
+      ),
+      _expense(
+        id: '3',
+        amount: 5,
+        category: 'Food',
+        date: DateTime(2026, 1, 3, 9, 0),
+      ),
+      _expense(
+        id: '4',
+        amount: 5,
+        category: 'Food',
+        date: DateTime(2026, 1, 4, 8, 0),
+      ),
+    ];
+
+    expect(useCase.execute(expenses, now: referenceNow), 4);
   });
 
   test('GetMaxSpendPerDayUseCase uses days in current month', () {
@@ -132,11 +163,31 @@ void main() {
       _expense(id: '3', amount: 25, category: 'Bills', date: now),
     ];
 
-    final result = useCase.execute(expenses, monthlyBudget: 100);
+    final result = useCase.execute(expenses, budget: 100);
     expect(result.length, 2);
     expect(result.first.category, 'Food');
     expect(result.first.amount, 40);
     expect(result.first.percentage, 40);
+  });
+
+  test('SummaryViewModel uses weekly budget for category percentages', () {
+    final now = DateTime.now();
+    final expenses = [
+      _expense(id: '1', amount: 35, category: 'Food', date: now),
+    ];
+
+    final vm = SummaryViewModel.fromData(
+      expenses: expenses,
+      currencySymbol: '\$',
+      monthlyBudget: 300,
+      income: 1000,
+      maxSpendPerDay: 10, // weekly budget = 70
+      selectedPeriod: 'This Week',
+    );
+
+    expect(vm.categorySpending.length, 1);
+    expect(vm.categorySpending.first.category, 'Food');
+    expect(vm.categorySpending.first.percentage, closeTo(50, 0.0001));
   });
 
   test('GetInsightsPredictionUseCase flags zero remaining budget', () {

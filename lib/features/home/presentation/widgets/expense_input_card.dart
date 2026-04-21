@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -33,12 +34,19 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
   final GeminiService _geminiService = GeminiService();
   bool _isSubmitting = false;
   String? _progressMessage;
+  Timer? _progressTimer;
+  int _progressMessageIndex = 0;
   Expense? _pendingPreview;
   int _pendingCount = 0;
   static const int _maxAiInputWords = 500;
+  static const List<String> _aiProgressMessages = [
+    'Analyzing with AI parser...',
+    'Almost there...',
+  ];
 
   @override
   void dispose() {
+    _stopProgressTimer();
     _inputController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -92,12 +100,15 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
     setState(() => _isSubmitting = true);
     try {
       setState(() {
-        _progressMessage = 'Analyzing with AI parser...';
+        _progressMessageIndex = 0;
+        _progressMessage = _aiProgressMessages.first;
         _pendingPreview = null;
         _pendingCount = 0;
       });
+      _startProgressTimer();
 
       final aiParsedList = await _geminiService.parseExpenseInputs(rawInput);
+      _stopProgressTimer();
 
       final expenses = aiParsedList
           .map(
@@ -160,6 +171,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
             : '${validated.length} expenses added',
       );
     } catch (e, st) {
+      _stopProgressTimer();
       debugPrint('AI expense parse failed: $e');
       debugPrintStack(stackTrace: st);
       if (!mounted) return;
@@ -172,6 +184,7 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
       );
     } finally {
       if (mounted) {
+        _stopProgressTimer();
         setState(() {
           _isSubmitting = false;
           _progressMessage = null;
@@ -180,5 +193,25 @@ class _ExpenseInputCardState extends State<ExpenseInputCard> {
         });
       }
     }
+  }
+
+  void _startProgressTimer() {
+    _stopProgressTimer();
+    _progressTimer = Timer.periodic(const Duration(milliseconds: 1400), (_) {
+      if (!mounted) return;
+      if (!_isSubmitting) return;
+      if (_progressMessage == null) return;
+
+      _progressMessageIndex =
+          (_progressMessageIndex + 1) % _aiProgressMessages.length;
+      setState(() {
+        _progressMessage = _aiProgressMessages[_progressMessageIndex];
+      });
+    });
+  }
+
+  void _stopProgressTimer() {
+    _progressTimer?.cancel();
+    _progressTimer = null;
   }
 }

@@ -28,11 +28,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
   Widget build(BuildContext context) {
     final expenses = context.select((AppProvider p) => p.expenses);
     final currencySymbol = context.select((AppProvider p) => p.currencySymbol);
-    final monthlyBudget =
-        context.select((AppProvider p) => p.profile.monthlyBudget);
+    final monthlyBudget = context.select(
+      (AppProvider p) => p.profile.monthlyBudget,
+    );
     final income = context.select((AppProvider p) => p.profile.income);
-    final maxSpendPerDay =
-        context.select((AppProvider p) => p.maxSpendPerDay);
+    final maxSpendPerDay = context.select((AppProvider p) => p.maxSpendPerDay);
 
     final vm = SummaryViewModel.fromData(
       expenses: expenses,
@@ -99,6 +99,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
                   SummaryCategoryList(
                     categorySpending: vm.categorySpending,
                     currencySymbol: vm.currencySymbol,
+                    budgetLabel: _selectedPeriod == 'This Week'
+                        ? 'weekly'
+                        : 'monthly',
                   ),
 
                   const SizedBox(height: AppConstants.spacingXl),
@@ -120,6 +123,4 @@ class _SummaryScreenState extends State<SummaryScreen> {
       ),
     );
   }
-
 }
-

@@ -9,11 +9,13 @@ import 'category_spending_card.dart';
 class SummaryCategoryList extends StatelessWidget {
   final List<CategorySpending> categorySpending;
   final String currencySymbol;
+  final String budgetLabel;
 
   const SummaryCategoryList({
     super.key,
     required this.categorySpending,
     required this.currencySymbol,
+    required this.budgetLabel,
   });
 
   @override
@@ -34,14 +36,13 @@ class SummaryCategoryList extends StatelessWidget {
       children: categorySpending
           .map(
             (cs) => Padding(
-              padding: const EdgeInsets.only(
-                bottom: AppConstants.spacingMd,
-              ),
+              padding: const EdgeInsets.only(bottom: AppConstants.spacingMd),
               child: CategorySpendingCard(
                 category: cs.category.toUpperCase(),
                 amount: cs.amount,
                 percentage: cs.percentage,
                 currencySymbol: currencySymbol,
+                budgetLabel: budgetLabel,
               ),
             ),
           )

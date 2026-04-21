@@ -15,7 +15,7 @@ class CategorySpending {
 class GetSpendingByCategoryUseCase {
   List<CategorySpending> execute(
     List<Expense> expenses, {
-    required double monthlyBudget,
+    required double budget,
   }) {
     if (expenses.isEmpty) return [];
 
@@ -26,15 +26,12 @@ class GetSpendingByCategoryUseCase {
     }
 
     return categoryTotals.entries.map((entry) {
-      final percentage = monthlyBudget > 0
-          ? (entry.value / monthlyBudget) * 100
-          : 0.0;
+      final percentage = budget > 0 ? (entry.value / budget) * 100 : 0.0;
       return CategorySpending(
         category: entry.key,
         amount: entry.value,
         percentage: percentage,
       );
-    }).toList()
-      ..sort((a, b) => b.amount.compareTo(a.amount));
+    }).toList()..sort((a, b) => b.amount.compareTo(a.amount));
   }
 }

@@ -11,6 +11,7 @@ class CategorySpendingCard extends StatelessWidget {
   final double amount;
   final double percentage;
   final String currencySymbol;
+  final String budgetLabel;
 
   const CategorySpendingCard({
     super.key,
@@ -18,6 +19,7 @@ class CategorySpendingCard extends StatelessWidget {
     required this.amount,
     required this.percentage,
     required this.currencySymbol,
+    required this.budgetLabel,
   });
 
   String _formatPercentage(double value) {
@@ -76,7 +78,7 @@ class CategorySpendingCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${_formatPercentage(percentage)}% of monthly budget',
+                    '${_formatPercentage(percentage)}% of $budgetLabel budget',
                     style: AppTextStyles.bodySmall,
                   ),
                 ],

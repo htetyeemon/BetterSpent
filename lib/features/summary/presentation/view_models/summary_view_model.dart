@@ -38,8 +38,10 @@ class SummaryViewModel {
     required double maxSpendPerDay,
     required String selectedPeriod,
   }) {
-    final needsSetup =
-        _computeNeedsSetup(monthlyBudget: monthlyBudget, income: income);
+    final needsSetup = _computeNeedsSetup(
+      monthlyBudget: monthlyBudget,
+      income: income,
+    );
     final periodExpenses = _computePeriodExpenses(
       expenses: expenses,
       selectedPeriod: selectedPeriod,
@@ -58,9 +60,13 @@ class SummaryViewModel {
       avgPerDay = monthlySummary.averagePerDay;
     }
 
+    final categoryBudget = selectedPeriod == 'This Week'
+        ? (maxSpendPerDay * 7)
+        : monthlyBudget;
+
     final categorySpending = GetSpendingByCategoryUseCase().execute(
       periodExpenses,
-      monthlyBudget: monthlyBudget,
+      budget: categoryBudget,
     );
 
     final insight = GetInsightsPredictionUseCase().execute(
@@ -115,8 +121,11 @@ class SummaryViewModel {
     if (selectedPeriod == 'This Week') {
       return expenses.where((e) {
         final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-        final start =
-            DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
+        final start = DateTime(
+          startOfWeek.year,
+          startOfWeek.month,
+          startOfWeek.day,
+        );
         return !e.date.isBefore(start);
       }).toList();
     }
@@ -125,5 +134,4 @@ class SummaryViewModel {
       return e.date.year == now.year && e.date.month == now.month;
     }).toList();
   }
-
 }
