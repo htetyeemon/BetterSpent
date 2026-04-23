@@ -66,8 +66,23 @@ class BetterSpentApp extends StatelessWidget {
       routerConfig: AppRouter.appRouter,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.background,
         canvasColor: AppColors.background,
+        dialogBackgroundColor: AppColors.surface,
+        colorScheme: const ColorScheme.dark(
+          primary: AppColors.primary,
+          onPrimary: Colors.black,
+          secondary: AppColors.secondary,
+          onSecondary: Colors.black,
+          surface: AppColors.surface,
+          onSurface: AppColors.textPrimary,
+          error: AppColors.error,
+          onError: Colors.black,
+        ).copyWith(
+          background: AppColors.background,
+          onBackground: AppColors.textPrimary,
+        ),
       ),
     );
   }

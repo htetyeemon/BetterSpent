@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../widgets/filter_chip_row.dart';
 import '../widgets/expense_list_content.dart';
 import '../../../../core/utils/bottom_nav_helper.dart';
+import '../../../../core/widgets/app_date_range_picker.dart';
 
 class ExpenseListScreen extends StatefulWidget {
   const ExpenseListScreen({super.key});
@@ -31,7 +32,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
 
   Future<void> _pickAllTimeRange() async {
     final now = DateTime.now();
-    final picked = await showDateRangePicker(
+    final picked = await showAppDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
       lastDate: DateTime(now.year, now.month, now.day),
