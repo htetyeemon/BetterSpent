@@ -1,11 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../domain/entities/expense.dart';
 import 'expense_list_entry.dart';
 
 List<Expense> filterExpenses(
   List<Expense> expenses,
-  String filter,
-) {
+  String filter, {
+  DateTimeRange? allTimeDateRange,
+}) {
   final now = DateTime.now();
   switch (filter) {
     case 'Today':
@@ -24,7 +26,14 @@ List<Expense> filterExpenses(
           .where((e) => e.date.year == now.year && e.date.month == now.month)
           .toList();
     default:
-      return expenses;
+      final range = allTimeDateRange;
+      if (range == null) return expenses;
+      final start = DateTime(range.start.year, range.start.month, range.start.day);
+      final endExclusive = DateTime(range.end.year, range.end.month, range.end.day)
+          .add(const Duration(days: 1));
+      return expenses
+          .where((e) => !e.date.isBefore(start) && e.date.isBefore(endExclusive))
+          .toList();
   }
 }
 

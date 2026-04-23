@@ -18,10 +18,15 @@ import 'expense_list_helpers.dart';
 
 class ExpenseListContent extends StatefulWidget {
   final String selectedFilter;
+  final DateTimeRange? allTimeDateRange;
   static final DateFormat _dayFormatter = DateFormat('MMM d, yyyy');
   static final DateFormat _timeFormatter = DateFormat('MMM d, h:mm a');
 
-  const ExpenseListContent({super.key, required this.selectedFilter});
+  const ExpenseListContent({
+    super.key,
+    required this.selectedFilter,
+    this.allTimeDateRange,
+  });
 
   @override
   State<ExpenseListContent> createState() => _ExpenseListContentState();
@@ -31,6 +36,7 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
   static const int _pageSize = 50;
   List<Expense>? _cachedExpenses;
   String? _cachedFilter;
+  DateTimeRange? _cachedAllTimeDateRange;
   int _cachedVisibleCount = 0;
   List<Expense> _cachedFiltered = const [];
   Map<String, List<Expense>> _cachedGrouped = const {};
@@ -38,8 +44,18 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
   List<ExpenseListEntry> _cachedEntries = const [];
   int _visibleCount = _pageSize;
 
-  List<Expense> _filterExpenses(List<Expense> expenses, String filter) {
-    return filterExpenses(expenses, filter);
+  bool _isSameRange(DateTimeRange? a, DateTimeRange? b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    return a.start == b.start && a.end == b.end;
+  }
+
+  List<Expense> _filterExpenses(
+    List<Expense> expenses,
+    String filter,
+    DateTimeRange? allTimeDateRange,
+  ) {
+    return filterExpenses(expenses, filter, allTimeDateRange: allTimeDateRange);
   }
 
   Map<String, List<Expense>> _groupByDate(List<Expense> expenses) {
@@ -47,7 +63,8 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
   }
 
   void _ensureCache(List<Expense> expenses) {
-    final filterChanged = _cachedFilter != widget.selectedFilter;
+    final filterChanged = _cachedFilter != widget.selectedFilter ||
+        !_isSameRange(_cachedAllTimeDateRange, widget.allTimeDateRange);
     if (filterChanged) {
       _visibleCount = _pageSize;
     }
@@ -59,7 +76,12 @@ class _ExpenseListContentState extends State<ExpenseListContent> {
 
     _cachedExpenses = expenses;
     _cachedFilter = widget.selectedFilter;
-    _cachedFiltered = _filterExpenses(expenses, widget.selectedFilter);
+    _cachedAllTimeDateRange = widget.allTimeDateRange;
+    _cachedFiltered = _filterExpenses(
+      expenses,
+      widget.selectedFilter,
+      widget.allTimeDateRange,
+    );
     final visibleFiltered = _cachedFiltered.length > _visibleCount
         ? _cachedFiltered.sublist(0, _visibleCount)
         : _cachedFiltered;

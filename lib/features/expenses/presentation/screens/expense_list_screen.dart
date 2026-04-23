@@ -5,6 +5,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/bottom_navigation.dart';
 import '../../../../core/router/route_names.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../widgets/filter_chip_row.dart';
 import '../widgets/expense_list_content.dart';
 import '../../../../core/utils/bottom_nav_helper.dart';
@@ -18,6 +19,27 @@ class ExpenseListScreen extends StatefulWidget {
 class _ExpenseListScreenState extends State<ExpenseListScreen> {
   String _selectedFilter = 'All Time';
   int _currentNavIndex = 1;
+  DateTimeRange? _allTimeDateRange;
+
+  static final DateFormat _rangeFormatter = DateFormat('MMM d, yyyy');
+
+  String _allTimeRangeLabel() {
+    final range = _allTimeDateRange;
+    if (range == null) return 'Filter expenses by date';
+    return '${_rangeFormatter.format(range.start)} – ${_rangeFormatter.format(range.end)}';
+  }
+
+  Future<void> _pickAllTimeRange() async {
+    final now = DateTime.now();
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(now.year, now.month, now.day),
+      initialDateRange: _allTimeDateRange,
+    );
+    if (picked == null) return;
+    setState(() => _allTimeDateRange = picked);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +73,42 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
               },
             ),
             const SizedBox(height: AppConstants.spacingMd),
+            if (_selectedFilter == 'All Time')
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppConstants.spacingLg,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _pickAllTimeRange,
+                        icon: const Icon(Icons.date_range),
+                        label: Text(_allTimeRangeLabel()),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.textPrimary,
+                          side: const BorderSide(color: AppColors.borderDark),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppConstants.spacingMd,
+                            vertical: AppConstants.spacingSm,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (_allTimeDateRange != null) ...[
+                      const SizedBox(width: AppConstants.spacingSm),
+                      IconButton(
+                        tooltip: 'Clear date filter',
+                        onPressed: () => setState(() => _allTimeDateRange = null),
+                        icon: const Icon(Icons.clear),
+                        color: AppColors.textSecondary,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            if (_selectedFilter == 'All Time')
+              const SizedBox(height: AppConstants.spacingMd),
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppConstants.spacingLg,
@@ -75,7 +133,12 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
             const SizedBox(height: AppConstants.spacingMd),
 
             Expanded(
-              child: ExpenseListContent(selectedFilter: _selectedFilter),
+              child: ExpenseListContent(
+                selectedFilter: _selectedFilter,
+                allTimeDateRange: _selectedFilter == 'All Time'
+                    ? _allTimeDateRange
+                    : null,
+              ),
             ),
 
             BottomNavigation(
