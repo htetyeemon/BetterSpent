@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/app_text_styles.dart';
 import '../../../../../core/constants/app_constants.dart';
@@ -16,7 +18,25 @@ class GetStartedScreen extends StatefulWidget {
 }
 
 class _GetStartedScreenState extends State<GetStartedScreen> {
+  static final Uri _privacyPolicyUrl = Uri.parse(
+    'https://docs.google.com/document/d/1VkJrC_UXMXWg5vJxUJmKeiafqMbCqrJCPiTMRQCk3-4/edit?usp=sharing',
+  );
+
+  late final TapGestureRecognizer _privacyPolicyRecognizer;
   bool _agreedToTerms = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _privacyPolicyRecognizer = TapGestureRecognizer()
+      ..onTap = () => unawaited(_openPrivacyPolicy());
+  }
+
+  @override
+  void dispose() {
+    _privacyPolicyRecognizer.dispose();
+    super.dispose();
+  }
 
   void _handleGetStarted() {
     unawaited(_handleGetStartedAsync());
@@ -26,6 +46,10 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     await AppLaunchService.markGetStartedSeen();
     if (!mounted) return;
     context.go(RouteNames.home);
+  }
+
+  Future<void> _openPrivacyPolicy() async {
+    await launchUrl(_privacyPolicyUrl, mode: LaunchMode.externalApplication);
   }
 
   @override
@@ -110,10 +134,24 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                           ),
                         ),
                         Expanded(
-                          child: Text(
-                            'I agree to the Terms and Privacy Policy.',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textPrimary,
+                          child: RichText(
+                            text: TextSpan(
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textPrimary,
+                              ),
+                              children: [
+                                const TextSpan(
+                                  text: 'I agree to the Terms and ',
+                                ),
+                                TextSpan(
+                                  text: 'Privacy Policy',
+                                  recognizer: _privacyPolicyRecognizer,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                                const TextSpan(text: '.'),
+                              ],
                             ),
                           ),
                         ),
@@ -148,4 +186,3 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     );
   }
 }
-
